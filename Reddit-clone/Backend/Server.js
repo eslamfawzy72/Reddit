@@ -20,8 +20,13 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
-// register routes (middleware)
+// user routes (middleware)
 app.use("/users", userRoutes);
+
+// Posts routes(middleware)
+
+
+
 
 const PORT = process.env.PORT
 
