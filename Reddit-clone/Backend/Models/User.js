@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   interests: [String],
   upvotedPosts: [String],
   downvotedPosts: [String],
-  historyPosts: [String]
+  historyPosts: [String],
+  joinedCommunities:[{ type: mongoose.Schema.Types.ObjectId, ref: "Community" }]
 });
 
 export default mongoose.model("User", userSchema);
