@@ -1,10 +1,13 @@
 import UsersList from "./Components/users"
-import Card from "./Components/card"
+import Chats from "./Components/chats"
+
+
 function App() {
 
   return (
     <>
-   <Card></Card>
+   <Chats/>
+
     </>
   )
 }
