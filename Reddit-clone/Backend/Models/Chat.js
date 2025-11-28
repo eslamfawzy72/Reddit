@@ -1,9 +1,23 @@
+
 import mongoose from "mongoose";
 
 const chatSchema = new mongoose.Schema({
-  chatID: { type: String, required: true, unique: true },
-  userIDs: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  media: [{ type: String }]
-});
+  participants: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
+  ],
+  isGroupChat: { type: Boolean, default: false },
+  name: { type: String, default: null }, // group name optional
+  lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: "Message", default: null },
+  updatedAt: { type: Date, default: Date.now }
+}, { timestamps: true });
 
-export default mongoose.model("Chat",chatSchema)
+
+chatSchema.index({ participants: 1, updatedAt: -1 });
+
+chatSchema.index(
+  { participants: 1 },
+  { unique: false, partialFilterExpression: { isGroupChat: false } }
+);
+
+const Chat = mongoose.model("Chat", chatSchema);
+export default Chat;
