@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
   upvotedPosts: [String],
   downvotedPosts: [String],
   historyPosts: [String],
+  followers:[{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   joinedCommunities:[{ type: mongoose.Schema.Types.ObjectId, ref: "Community" }]
-});
+},{ collection: "users" }
+);
 
 export default mongoose.model("User", userSchema);

@@ -10,7 +10,7 @@ function UsersList() {
         setUsers(data);
       })
       .catch((err) => console.error("Error fetching users:", err));
-  }, []);
+  },[]);
 
   return (
     <div>

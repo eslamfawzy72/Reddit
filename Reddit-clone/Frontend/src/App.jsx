@@ -1,10 +1,10 @@
 import UsersList from "./Components/users"
-
+import Card from "./Components/card"
 function App() {
 
   return (
     <>
-   <UsersList/>
+   <Card></Card>
     </>
   )
 }

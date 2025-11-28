@@ -15,14 +15,13 @@ app.get("/", (req, res) => {
   res.send("Backend is running!");
 });
 
-
+//connection to db
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
 // user routes (middleware)
 app.use("/users", userRoutes);
-
 // Posts routes(middleware)
 
 

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
+// Recursive comment schema
 const commentSchema = new Schema({
   commentID: { type: String, required: true, unique: true },
   userID: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -7,7 +9,11 @@ const commentSchema = new Schema({
   description: { type: String, required: true },
   edited: { type: Boolean, default: false },
   date: { type: Date, default: Date.now },
-  replys: [this] // recursive schema for replies
+  replys: [] 
 });
 
-export default mongoose.model("Comment",commentSchema);
+// Make replies recursive
+commentSchema.add({ replys: [commentSchema] });
+
+export default mongoose.model("Comment", commentSchema);
+export { commentSchema };
