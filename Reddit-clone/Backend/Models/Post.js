@@ -6,7 +6,7 @@ const postSchema = new Schema({
   date: { type: Date, default: Date.now },
   postID: { type: String, required: true, unique: true },
   communityID: { type: Schema.Types.ObjectId, ref: "Community" },
-  category: { type: String },
+  categories: [{ type: String }],
   userID: { type: Schema.Types.ObjectId, ref: "User" },
   description: { type: String },
   images: [{ type: String }],

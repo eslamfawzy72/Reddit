@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllPosts,getPostByID,getPostByCategory,createPost,getUserByID} from "../Controllers/PostController.js";
+import { getAllPosts,getPostByID,getPostByCategory,createPost,getUserByID,deletePostByID} from "../Controllers/PostController.js";
 
 
 const router = express.Router();
@@ -12,6 +12,8 @@ router.post('/',createPost)
 router.get('/category/:postCategory',getPostByCategory)
 //get post by id
 router.get('/:postID',getPostByID)
+//delete post by id
+router.delete('/:postID',deletePostByID)
 //get user 
 router.get('/:postID/user/:userID',getUserByID)
 

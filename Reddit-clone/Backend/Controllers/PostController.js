@@ -27,14 +27,14 @@ export async function getPostByID(req,res){
         res.status(500).json({ error: err.message })
     }
 }
-
 export async function getPostByCategory(req, res) {
   try {
     const postCat = req.params.postCategory;
 
-    const posts = await Post.find({ category: postCat });
+    const posts = await Post.find({
+      categories: { $in: [postCat] }
+    });
 
-    // Check for empty array
     if (posts.length === 0) {
       return res.status(404).json({ message: "Posts Not Found!" });
     }
@@ -46,6 +46,7 @@ export async function getPostByCategory(req, res) {
     res.status(500).json({ error: "Server Error" });
   }
 }
+
 export async function createPost(req, res) {
   try {
     const {
@@ -101,6 +102,20 @@ export async function getUserByID(req, res) {
 
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function deletePostByID(req, res) {
+  try {
+    const id = req.params.postID;
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json("Post not found!");
+    } 
+    await Post.deleteOne({ _id: id });
+    res.json("Post has been deleted!");
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
