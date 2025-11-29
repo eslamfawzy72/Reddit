@@ -1,40 +1,24 @@
+// src/components/PrimarySearchAppBar.jsx
+
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import MailIcon from '@mui/icons-material/Mail';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
-import redditLogo from "./assets/reddit.webp";
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
-
-
-const Search = styled('div')(({ theme }) => ({
+const SearchContainer = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
+  '&:hover': { backgroundColor: alpha(theme.palette.common.white, 0.25) },
+  marginLeft: theme.spacing(3),
   width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
+  [theme.breakpoints.up('sm')]: { width: 'auto' },
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -51,344 +35,175 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '20ch',
+      width: '40ch',
+      '&:focus': { width: '50ch' },
     },
   },
 }));
 
-export default function PrimarySearchAppBar(props) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+export default function PrimarySearchAppBar({ 
+  loggedin = false,
+  searchFunction,           // ← REQUIRED: (query) => { results, renderItem }
+  onResultClick,            // ← REQUIRED: (result) => void
+  placeholder = "Search Bluedit…",
+  fullSearchLabel = "Search for"
+}) {
+  const [query, setQuery] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [results, setResults] = React.useState([]);
+  const [renderItem, setRenderItem] = React.useState(null);
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  // Run the search function whenever query changes
+  React.useEffect(() => {
+    if (query.trim() && searchFunction) {
+      const { results, renderItem } = searchFunction(query);
+      setResults(results);
+      setRenderItem(() => renderItem);
+    } else {
+      setResults([]);
+      setRenderItem(null);
+    }
+  }, [query, searchFunction]);
+
+  const handleItemClick = (item) => {
+    onResultClick?.(item);
+    setQuery('');
+    setOpen(false);
   };
 
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const menuId = 'primary-search-account-menu';
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
-  if(props.loggedin===true){
   return (
-  <navbar style={{ width: '100%' }}>
-    <AppBar 
-  position="fixed" 
-  sx={{ 
-    top: 0,
-    width: '100%',
-    backgroundColor: 'rgba(27, 0, 123, 0.93)' // <-- your new vibe
-  }}
->
-      <Toolbar>
-     <img 
-  src={redditLogo} 
-  alt="navbar"
-  style={{
-    height: '30px',
-    objectFit: 'contain',
-    cursor: 'pointer'
-  }}
-/>
-
-
-
-
-      <Typography
-  variant="h6"
-  noWrap
-  component="div"
-  sx={{
-    display: { xs: 'none', sm: 'block' },
-    fontFamily: '"Poppins", sans-serif',
-    fontWeight: 700,
-    letterSpacing: '1px',
-    textTransform: 'uppercase'
-  }}
->
-  Bluedit
-</Typography>
-
-
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
-
-        <Box sx={{ flexGrow: 1 }} />
-
-
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <Button
-  variant="contained"
-  startIcon={<AddIcon />}
-  sx={{
-    mr: 2,
-    backgroundColor: '#008cffff',
-    color: 'white',
-    fontWeight: 600,
-    textTransform: 'none',
-    borderRadius: '20px',
-    px: 2,
-    '&:hover': {
-      backgroundColor: '#00e047ff'
-    }
-  }}
->
-  Create
-</Button>
-          <IconButton size="large" color="inherit">
-            <Badge badgeContent={4} color="error">
-              <MailIcon />
-            </Badge>
-          </IconButton>
-
-          <IconButton size="large" color="inherit">
-            <Badge badgeContent={17} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-
-          <IconButton
-            size="large"
-            edge="end"
-            aria-controls={menuId}
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit"
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="fixed" sx={{ backgroundColor: 'rgba(27, 0, 123, 0.93)' }}>
+        <Toolbar>
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              fontFamily: '"Poppins", sans-serif',
+              fontWeight: 700,
+              letterSpacing: '1px',
+              mr: 3,
+            }}
           >
-            <AccountCircle />
-          </IconButton>
-        </Box>
+            Bluedit
+          </Typography>
 
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <IconButton
-            size="large"
-            aria-controls={mobileMenuId}
-            aria-haspopup="true"
-            onClick={handleMobileMenuOpen}
-            color="inherit"
-          >
-            <MoreIcon />
-          </IconButton>
-        </Box>
-      </Toolbar>
-    </AppBar>
+          {/* REUSABLE SEARCH BAR — LOGIC COMES FROM PROPS */}
+          <Box sx={{ position: 'relative', flexGrow: 1, maxWidth: 720 }}>
+            <SearchContainer>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder={placeholder}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setOpen(true);
+                }}
+                onFocus={() => setOpen(true)}
+              />
+            </SearchContainer>
 
-    {renderMobileMenu}
-    {renderMenu}
-  </navbar>
-);
-  }
-  else{
- return (
-  <navbar style={{ width: '100%' }}>
-    <AppBar 
-  position="fixed" 
-  sx={{ 
-    top: 0,
-    width: '100%',
-    backgroundColor: 'rgba(27, 0, 123, 0.93)' // <-- your new vibe
-  }}
->
-      <Toolbar>
-     <img 
-  src={redditLogo} 
-  alt="navbar"
-  style={{
-    height: '30px',
-    objectFit: 'contain',
-    cursor: 'pointer'
-  }}
-/>
+            {/* LIGHT BLUE DROPDOWN — FULLY CONTROLLED BY searchFunction */}
+            {open && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: '#e3f2fd',
+                  border: '1px solid #bbdefb',
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                  mt: 1,
+                  maxHeight: 500,
+                  overflow: 'auto',
+                  zIndex: 1300,
+                }}
+              >
+                {results.length === 0 ? (
+                  <Box sx={{ p: 3, color: '#1565c0', textAlign: 'center', fontWeight: 500 }}>
+                    {query ? 'No results found' : 'Start typing...'}
+                  </Box>
+                ) : (
+                  results.map((item, i) => (
+                    <Box
+                      key={item.id || i}
+                      onClick={() => handleItemClick(item)}
+                      sx={{
+                        p: 2,
+                        cursor: 'pointer',
+                        backgroundColor: i % 2 === 0 ? '#e3f2fd' : '#bbdefb',
+                        '&:hover': { backgroundColor: '#90caf9' },
+                        transition: 'background-color 0.2s',
+                      }}
+                    >
+                      {renderItem && renderItem(item)}
+                    </Box>
+                  ))
+                )}
 
+                {query && results.length > 0 && (
+                  <Box
+                    onClick={() => handleItemClick({ type: 'full-search', query })}
+                    sx={{
+                      p: 2.5,
+                      borderTop: '2px solid #90caf9',
+                      backgroundColor: '#bbdefb',
+                      fontWeight: 700,
+                      color: '#0d47a1',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: '#90caf9' },
+                    }}
+                  >
+                    {fullSearchLabel} "{query}"
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Box>
 
+          <Box sx={{ flexGrow: 1 }} />
 
+          {/* RIGHT BUTTONS */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+            {loggedin ? (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                sx={{
+                  backgroundColor: '#008cffff',
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 3,
+                  '&:hover': { backgroundColor: '#00e047' },
+                }}
+              >
+                Create
+              </Button>
+            ) : (
+              <>
+                <Button variant="contained" sx={{ backgroundColor: '#ea00ffff', borderRadius: '20px', px: 3 }}>
+                  Log In
+                </Button>
+                <Button variant="contained" sx={{ backgroundColor: '#ff0000ff', borderRadius: '20px', px: 3 }}>
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-      <Typography
-  variant="h6"
-  noWrap
-  component="div"
-  sx={{
-    display: { xs: 'none', sm: 'block' },
-    fontFamily: '"Poppins", sans-serif',
-    fontWeight: 700,
-    letterSpacing: '1px',
-    textTransform: 'uppercase'
-  }}
->
-  Bluedit
-</Typography>
-
-
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
-
-        <Box sx={{ flexGrow: 1 }} />
-
-
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <Button
-  variant="contained"
-  startIcon={<AddIcon />}
-  sx={{
-    mr: 2,
-    backgroundColor: '#ea00ffff',
-    color: 'white',
-    fontWeight: 600,
-    textTransform: 'none',
-    borderRadius: '20px',
-    px: 2,
-    '&:hover': {
-      backgroundColor: '#00e047ff'
-    }
-  }}
->
-  Log in
-</Button>
-          
-
-          
-
-           <Button
-  variant="contained"
-  startIcon={<AddIcon />}
-  sx={{
-    mr: 2,
-    backgroundColor: '#ff0000ff',
-    color: 'white',
-    fontWeight: 600,
-    textTransform: 'none',
-    borderRadius: '20px',
-    px: 2,
-    '&:hover': {
-      backgroundColor: '#00e047ff'
-    }
-  }}
->
-  Sign Up
-</Button>
-        </Box>
-
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <IconButton
-            size="large"
-            aria-controls={mobileMenuId}
-            aria-haspopup="true"
-            onClick={handleMobileMenuOpen}
-            color="inherit"
-          >
-            <MoreIcon />
-          </IconButton>
-        </Box>
-      </Toolbar>
-    </AppBar>
-
-    {renderMobileMenu}
-    {renderMenu}
-  </navbar>
-);
-  }
-
+      <Toolbar />
+    </Box>
+  );
 }
