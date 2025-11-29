@@ -5,7 +5,11 @@ import bcrypt from "bcrypt";
 //get all users
 export async function getAllUsers(req, res) {
   try {
-    const users = await User.find({},'-password');
+    const users = await User.find({}, '-password');
+    if (users.length === 0) {
+      return
+    }
+
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -13,16 +17,16 @@ export async function getAllUsers(req, res) {
 }
 
 //get user by id
-export async function getUserByID(req,res){
-  try{
-  const userId=req.params.userID
-  const user= await User.findById(userId,"-password")
-  if(!user){
-    res.status(404).json("user not found!")
-  }
-  res.json(user)
-  }catch(err){
-    res.status(500).json({err:err.message})
+export async function getUserByID(req, res) {
+  try {
+    const userId = req.params.userID
+    const user = await User.findById(userId, "-password")
+    if (!user) {
+      res.status(404).json("user not found!")
+    }
+    res.json(user)
+  } catch (err) {
+    res.status(500).json({ err: err.message })
   }
 }
 //get user by username
@@ -42,48 +46,50 @@ export async function getUserByName(req, res) {
   }
 }
 
-export async function deleteUserByID(req,res) {
-  try{
-    const id=req.params.userID
-    const user=await User.findById(id)
-    if(!user){
-         return res.status(404).json("User not found!");
+export async function deleteUserByID(req, res) {
+  try {
+    const id = req.params.userID
+    const user = await User.findById(id)
+    if (!user) {
+      return res.status(404).json("User not found!");
     }
-    const username=user.userName
-    await User.deleteOne({_id:id})
+    const username = user.userName
+    await User.deleteOne({ _id: id })
     res.json(`user ${username} have been deleted!`)
-  }catch(err){
+  } catch (err) {
     res.status(500).json({ error: err.message });
 
   }
 }
 export async function getUserCommunities(req, res) {
   try {
-  const user = await User.findById(req.params.userID);
+    const user = await User.findById(req.params.userID);
 
-  if (!user) return res.status(404).json("User not found!");
-  console.log("joinedCommunities:", user.joinedCommunities);
+    if (!user) return res.status(404).json("User not found!");
+    console.log("joinedCommunities:", user.joinedCommunities);
 
-  const communities=await Community.find({_id:{
-    $in:user.joinedCommunities}
-  })
-  res.json(communities);
+    const communities = await Community.find({
+      _id: {
+        $in: user.joinedCommunities
+      }
+    })
+    res.json(communities);
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
-export async function getUserFollowers(req,res){
-  try{
-  const user=await User.findById(req.params.userID)
-  if (!user) return res.status(404).json("User not found!");
-  const followers=await User.find({_id:{$in:user.followers}})
-  res.json(followers)
-} catch (err) {
+export async function getUserFollowers(req, res) {
+  try {
+    const user = await User.findById(req.params.userID)
+    if (!user) return res.status(404).json("User not found!");
+    const followers = await User.find({ _id: { $in: user.followers } })
+    res.json(followers)
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
-export async function getSpecificPosts(req, res){
+export async function getSpecificPosts(req, res) {
 
   try {
     const { field, userID } = req.params;
@@ -97,7 +103,7 @@ export async function getSpecificPosts(req, res){
     const user = await User.findById(userID);
 
     if (!user) return res.status(404).json({ error: "User not found" });
-    const Posts=await Post.find({_id:{$in:user[field]}})
+    const Posts = await Post.find({ _id: { $in: user[field] } })
     res.json(Posts);
 
   } catch (error) {
@@ -106,7 +112,7 @@ export async function getSpecificPosts(req, res){
   }
 };
 
-export async function addNewUser(req,res){
+export async function addNewUser(req, res) {
 
   try {
     const { userName, email, password, description, image, interests } = req.body;
@@ -121,8 +127,8 @@ export async function addNewUser(req,res){
     const newUser = new User({
       userName,
       email,
-      password:hashedPassword,
-      createdAt:new Date(), 
+      password: hashedPassword,
+      createdAt: new Date(),
       description: description || "",
       image: image || "",
       interests: interests || [],
@@ -143,14 +149,14 @@ export async function addNewUser(req,res){
 
 
 }
-export async function updateUser(req,res){
- try {
+export async function updateUser(req, res) {
+  try {
     const { userID } = req.params;
     const updates = { ...req.body }; // all fields sent in body
 
     //id and email can not be updated
     delete updates._id;
-    delete updates.email; 
+    delete updates.email;
 
     // id password updated so, bcrybt it first
     if (updates.password) {
@@ -176,7 +182,15 @@ export async function updateUser(req,res){
     res.status(500).json({ error: "Server error" });
   }
 }
-
+export async function getUserPosts(req, res) {
+  try {
+    const Id = req.params.userID;
+    const posts = await Post.find({ userID: Id });
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 
 
