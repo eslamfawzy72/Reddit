@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/UserRouter.js";
+import commentRouter from "./routes/CommentRouter.js";
 dotenv.config(); // load .env
 
 const app = express();
@@ -24,6 +25,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/users", userRoutes);
 // Posts routes(middleware)
 
+// comment routes(middleware)
+app.use("/comments", commentRouter);
 
 
 
