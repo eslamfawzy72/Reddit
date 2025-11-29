@@ -6,6 +6,9 @@ import bcrypt from "bcrypt";
 export async function getAllUsers(req, res) {
   try {
     const users = await User.find({},'-password');
+    if(!users){
+      return
+    }
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -176,7 +179,15 @@ export async function updateUser(req,res){
     res.status(500).json({ error: "Server error" });
   }
 }
-
+export async function getUserPosts(req, res) {
+  try {
+    const Id = req.params.userID;
+    const posts = await Post.find({ userID: Id });
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 
 

@@ -1,7 +1,7 @@
 import express from "express";
 import {getAllUsers,getUserByID, getUserByName,
     deleteUserByID,getUserCommunities,getUserFollowers
-    ,getSpecificPosts,addNewUser,updateUser} from "../Controllers/UserController.js";
+    ,getSpecificPosts,addNewUser,updateUser,getUserPosts} from "../Controllers/UserController.js";
 
 
 const router = express.Router();
@@ -17,6 +17,8 @@ router.get("/communities/:userID",getUserCommunities)
 //get user Followers
 router.get("/followers/:userID",getUserFollowers)
 //get posts
+router.get("/userposts/:userID",getUserPosts)
+//get specific posts
 router.get("/posts/:field/:userID",getSpecificPosts)
 //get user by ID
 router.get("/:userID",getUserByID);
@@ -24,7 +26,7 @@ router.get("/:userID",getUserByID);
 router.delete("/:userID",deleteUserByID);
 //update user will be used in edit profile
 router.patch("/:userID",updateUser)
-
+//follow and unfollow user
 
 
 export default router;

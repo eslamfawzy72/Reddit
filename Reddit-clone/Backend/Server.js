@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/UserRouter.js";
+import PostRouter from "./routes/PostRouter.js";
 dotenv.config(); // load .env
 
 const app = express();
@@ -23,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI)
 // user routes (middleware)
 app.use("/users", userRoutes);
 // Posts routes(middleware)
-
+app.use("/posts", PostRouter);
 
 
 
