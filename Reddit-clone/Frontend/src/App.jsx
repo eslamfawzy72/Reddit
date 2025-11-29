@@ -1,5 +1,7 @@
 import PrimarySearchAppBar from "./Components/appbar";
-import CommentSection from "./comments";
+import CommentSection from "./Components/comments";
+import NotificationPage from "./Components/notificationpage";
+import SidebarLeft from "./Components/LeftSidePanel";
 
 const sampleComments = [
   {
@@ -20,7 +22,8 @@ const sampleComments = [
 function App() {
   return (
     <>
-      <CommentSection initialComments={sampleComments} />
+      <PrimarySearchAppBar></PrimarySearchAppBar>
+      <SidebarLeft></SidebarLeft>
     </>
   );
 }
