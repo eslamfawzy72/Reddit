@@ -10,8 +10,14 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
-import ClickAwayListener from '@mui/material/ClickAwayListener'; // ← NEW
+import IconButton from '@mui/material/IconButton';
+import MailIcon from '@mui/icons-material/Mail';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 
+import UserMenu from './UserMenu';
+
+// -------- SEARCH STYLING --------
 const SearchContainer = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -45,18 +51,22 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+// -------- MAIN COMPONENT --------
 export default function PrimarySearchAppBar({
   loggedin = false,
   searchFunction,
   onResultClick,
   placeholder = "Search Bluedit…",
-  fullSearchLabel = "Search for"
+  fullSearchLabel = "Search for",
+  darkMode,
+  setDarkMode
 }) {
   const [query, setQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [results, setResults] = React.useState([]);
   const [renderItem, setRenderItem] = React.useState(null);
 
+  // Search logic
   React.useEffect(() => {
     if (query.trim() && searchFunction) {
       const { results, renderItem } = searchFunction(query);
@@ -74,14 +84,13 @@ export default function PrimarySearchAppBar({
     setOpen(false);
   };
 
-  const handleClickAway = () => {
-    setOpen(false);
-  };
+  const handleClickAway = () => setOpen(false);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="fixed" sx={{ backgroundColor: 'rgba(27, 0, 123, 0.93)' }}>
         <Toolbar>
+          {/* LOGO */}
           <Typography
             variant="h6"
             noWrap
@@ -96,7 +105,7 @@ export default function PrimarySearchAppBar({
             Bluedit
           </Typography>
 
-          {/* CLICK AWAY WRAPPER */}
+          {/* SEARCH */}
           <ClickAwayListener onClickAway={handleClickAway}>
             <Box sx={{ position: 'relative', flexGrow: 1, maxWidth: 720 }}>
               <SearchContainer>
@@ -114,7 +123,7 @@ export default function PrimarySearchAppBar({
                 />
               </SearchContainer>
 
-              {/* DROPDOWN — CLOSES WHEN CLICKING OUTSIDE */}
+              {/* DROPDOWN */}
               {open && (
                 <Box
                   sx={{
@@ -154,6 +163,7 @@ export default function PrimarySearchAppBar({
                     ))
                   )}
 
+                  {/* FULL SEARCH BUTTON */}
                   {query && results.length > 0 && (
                     <Box
                       onClick={() => handleItemClick({ type: 'full-search', query })}
@@ -176,25 +186,42 @@ export default function PrimarySearchAppBar({
             </Box>
           </ClickAwayListener>
 
+          {/* SPACER */}
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* RIGHT BUTTONS */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+          {/* RIGHT SIDE BUTTONS */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1.5 }}>
             {loggedin ? (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{
-                  backgroundColor: '#008cffff',
-                  borderRadius: '20px',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 3,
-                  '&:hover': { backgroundColor: '#00e047' },
-                }}
-              >
-                Create
-              </Button>
+              <>
+                {/* DM ICON */}
+                <IconButton size="large" sx={{ color: "white" }}>
+                  <MailIcon />
+                </IconButton>
+
+                {/* NOTIFICATIONS ICON */}
+                <IconButton size="large" sx={{ color: "white" }}>
+                  <NotificationsIcon />
+                </IconButton>
+
+                {/* CREATE BUTTON */}
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  sx={{
+                    backgroundColor: '#008cffff',
+                    borderRadius: '20px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 3,
+                    '&:hover': { backgroundColor: '#00e047' },
+                  }}
+                >
+                  Create
+                </Button>
+
+                {/* USER MENU */}
+                <UserMenu darkMode={darkMode} setDarkMode={setDarkMode} />
+              </>
             ) : (
               <>
                 <Button variant="contained" sx={{ backgroundColor: '#ea00ffff', borderRadius: '20px', px: 3 }}>
