@@ -224,7 +224,7 @@ const NotificationPage = () => {
 
   return (
     <div style={{ backgroundColor: '#DAE0E6', minHeight: '100vh' }}>
-      <Navbar />
+     
 
       {/* Main Center Only */}
       <main
