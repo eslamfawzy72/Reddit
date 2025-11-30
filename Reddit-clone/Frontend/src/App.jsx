@@ -1,8 +1,10 @@
-import PrimarySearchAppBar from "./Components/appbar";
-import CommentSection from "./Components/comments";
-import NotificationPage from "./Components/notificationpage";
-import SidebarLeft from "./Components/LeftSidePanel";
-
+import PrimarySearchAppBar from "./Components/appbar.jsx";
+import CommentSection from "./Components/comments.jsx";
+import NotificationPage from "./Components/notificationpage.jsx";
+import SidebarLeft from "./Components/LeftSidePanel.jsx";
+import Chats from "./Components/chats.jsx";
+import SidebarRight from "./Components/CommunityRightSideBar.jsx";
+import CommunityHeader from "./Components/communityheader.jsx";
 const sampleComments = [
   {
     id: 1,
@@ -21,10 +23,7 @@ const sampleComments = [
 
 function App() {
   return (
-    <>
-      <PrimarySearchAppBar></PrimarySearchAppBar>
-      <SidebarLeft></SidebarLeft>
-    </>
+        <CommunityHeader/>
   );
 }
 
