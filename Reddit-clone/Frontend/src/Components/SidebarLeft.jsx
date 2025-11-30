@@ -1,12 +1,12 @@
+// src/components/SidebarLeft.jsx
 import React, { useState } from "react";
 
 export default function SidebarLeft() {
   const [isOpen, setIsOpen] = useState(true);
 
-  const navItems = [
+ const navItems = [
     { name: "Home", icon: "🏠" },
     { name: "Popular", icon: "🔥" },
-    { name: "Answers", icon: "💬", badge: "BETA" },
     { name: "Explore", icon: "🔍" },
     { name: "All", icon: "📚" },
   ];
@@ -37,10 +37,12 @@ export default function SidebarLeft() {
   return (
     <div
       style={{
-        width: isOpen ? "260px" : "0px",
+        width: isOpen ? "260px" : "60px",     // ← Only this width
+        flexShrink: 0,                        // ← NEVER shrinks or pushes content
         background: "#e6f0ff",
-        padding: isOpen ? "10px" : "0px",
+        padding: isOpen ? "10px" : "10px 5px",
         overflowY: "auto",
+        overflowX: "hidden",
         transition: "width 0.3s ease",
         position: "sticky",
         top: 0,
@@ -49,45 +51,31 @@ export default function SidebarLeft() {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      {/* Hamburger menu */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: "block",
-          marginBottom: "10px",
-          background: "#cce0ff",
-          border: "none",
-          padding: "8px",
-          cursor: "pointer",
-          color: "#003366",
-          fontWeight: "bold",
-        }}
-      >
-        ☰
-      </button>
+      {/* Toggle Button */}
+      
 
       {isOpen && (
         <>
           {/* Header */}
-          <h2 style={{ marginBottom: "10px", color: "#0055cc" }}>Bluedit</h2>
+          <h2 style={{ margin: "0 0 20px 0", color: "#0055cc" }}>Bluedit</h2>
 
           {/* Navigation */}
-          <h3 style={{ color: "#0055cc" }}>Navigation</h3>
+          <h3 style={{ color: "#0055cc", margin: "10px 0" }}>Navigation</h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
             {navItems.map((item) => (
-              <li key={item.name}>
-                <div style={itemStyle} onClick={() => {}}>
+              <li key={item.name} style={{ marginBottom: "6px" }}>
+                <div style={itemStyle} onClick={() => console.log(item.name)}>
                   <span>
                     {item.icon} {item.name}
                   </span>
-                  {item.badge && <span style={badgeStyle}>{item.badge}</span>}
+                  {item.name === "Popular" && <span style={badgeStyle}>HOT</span>}
                 </div>
               </li>
             ))}
           </ul>
 
           {/* Start a Community Button */}
-          <div style={{ marginTop: "20px" }}>
+          <div style={{ marginTop: "30px" }}>
             <button
               style={{
                 width: "100%",
@@ -101,12 +89,26 @@ export default function SidebarLeft() {
               }}
               onClick={() => alert("Open CreateCommunityForm page")}
             >
-              ➕ Start a Community
+              Start a Community
             </button>
           </div>
         </>
       )}
+
+      {/* Collapsed: show only icons */}
+      {!isOpen && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "20px" }}>
+          {navItems.map((item) => (
+            <div
+              key={item.name}
+              style={{ fontSize: "24px", textAlign: "center", cursor: "pointer" }}
+              title={item.name}
+            >
+              {item.icon}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-

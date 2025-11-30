@@ -1,29 +1,16 @@
-import PrimarySearchAppBar from "./Components/appbar.jsx";
-import CommentSection from "./Components/comments.jsx";
-import NotificationPage from "./Components/notificationpage.jsx";
-import SidebarLeft from "./Components/LeftSidePanel.jsx";
-import Chats from "./Components/chats.jsx";
-import SidebarRight from "./Components/CommunityRightSideBar.jsx";
+import PrimarySearchAppBar from "./Components/PrimarySearchAppBar.jsx";
+import CommentSection from "./Components/CommentSection.jsx";
+
+import SidebarLeft from "./Components/SidebarLeft.jsx";
+
+import SidebarRight from "./Components/SidebarRighr.jsx";
 import CommunityHeader from "./Components/communityheader.jsx";
-const sampleComments = [
-  {
-    id: 1,
-    username: 'jane_doe',
-    avatar: 'JD',
-    timestamp: '3 hours ago',
-    text: 'Top-level comment',
-    votes: 1520,
-    isOP: true,
-    isMod: false,
-    awards: ['Gold'],
-    replies: [],
-    createdAt: Date.now() - 10800000
-  }
-];
+import CommunityCard from "./Components/CommunityCard.jsx";
+import Explore from "./Full Pages/Explore.jsx";
 
 function App() {
   return (
-        <CommunityHeader/>
+       <Explore></Explore>
   );
 }
 

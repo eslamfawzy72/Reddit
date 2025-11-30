@@ -10,6 +10,7 @@ import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
+import ClickAwayListener from '@mui/material/ClickAwayListener'; // ← NEW
 
 const SearchContainer = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -44,10 +45,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function PrimarySearchAppBar({ 
+export default function PrimarySearchAppBar({
   loggedin = false,
-  searchFunction,           // ← REQUIRED: (query) => { results, renderItem }
-  onResultClick,            // ← REQUIRED: (result) => void
+  searchFunction,
+  onResultClick,
   placeholder = "Search Bluedit…",
   fullSearchLabel = "Search for"
 }) {
@@ -56,7 +57,6 @@ export default function PrimarySearchAppBar({
   const [results, setResults] = React.useState([]);
   const [renderItem, setRenderItem] = React.useState(null);
 
-  // Run the search function whenever query changes
   React.useEffect(() => {
     if (query.trim() && searchFunction) {
       const { results, renderItem } = searchFunction(query);
@@ -71,6 +71,10 @@ export default function PrimarySearchAppBar({
   const handleItemClick = (item) => {
     onResultClick?.(item);
     setQuery('');
+    setOpen(false);
+  };
+
+  const handleClickAway = () => {
     setOpen(false);
   };
 
@@ -92,83 +96,85 @@ export default function PrimarySearchAppBar({
             Bluedit
           </Typography>
 
-          {/* REUSABLE SEARCH BAR — LOGIC COMES FROM PROPS */}
-          <Box sx={{ position: 'relative', flexGrow: 1, maxWidth: 720 }}>
-            <SearchContainer>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder={placeholder}
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setOpen(true);
-                }}
-                onFocus={() => setOpen(true)}
-              />
-            </SearchContainer>
+          {/* CLICK AWAY WRAPPER */}
+          <ClickAwayListener onClickAway={handleClickAway}>
+            <Box sx={{ position: 'relative', flexGrow: 1, maxWidth: 720 }}>
+              <SearchContainer>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder={placeholder}
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setOpen(true);
+                  }}
+                  onFocus={() => setOpen(true)}
+                />
+              </SearchContainer>
 
-            {/* LIGHT BLUE DROPDOWN — FULLY CONTROLLED BY searchFunction */}
-            {open && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: 0,
-                  right: 0,
-                  backgroundColor: '#e3f2fd',
-                  border: '1px solid #bbdefb',
-                  borderRadius: 3,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                  mt: 1,
-                  maxHeight: 500,
-                  overflow: 'auto',
-                  zIndex: 1300,
-                }}
-              >
-                {results.length === 0 ? (
-                  <Box sx={{ p: 3, color: '#1565c0', textAlign: 'center', fontWeight: 500 }}>
-                    {query ? 'No results found' : 'Start typing...'}
-                  </Box>
-                ) : (
-                  results.map((item, i) => (
+              {/* DROPDOWN — CLOSES WHEN CLICKING OUTSIDE */}
+              {open && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    backgroundColor: '#e3f2fd',
+                    border: '1px solid #bbdefb',
+                    borderRadius: 3,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    mt: 1,
+                    maxHeight: 500,
+                    overflow: 'auto',
+                    zIndex: 1300,
+                  }}
+                >
+                  {results.length === 0 ? (
+                    <Box sx={{ p: 3, color: '#1565c0', textAlign: 'center', fontWeight: 500 }}>
+                      {query ? 'No results found' : 'Start typing...'}
+                    </Box>
+                  ) : (
+                    results.map((item, i) => (
+                      <Box
+                        key={item.id || i}
+                        onClick={() => handleItemClick(item)}
+                        sx={{
+                          p: 2,
+                          cursor: 'pointer',
+                          backgroundColor: i % 2 === 0 ? '#e3f2fd' : '#bbdefb',
+                          '&:hover': { backgroundColor: '#90caf9' },
+                          transition: 'background-color 0.2s',
+                        }}
+                      >
+                        {renderItem && renderItem(item)}
+                      </Box>
+                    ))
+                  )}
+
+                  {query && results.length > 0 && (
                     <Box
-                      key={item.id || i}
-                      onClick={() => handleItemClick(item)}
+                      onClick={() => handleItemClick({ type: 'full-search', query })}
                       sx={{
-                        p: 2,
+                        p: 2.5,
+                        borderTop: '2px solid #90caf9',
+                        backgroundColor: '#bbdefb',
+                        fontWeight: 700,
+                        color: '#0d47a1',
+                        textAlign: 'center',
                         cursor: 'pointer',
-                        backgroundColor: i % 2 === 0 ? '#e3f2fd' : '#bbdefb',
                         '&:hover': { backgroundColor: '#90caf9' },
-                        transition: 'background-color 0.2s',
                       }}
                     >
-                      {renderItem && renderItem(item)}
+                      {fullSearchLabel} "{query}"
                     </Box>
-                  ))
-                )}
-
-                {query && results.length > 0 && (
-                  <Box
-                    onClick={() => handleItemClick({ type: 'full-search', query })}
-                    sx={{
-                      p: 2.5,
-                      borderTop: '2px solid #90caf9',
-                      backgroundColor: '#bbdefb',
-                      fontWeight: 700,
-                      color: '#0d47a1',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      '&:hover': { backgroundColor: '#90caf9' },
-                    }}
-                  >
-                    {fullSearchLabel} "{query}"
-                  </Box>
-                )}
-              </Box>
-            )}
-          </Box>
+                  )}
+                </Box>
+              )}
+            </Box>
+          </ClickAwayListener>
 
           <Box sx={{ flexGrow: 1 }} />
 
