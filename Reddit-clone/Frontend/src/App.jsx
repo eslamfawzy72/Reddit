@@ -1,6 +1,7 @@
 import UsersList from "./Components/users"
 import Chats from "./Components/chats"
 import CreatePost from "./Components/createpost"
+import SignUp from "./Pages/Signup"
 import { AppBar } from "@mui/material"
 import CreateCommunity from "./Components/createcommunity"
 import PrimarySearchAppBar from "./Components/appbar"
@@ -134,7 +135,7 @@ function App() {
 
   return (
     <>
-   <PrimarySearchAppBar
+   {/* <PrimarySearchAppBar
       loggedin={true}
       searchFunction={searchEverything}  // ← can be any of the 3
       onResultClick={(result) => {
@@ -142,8 +143,8 @@ function App() {
         if (result.type === 'user') alert(`View ${result.display}`);
         if (result.type === 'full-search') alert(`Searching: ${result.query}`);
       }}
-    />
-
+    /> */}
+<SignUp />
     </>
   )
 }
