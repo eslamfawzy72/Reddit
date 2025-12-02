@@ -39,7 +39,6 @@ const theme = createTheme({
   typography: { fontFamily: '"Inter", sans-serif' },
 });
 
-// Available users to start new chats
 const availableUsers = [
   { id: 6, name: "Jordan Lee", avatarUrl: null },
   { id: 7, name: "Taylor Swift", avatarUrl: "https://randomuser.me/api/portraits/women/65.jpg" },
@@ -51,7 +50,6 @@ const availableUsers = [
   { id: 13, name: "Ariana Grande", avatarUrl: "https://randomuser.me/api/portraits/women/33.jpg" },
 ];
 
-// Initial chats
 const initialChats = [
   {
     id: 1,
@@ -141,7 +139,6 @@ function ChatAvatar({ name, avatarUrl, ...props }) {
   );
 }
 
-// File Preview before sending
 function FilePreview({ files, onRemove }) {
   if (files.length === 0) return null;
 
@@ -166,9 +163,7 @@ function FilePreview({ files, onRemove }) {
               }}
             >
               {isImage && <img src={url} alt={file.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
-              {isVideo && (
-                <video src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />
-              )}
+              {isVideo && <video src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />}
               {!isImage && !isVideo && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "gray" }}>
                   <InsertDriveFileIcon sx={{ fontSize: 40 }} />
@@ -192,7 +187,6 @@ function FilePreview({ files, onRemove }) {
   );
 }
 
-// New Chat Dialog
 function AddChatDialog({ open, onClose, chats, setChats, setSelectedChat }) {
   const [searchQuery, setSearchQuery] = useState("");
   const filteredUsers = availableUsers.filter((user) =>
@@ -202,6 +196,7 @@ function AddChatDialog({ open, onClose, chats, setChats, setSelectedChat }) {
   const handleStartChat = (user) => {
     const now = new Date();
     const exists = chats.some((c) => c.id === user.id);
+
     if (exists) {
       setSelectedChat(chats.find((c) => c.id === user.id));
       onClose();
@@ -243,6 +238,7 @@ function AddChatDialog({ open, onClose, chats, setChats, setSelectedChat }) {
             sx={{ bgcolor: "#111827", borderRadius: 2, px: 2, py: 1, color: "white" }}
           />
         </Box>
+
         <List sx={{ maxHeight: 400, overflow: "auto" }}>
           {filteredUsers.length === 0 ? (
             <Typography sx={{ p: 3, textAlign: "center", color: "gray" }}>No users found</Typography>
@@ -264,35 +260,69 @@ function AddChatDialog({ open, onClose, chats, setChats, setSelectedChat }) {
   );
 }
 
-// Sidebar
 function ChatSidebar({ chats, selectedChat, setSelectedChat, setChats }) {
   const [addChatOpen, setAddChatOpen] = useState(false);
   const sortedChats = [...chats].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
     <>
-      <Box sx={{ width: "30%", minWidth: 320, bgcolor: "#020617", height: "100vh", display: "flex", flexDirection: "column" }}>
-        <Box sx={{ p: 2, borderBottom: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight="bold" color="primary">Chats</Typography>
+      {/* Responsive Sidebar */}
+      <Box
+        sx={{
+          width: { xs: "100%", sm: "380px" },
+          maxWidth: { xs: "100%", sm: 420 },
+          minWidth: { xs: "100%", sm: 320 },
+          bgcolor: "#020617",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          borderRight: { sm: "1px solid #1e293b" },
+          flexShrink: 0,
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            borderBottom: "1px solid #1e293b",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold" color="primary">
+            Chats
+          </Typography>
+
           <Button variant="contained" color="success" size="small" startIcon={<WavingHandIcon />} onClick={() => setAddChatOpen(true)}>
             New Chat
           </Button>
         </Box>
+
         <List sx={{ flexGrow: 1, overflow: "auto" }}>
           {sortedChats.map((chat) => (
             <ListItem key={chat.id} disablePadding>
               <ListItemButton
                 selected={selectedChat?.id === chat.id}
                 onClick={() => setSelectedChat(chat)}
-                sx={{ py: 2, borderBottom: "1px solid #1e293b", "&.Mui-selected": { bgcolor: "#0f172a" } }}
+                sx={{
+                  py: 2,
+                  borderBottom: "1px solid #1e293b",
+                  "&.Mui-selected": { bgcolor: "#0f172a" },
+                }}
               >
                 <ListItemAvatar>
                   <ChatAvatar name={chat.name} avatarUrl={chat.avatarUrl} />
                 </ListItemAvatar>
+
                 <ListItemText
-                  primary={<Typography fontWeight="600">{chat.name}</Typography>}
-                  secondary={<Typography variant="body2" color="gray" noWrap>{chat.lastMessage.content}</Typography>}
+                  primary={<Typography color="white" fontWeight="600">{chat.name}</Typography>}
+                  secondary={
+                    <Typography variant="body2" color="gray" noWrap>
+                      {chat.lastMessage.content}
+                    </Typography>
+                  }
                 />
+
                 <Typography variant="caption" color="gray" sx={{ ml: 2 }}>
                   {formatTimestamp(chat.timestamp)}
                 </Typography>
@@ -301,12 +331,18 @@ function ChatSidebar({ chats, selectedChat, setSelectedChat, setChats }) {
           ))}
         </List>
       </Box>
-      <AddChatDialog open={addChatOpen} onClose={() => setAddChatOpen(false)} chats={chats} setChats={setChats} setSelectedChat={setSelectedChat} />
+
+      <AddChatDialog
+        open={addChatOpen}
+        onClose={() => setAddChatOpen(false)}
+        chats={chats}
+        setChats={setChats}
+        setSelectedChat={setSelectedChat}
+      />
     </>
   );
 }
 
-// Main Chat Panel
 function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
   const [message, setMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState([]);
@@ -336,19 +372,20 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
       });
     }
 
-    attachedFiles.forEach((file) => {
+    attachedFiles.forEach((file) =>
       newMessages.push({
         id: Date.now() + Math.random(),
         senderId: 0,
         type: "file",
-        file: file,
+        file,
         fileName: file.name,
         fileType: file.type,
         time: now,
-      });
-    });
+      })
+    );
 
-    const lastMsgContent = message.trim() || (attachedFiles.length === 1 ? attachedFiles[0].name : `${attachedFiles.length} files`);
+    const lastMsgContent =
+      message.trim() || (attachedFiles.length === 1 ? attachedFiles[0].name : `${attachedFiles.length} files`);
 
     setChats((prev) =>
       prev.map((chat) =>
@@ -363,11 +400,11 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
       )
     );
 
-    setSelectedChat((prev) =>
-      prev?.id === selectedChat.id
-        ? { ...prev, messages: [...prev.messages, ...newMessages], timestamp: now }
-        : prev
-    );
+    setSelectedChat((prev) => ({
+      ...prev,
+      messages: [...prev.messages, ...newMessages],
+      timestamp: now,
+    }));
 
     setMessage("");
     setAttachedFiles([]);
@@ -380,22 +417,28 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
   if (!selectedChat) {
     return (
       <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#0f172a" }}>
-        <Typography variant="h5" color="gray">Select a chat to begin</Typography>
+        <Typography variant="h5" color="gray">
+          Select a chat to begin
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh" }}>
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", bgcolor: "#0f172a" }}>
       {/* Header */}
       <Box sx={{ bgcolor: "#020617", p: 2, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #1e293b" }}>
         <ChatAvatar name={selectedChat.name} avatarUrl={selectedChat.avatarUrl} />
-        <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>{selectedChat.name}</Typography>
-        <IconButton color="primary"><MoreVertIcon /></IconButton>
+        <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
+          {selectedChat.name}
+        </Typography>
+        <IconButton color="primary">
+          <MoreVertIcon />
+        </IconButton>
       </Box>
 
       {/* Messages */}
-      <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2, bgcolor: "#0f172a" }}>
+      <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
         {selectedChat.messages.map((msg) => {
           const isFile = msg.type === "file";
           const isImage = isFile && msg.fileType?.startsWith("image/");
@@ -417,8 +460,20 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
             >
               {isFile && (isImage || isVideo) ? (
                 <Box sx={{ borderRadius: 2, overflow: "hidden", mb: 1 }}>
-                  {isImage && <img src={URL.createObjectURL(msg.file)} alt={msg.fileName} style={{ maxWidth: "100%", borderRadius: 8 }} />}
-                  {isVideo && <video src={URL.createObjectURL(msg.file)} controls style={{ maxWidth: "100%", borderRadius: 8 }} />}
+                  {isImage && (
+                    <img
+                      src={URL.createObjectURL(msg.file)}
+                      alt={msg.fileName}
+                      style={{ maxWidth: "100%", borderRadius: 8, display: "block" }}
+                    />
+                  )}
+                  {isVideo && (
+                    <video
+                      src={URL.createObjectURL(msg.file)}
+                      controls
+                      style={{ maxWidth: "100%", borderRadius: 8, display: "block" }}
+                    />
+                  )}
                 </Box>
               ) : isFile ? (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -428,8 +483,9 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
               ) : (
                 <Typography variant="body1">{msg.content}</Typography>
               )}
-              <Typography variant="caption" sx={{ opacity: 0.7, fontSize: "0.7rem", textAlign: "right", mt: 0.5 }}>
-                {msg.time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+
+              <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.75rem", display: "block", mt: 0.5 }}>
+                {formatTimestamp(msg.time)}
               </Typography>
             </Box>
           );
@@ -437,83 +493,72 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* Input Area */}
-      <Box sx={{ p: 2, bgcolor: "#020617" }}>
+      {/* Input */}
+      <Box sx={{ p: 2, borderTop: "1px solid #1e293b", bgcolor: "#020617" }}>
         <FilePreview files={attachedFiles} onRemove={removeFile} />
 
-        <TextField
-          fullWidth
-          multiline
-          maxRows={5}
-          placeholder="Type a message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendClick();
-            }
-          }}
-          variant="outlined"
-          sx={{
-            bgcolor: "#111827",
-            borderRadius: 3,
-            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-            input: { color: "white" },
-            textarea: { color: "white" },
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton color="primary" component="label">
-                  <input
-                    type="file"
-                    hidden
-                    multiple
-                    accept="image/*,video/*,.pdf,.doc,.docx"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      if (files.length > 0) {
-                        setAttachedFiles((prev) => [...prev, ...files]);
-                      }
-                      e.target.value = "";
-                    }}
-                  />
-                  <AttachFileIcon />
-                </IconButton>
-                <IconButton color="primary"><EmojiEmotionsIcon /></IconButton>
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleSendClick}
-                  disabled={!message.trim() && attachedFiles.length === 0}
-                  sx={{
-                    bgcolor: (message.trim() || attachedFiles.length > 0) ? "#1e90ff" : "transparent",
-                    color: "white",
-                    "&:hover": { bgcolor: (message.trim() || attachedFiles.length > 0) ? "#1e80ff" : "#334155" },
-                  }}
-                >
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton component="label">
+            <AttachFileIcon sx={{ color: "gray" }} />
+            <input
+              type="file"
+              hidden
+              multiple
+              onChange={(e) => {
+                if (e.target.files) setAttachedFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+              }}
+            />
+          </IconButton>
+
+          <TextField
+            fullWidth
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendClick()}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton>
+                    <EmojiEmotionsIcon sx={{ color: "gray" }} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: { borderRadius: "30px", bgcolor: "#0f172a", color: "white" },
+            }}
+          />
+
+          <IconButton color="primary" onClick={handleSendClick} disabled={!message.trim() && attachedFiles.length === 0}>
+            <SendIcon />
+          </IconButton>
+        </Box>
       </Box>
     </Box>
   );
 }
 
-// Main App
-export default function Chats() {
+export default function ChatApp() {
   const [chats, setChats] = useState(initialChats);
-  const [selectedChat, setSelectedChat] = useState(initialChats[0]);
+  const [selectedChat, setSelectedChat] = useState(null);
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden" }}>
+      {/* Full Screen Container */}
+      <Box
+        sx={{
+          display: "flex",
+          height: "100vh",
+          width: "100vw",
+          maxWidth: "100vw",
+          bgcolor: "#0f172a",
+          overflow: "hidden",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          m: 0,
+          p: 0,
+        }}
+      >
         <ChatSidebar chats={chats} selectedChat={selectedChat} setSelectedChat={setSelectedChat} setChats={setChats} />
         <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} chats={chats} setChats={setChats} />
       </Box>

@@ -13,8 +13,12 @@ import CloseIcon from '@mui/icons-material/Close';
 const redditTags = [
   { title: 'Programming' }, { title: 'Gaming' }, { title: 'Movies' }, { title: 'Music' },
   { title: 'Anime' }, { title: 'Technology' }, { title: 'Memes' }, { title: 'Funny' },
-  { title: 'ReactJS' }, { title: 'JavaScript' }, /* ... rest of your tags */
+  { title: 'ReactJS' }, { title: 'JavaScript' }, { title: 'WebDev' }, { title: 'Tailwind' },
+  { title: 'NextJS' }, { title: 'TypeScript' }, { title: 'NodeJS' }, { title: 'CSS' },
 ];
+
+const BLUE = "#0066ff";
+const BLUE_HOVER = "#0055cc";
 
 function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions, mediaFiles, setMediaFiles }) {
   const types = ['Text', 'Media', 'Poll'];
@@ -24,7 +28,6 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
     if (newFiles.length > 0) {
       setMediaFiles((prev) => [...prev, ...newFiles]);
     }
-    // Reset input so same file can be re-selected
     e.target.value = '';
   };
 
@@ -32,14 +35,12 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
     setMediaFiles((prev) => prev.filter((_, i) => i !== indexToRemove));
   };
 
-  // Generate preview URLs
   const mediaPreviews = mediaFiles.map((file) => ({
     url: URL.createObjectURL(file),
     type: file.type.startsWith('video') ? 'video' : 'image',
     name: file.name,
   }));
 
-  // Cleanup object URLs
   React.useEffect(() => {
     return () => mediaPreviews.forEach((p) => URL.revokeObjectURL(p.url));
   }, [mediaFiles]);
@@ -55,7 +56,7 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
             color={typeChosen === type ? 'primary' : 'default'}
             onClick={() => {
               setTypeChosen(type);
-              if (type !== 'Media') setMediaFiles([]); // clear media when switching
+              if (type !== 'Media') setMediaFiles([]);
             }}
             sx={{
               fontWeight: 500,
@@ -63,7 +64,12 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
               py: 1,
               cursor: 'pointer',
               transition: '0.2s',
-              '&:hover': { transform: 'scale(1.05)' },
+              backgroundColor: typeChosen === type ? BLUE : '#272729',
+              color: '#fff',
+              '&:hover': { 
+                bgcolor: typeChosen === type ? BLUE_HOVER : '#343536',
+                transform: 'scale(1.05)'
+              },
             }}
           />
         ))}
@@ -77,11 +83,20 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
           multiline
           rows={8}
           inputProps={{ maxLength: 1000 }}
-          sx={{ width: '100%' }}
+          sx={{
+            width: '100%',
+            '& .MuiOutlinedInput-root': {
+              bgcolor: '#1a1a1b',
+              color: '#EDEFF1',
+              '& fieldset': { borderColor: '#343536' },
+              '&:hover fieldset': { borderColor: '#565656' },
+              '&.Mui-focused fieldset': { borderColor: BLUE },
+            },
+          }}
         />
       )}
 
-      {/* Media Post - Instant Preview */}
+      {/* Media Post */}
       {typeChosen === 'Media' && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <input
@@ -89,90 +104,43 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
             accept="image/*,video/*"
             multiple
             onChange={handleFileChange}
-            style={{ padding: '10px 0', fontSize: '14px' }}
+            style={{ padding: '10px 0', fontSize: '14px', color: '#EDEFF1' }}
           />
 
-          {/* Instant Preview Area */}
           {mediaPreviews.length > 0 && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {mediaPreviews.map((media, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    position: 'relative',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    border: '2px solid #eee',
-                    bgcolor: '#000',
-                  }}
-                >
-                  {/* Close Button */}
+                <Box key={index} sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', border: '2px solid #343536' }}>
                   <IconButton
                     onClick={() => removeMedia(index)}
                     sx={{
                       position: 'absolute',
                       top: 8,
                       right: 8,
-                      bgcolor: 'rgba(0,0,0,0.6)',
+                      bgcolor: 'rgba(0,0,0,0.7)',
                       color: 'white',
                       zIndex: 10,
-                      '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
+                      '&:hover': { bgcolor: 'rgba(0,0,0,0.9)' },
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
 
-                  {/* Image or Video */}
                   {media.type === 'image' ? (
-                    <img
-                      src={media.url}
-                      alt={media.name}
-                      style={{
-                        width: '100%',
-                        maxHeight: '500px',
-                        objectFit: 'contain',
-                        display: 'block',
-                      }}
-                    />
+                    <img src={media.url} alt={media.name} style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block' }} />
                   ) : (
-                    <video
-                      src={media.url}
-                      controls
-                      style={{
-                        width: '100%',
-                        maxHeight: '500px',
-                        objectFit: 'contain',
-                        display: 'block',
-                      }}
-                    />
+                    <video src={media.url} controls style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block' }} />
                   )}
 
-                  {/* File name at bottom */}
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      bgcolor: 'rgba(0,0,0,0.7)',
-                      color: 'white',
-                      textAlign: 'center',
-                      py: 0.5,
-                      fontSize: '12px',
-                    }}
-                  >
+                  <Typography variant="caption" sx={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                    bgcolor: 'rgba(0,0,0,0.8)', color: 'white', textAlign: 'center', py: 0.5, fontSize: '12px'
+                  }}>
                     {media.name}
                   </Typography>
                 </Box>
               ))}
             </Box>
-          )}
-
-          {mediaFiles.length > 0 && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {mediaFiles.length} file(s) attached — click × to remove
-            </Typography>
           )}
         </Box>
       )}
@@ -191,14 +159,28 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
                 newOptions[index] = e.target.value;
                 setPollOptions(newOptions);
               }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#1a1a1b',
+                  color: '#EDEFF1',
+                  '& fieldset': { borderColor: '#343536' },
+                  '&:hover fieldset': { borderColor: '#565656' },
+                  '&.Mui-focused fieldset': { borderColor: BLUE },
+                },
+              }}
             />
           ))}
           <Chip
             label="Add Option"
             clickable
-            color="secondary"
             onClick={() => setPollOptions([...pollOptions, ''])}
-            sx={{ width: 'fit-content', mt: 1 }}
+            sx={{
+              width: 'fit-content',
+              mt: 1,
+              bgcolor: BLUE,
+              color: '#fff',
+              '&:hover': { bgcolor: BLUE_HOVER }
+            }}
           />
         </Box>
       )}
@@ -221,7 +203,7 @@ function FixedTags() {
             key={option.title}
             label={option.title}
             {...getTagProps({ index })}
-            sx={{ backgroundColor: '#ffe082', color: '#5d4037', fontWeight: 500 }}
+            sx={{ bgcolor: BLUE, color: '#fff', fontWeight: 600 }}
           />
         ))
       }
@@ -233,6 +215,15 @@ function FixedTags() {
           placeholder={value.length === 0 ? "Add Tags" : ""}
           variant="outlined"
           size="small"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              bgcolor: '#1a1a1b',
+              color: '#EDEFF1',
+              '& fieldset': { borderColor: '#343536' },
+              '&:hover fieldset': { borderColor: '#565656' },
+              '&.Mui-focused fieldset': { borderColor: BLUE },
+            },
+          }}
         />
       )}
     />
@@ -243,10 +234,25 @@ function ComboBox() {
   return (
     <Autocomplete
       disablePortal
-      options={['adhams', 'Movie Lovers', 'ReactJS', 'Memes', 'Funny']}
+      options={['adhams', 'Movie Lovers', 'ReactJS', 'Memes', 'Funny', 'Bluedit', 'WebDev']}
       sx={{ width: '100%', mb: 2 }}
       renderInput={(params) => (
-        <TextField {...params} label="Community" placeholder="Select Community" variant="outlined" size="small" />
+        <TextField
+          {...params}
+          label="Community"
+          placeholder="Select Community"
+          variant="outlined"
+          size="small"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              bgcolor: '#1a1a1b',
+              color: '#EDEFF1',
+              '& fieldset': { borderColor: '#343536' },
+              '&:hover fieldset': { borderColor: '#565656' },
+              '&.Mui-focused fieldset': { borderColor: BLUE },
+            },
+          }}
+        />
       )}
     />
   );
@@ -260,17 +266,36 @@ function CreatePost() {
   return (
     <React.Fragment>
       <CssBaseline />
-      <Box sx={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', bgcolor: '#DAE0E6', py: 4 }}>
-        <Box sx={{ width: 740, bgcolor: '#ffffff', borderRadius: '4px', border: '1px solid #EDEFF1', overflow: 'hidden' }}>
-          <Box sx={{ bgcolor: '#FFFFFF', padding: '14px 16px', borderBottom: '1px solid #EDEFF1' }}>
-            <Typography variant="h6" sx={{ fontWeight: 500, fontSize: '18px' }}>
+
+      {/* FULL DARK BACKGROUND */}
+      <Box sx={{ position: 'fixed', inset: 0, bgcolor: '#0A0A0A', zIndex: -1 }} />
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', py: 4 }}>
+        <Box sx={{ width: 740, bgcolor: '#1a1a1b', borderRadius: '12px', border: '1px solid #343536', overflow: 'hidden', boxShadow: 3 }}>
+          <Box sx={{ bgcolor: '#030303', padding: '14px 16px', borderBottom: '1px solid #343536' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '18px', color: '#EDEFF1' }}>
               Create a post
             </Typography>
           </Box>
 
           <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <ComboBox />
-            <TextField placeholder="Title" variant="outlined" size="small" inputProps={{ maxLength: 300 }} sx={{ width: '100%' }} />
+            <TextField
+              placeholder="Title"
+              variant="outlined"
+              size="small"
+              inputProps={{ maxLength: 300 }}
+              sx={{
+                width: '100%',
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: '#1a1a1b',
+                  color: '#EDEFF1',
+                  '& fieldset': { borderColor: '#343536' },
+                  '&:hover fieldset': { borderColor: '#565656' },
+                  '&.Mui-focused fieldset': { borderColor: BLUE },
+                },
+              }}
+            />
 
             <PostTypeFilter
               typeChosen={typeChosen}
@@ -287,16 +312,17 @@ function CreatePost() {
               <Box
                 component="button"
                 sx={{
-                  bgcolor: '#0079D3',
+                  bgcolor: BLUE,
                   color: '#fff',
                   border: 'none',
                   borderRadius: '999px',
-                  px: 5,
-                  py: 1.2,
+                  px: 6,
+                  py: 1.5,
                   fontWeight: 700,
-                  fontSize: '14px',
+                  fontSize: '15px',
                   cursor: 'pointer',
-                  '&:hover': { bgcolor: '#0061a8' },
+                  transition: '0.2s',
+                  '&:hover': { bgcolor: BLUE_HOVER, transform: 'scale(1.05)' },
                 }}
               >
                 Post

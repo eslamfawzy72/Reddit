@@ -91,13 +91,24 @@ function Notifications() {
 
       {/* Main content area */}
       <Box
-        sx={{
-          marginLeft: { xs: 0, sm: "260px" },
-          paddingTop: "64px",
-        }}
-      >
-        <NotificationPage></NotificationPage>
-      </Box>
+  sx={{
+    position: "fixed",
+    top: 64,                         // Under navbar
+    left: { xs: 0, sm: 260 },        // Next to sidebar (260px on desktop)
+    right: 0,
+    bottom: 0,
+    overflowY: "auto",               // Only vertical scroll
+    overflowX: "hidden",
+    bgcolor: "#f5f5f5ff",              // Light background (no black!)
+    px: { xs: 2, sm: 4 },            // Nice padding
+    py: 3,
+  }}
+>
+  {/* Optional: center the content like Reddit */}
+  <Box sx={{ maxWidth: "800px", mx: "auto", width: "100%" }}>
+    <NotificationPage />
+  </Box>
+</Box>
     </Box>
   );
 }

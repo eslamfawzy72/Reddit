@@ -223,7 +223,7 @@ const NotificationPage = () => {
   .sort((a, b) => new Date(b.actualDate) - new Date(a.actualDate)); // Sort by date (newest first)
 
   return (
-    <div style={{ backgroundColor: '#DAE0E6', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#ffffffff', minHeight: '100vh' }}>
      
 
       {/* Main Center Only */}

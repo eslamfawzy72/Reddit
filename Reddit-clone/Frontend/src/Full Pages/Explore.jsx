@@ -75,7 +75,7 @@ export const searchEverything = (query) => {
 function Explore() {
   const navigate = useNavigate();
   return (
-    <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
+    <Box sx={{ backgroundColor: "#ffffffff", minHeight: "100vh" }}>
       {/* Fixed top bar */}
       <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <PrimarySearchAppBar
@@ -91,14 +91,25 @@ function Explore() {
       </Box>
 
       {/* Main content area */}
-      <Box onClick={() =>navigate('/Community')} 
-        sx={{
-          marginLeft: { xs: 0, sm: "260px" },
-          paddingTop: "64px",
-        }}
-      >
-        <CommunityCard />
-      </Box>
+      <Box
+  sx={{
+    position: "fixed",
+    top: 64,
+    left: { xs: 0, sm: 260 },
+    right: 0,
+    bottom: 0,
+    overflow: "auto",
+    p: { xs: 2, sm: 3 },
+    scrollbarWidth: "thin",
+    "&::-webkit-scrollbar": { width: 8, height: 8 },
+    "&::-webkit-scrollbar-thumb": { background: "#888", borderRadius: 4 },
+    "& > *": { minWidth: "fit-content" },
+  }}
+>
+  <Box sx={{ minWidth: "max-content" }}>
+    <CommunityCard />
+  </Box>
+</Box>
     </Box>
   );
 }
