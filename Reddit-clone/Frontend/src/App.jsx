@@ -27,6 +27,8 @@ import Explore from "./Full Pages/Explore.jsx";
 import Home from "./Full Pages/Home.jsx";
 import CreatePost from "./Full Pages/CreatePost.jsx";
 import CommunityPage from "./Full Pages/CommunityPage.jsx";
+import UserProfilePage from "./Components/UserProfilePage.jsx"
+import UserPage from "./Full Pages/UserPage.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -50,6 +52,7 @@ function App() {
             <Route path="/Chats" element={<Chats />} />
             <Route path="/CreatePost" element={<CreatePost />} />
             <Route path="/Community" element={<CommunityPage />} />
+            <Route path="/Profile" element={<UserPage />} />
           </Routes>
         </div>
 
