@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const postSchema = new Schema({
   date: { type: Date, default: Date.now },
-  postID: { type: String, required: true, unique: true },
+  postID: { type: String, required: false, unique: true },
   communityID: { type: Schema.Types.ObjectId, ref: "Community" },
   categories: [{ type: String }],
   userID: { type: Schema.Types.ObjectId, ref: "User" },

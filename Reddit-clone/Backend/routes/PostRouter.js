@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllPosts,getPostByID,getPostByCategory,createPost,getUserByID,deletePostByID} from "../Controllers/PostController.js";
+import { getAllPosts,getPostByID,getPostByCategory,createPost,getUserByID,deletePostByID,getSummary, updatePostByID} from "../Controllers/PostController.js";
 
 
 const router = express.Router();
@@ -16,6 +16,9 @@ router.get('/:postID',getPostByID)
 router.delete('/:postID',deletePostByID)
 //get user 
 router.get('/:postID/user/:userID',getUserByID)
-
+//get summary
+router.get('/:postID/summary',getSummary)
+//update post will be used in upvote and comment
+router.patch('/:postID',updatePostByID)
 
 export default router;

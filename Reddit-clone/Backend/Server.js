@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/UserRouter.js";
+import commentRouter from "./routes/CommentRouter.js";
 import PostRouter from "./routes/PostRouter.js";
 import chatRoutes from "./routes/ChatRouter.js";
 import messageRoutes from "./routes/MessageRouter.js";
@@ -33,6 +34,8 @@ app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);       // Chat routes
 app.use("/messages", messageRoutes); // Message routes
 
+// comment routes(middleware)
+app.use("/comments", commentRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
