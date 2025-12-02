@@ -3,6 +3,7 @@ import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
 import CommunityCard from "../Components/CommunityCard";
+import { useNavigate } from "react-router-dom";
 
 // Mock data
 const mockCommunities = [
@@ -72,6 +73,7 @@ export const searchEverything = (query) => {
 };
 
 function Explore() {
+  const navigate = useNavigate();
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
       {/* Fixed top bar */}
@@ -89,7 +91,7 @@ function Explore() {
       </Box>
 
       {/* Main content area */}
-      <Box
+      <Box onClick={() =>navigate('/Community')} 
         sx={{
           marginLeft: { xs: 0, sm: "260px" },
           paddingTop: "64px",

@@ -1,9 +1,9 @@
 // src/components/SidebarLeft.jsx
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export default function SidebarLeft() {
   const [isOpen, setIsOpen] = useState(true);
-
+  const navigate = useNavigate();
  const navItems = [
     { name: "Home", icon: "🏠" },
     { name: "Popular", icon: "🔥" },
@@ -64,7 +64,7 @@ export default function SidebarLeft() {
           <ul style={{ listStyle: "none", padding: 0 }}>
             {navItems.map((item) => (
               <li key={item.name} style={{ marginBottom: "6px" }}>
-                <div style={itemStyle} onClick={() => console.log(item.name)}>
+                <div style={itemStyle} onClick={() => navigate('/' + item.name)}>
                   <span>
                     {item.icon} {item.name}
                   </span>
@@ -87,7 +87,7 @@ export default function SidebarLeft() {
                 cursor: "pointer",
                 fontWeight: "bold",
               }}
-              onClick={() => alert("Open CreateCommunityForm page")}
+              onClick={() => navigate("/StartCommunity")}
             >
               Start a Community
             </button>

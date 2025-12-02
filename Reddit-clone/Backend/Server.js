@@ -7,7 +7,7 @@ import commentRouter from "./routes/CommentRouter.js";
 import PostRouter from "./routes/PostRouter.js";
 import chatRoutes from "./routes/ChatRouter.js";
 import messageRoutes from "./routes/MessageRouter.js";
-
+import communityRouter from "./routes/CommunityRouter.js";
 dotenv.config(); // load .env
 
 const app = express();
@@ -33,6 +33,7 @@ app.use("/users", userRoutes);
 app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);       // Chat routes
 app.use("/messages", messageRoutes); // Message routes
+app.use("/Communities", communityRouter);
 
 // comment routes(middleware)
 app.use("/comments", commentRouter);

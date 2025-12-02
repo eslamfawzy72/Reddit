@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ActionBar.css";
+import "../ActionBar.css";
 import { ArrowUp, ArrowDown, MessageCircle, Share2 } from "lucide-react";
 
 export default function ActionBar(props) {

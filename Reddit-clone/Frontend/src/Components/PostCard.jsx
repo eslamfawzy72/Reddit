@@ -145,7 +145,7 @@ export default function PostCard(props) {
             <img src={props.img_src} style={{ width: '100%' }} />
           </Avatar>
         }
-        title={props.user_name}
+        title={props.userId}
         subheader={props.post_date}
       />
 

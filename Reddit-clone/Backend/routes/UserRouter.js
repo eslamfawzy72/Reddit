@@ -5,7 +5,7 @@ import {getAllUsers,getUserByID, getUserByName,
 
 
 const router = express.Router();
-
+//http:localhost/reddit/users/
 // GET all users
 router.get("/", getAllUsers);
 //add user will be used in sign up

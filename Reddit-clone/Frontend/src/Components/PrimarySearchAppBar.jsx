@@ -14,9 +14,8 @@ import IconButton from '@mui/material/IconButton';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-
+import { useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
-
 // -------- SEARCH STYLING --------
 const SearchContainer = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -66,7 +65,9 @@ export default function PrimarySearchAppBar({
   const [results, setResults] = React.useState([]);
   const [renderItem, setRenderItem] = React.useState(null);
 
-  // Search logic
+  const navigate = useNavigate()
+    // Search logic
+
   React.useEffect(() => {
     if (query.trim() && searchFunction) {
       const { results, renderItem } = searchFunction(query);
@@ -194,17 +195,18 @@ export default function PrimarySearchAppBar({
             {loggedin ? (
               <>
                 {/* DM ICON */}
-                <IconButton size="large" sx={{ color: "white" }}>
+                <IconButton onClick={()=>navigate("/Chats")}size="large" sx={{ color: "white" }}>
                   <MailIcon />
                 </IconButton>
 
                 {/* NOTIFICATIONS ICON */}
-                <IconButton size="large" sx={{ color: "white" }}>
+                
+                <IconButton  onClick={() => navigate("/Notifications")}size="large" sx={{ color: "white" }}>
                   <NotificationsIcon />
                 </IconButton>
 
                 {/* CREATE BUTTON */}
-                <Button
+                <Button onClick={()=>navigate('/CreatePost')}
                   variant="contained"
                   startIcon={<AddIcon />}
                   sx={{
