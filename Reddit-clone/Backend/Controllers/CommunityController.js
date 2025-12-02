@@ -38,6 +38,18 @@ export const getCommunityById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+// Get a single community by ID
+export const getCommunityByName = async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.commName)
+      .populate("members", "username")
+      .populate("moderators", "username");
+    if (!community) return res.status(404).json({ message: "Community not found" });
+    res.status(200).json(community);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Update community (only moderators)
 export const updateCommunity = async (req, res) => {

@@ -7,6 +7,7 @@ import {
   deleteCommunity,
   joinCommunity,
   leaveCommunity,
+  getCommunityByName,
 } from "../Controllers/CommunityController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -15,7 +16,7 @@ const router = express.Router();
 // Public routes
 router.get("/", getAllCommunities);
 router.get("/:id", getCommunityById);
-
+router.get("/name/:commName", getCommunityByName);
 
 // Protected routes
 router.post("/", authMiddleware, createCommunity);
