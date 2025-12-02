@@ -9,10 +9,12 @@ import CommunityCard from "./Components/CommunityCard.jsx";
 import Explore from "./Full Pages/Explore.jsx";
 import CommunityPage from "./Full Pages/CommunityPage.jsx";
 import Notifications from"./Full Pages/Notifications.jsx"
+import CreateCommunity from "./Components/CreateCommunity.jsx";
 function App() {
   return (
       // <Explore></Explore>
-     <Notifications></Notifications>
+      <CreateCommunity></CreateCommunity>
+     
   );
 }
 
