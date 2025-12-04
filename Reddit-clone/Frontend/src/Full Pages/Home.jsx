@@ -10,23 +10,39 @@ const mockPosts = [
   {
     _id: "6929a50c021b68655cbdc96e",
     userId: "6924c11062dbde5200745c28",
-    user_name: "ahmed_dev",                    // You'll probably join user later
+    user_name: "ahmed_dev",
     user_avatar: "https://i.pravatar.cc/48?img=3",
-    description: "eslam howa entaaa??????!",
+    description: "adham howa entaaa??????!",
     images: [
       "https://source.unsplash.com/random/800x600?funny,meme",
     ],
     edited: false,
     upvoteCount: 2,
     downvoteCount: 0,
-    commentCount: 2,
-    date: "2025-11-24T21:46:14.000Z",
-    comments: [],
+    commentCount: 1,
+    date: "2025-11-24T21:46:14.170Z",
     communityId: "6924f0a6098dc4c9933296f0",
-    community_name: "b/funny",                 // You can map this later
+    community_name: "b/funny",
     categories: ["meme", "funny"],
     __v: 1,
+
+    comments: [
+      {
+        userID: "6924c11062dbde5200745c28",
+        username: "eslamFawzy",
+        text: "This is my first comment",
+        edited: false,
+        upvotedCount: 0,
+        downvotedCount: 0,
+        category: "tech",
+        replies: [],
+        _id: "692a5f124c321f0e66d753d2",
+        date: "2025-11-29T02:48:50.339Z",
+        communityID: "6924f0a6098dc4c9933296f0",
+      },
+    ],
   },
+
   {
     _id: "6929a50c021b68655cbdc96f",
     userId: "6924c4da62dbde5200745c29",
@@ -37,14 +53,16 @@ const mockPosts = [
     edited: false,
     upvoteCount: 1,
     downvoteCount: 0,
-    commentCount: 1,
+    commentCount: 0,
     date: "2025-11-25T10:00:00.000Z",
-    comments: [],
     communityId: "6924f0a6098dc4c9933296f0",
     community_name: "b/webdev",
     categories: ["web", "project"],
     __v: 0,
+
+    comments: [],
   },
+
   {
     _id: "692a3961c639b83dc9c25c53",
     userId: "6924c11062dbde5200745c28",
@@ -60,18 +78,19 @@ const mockPosts = [
     downvoteCount: 0,
     commentCount: 0,
     date: "2025-11-29T00:08:01.208Z",
-    comments: [],
     communityId: "6924f0a6098dc4c9933296f0",
     community_name: "b/movies",
     categories: ["movies"],
     __v: 0,
+
+    comments: [],
   },
 ];
 
 function Home() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState(mockPosts);
 
-  useEffect(() => {
+  /*useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/posts`)
       .then((res) => {
@@ -82,7 +101,7 @@ function Home() {
         console.error("API failed, using mock data:", err);
         setPosts(mockPosts); // Fallback to perfect mock data
       });
-  }, []);
+  }, []);*/
 
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
@@ -146,6 +165,7 @@ function Home() {
                 user_avatar={post.user_avatar || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
                 images={post.images || []}
+                comments={post.comments}
                 upvoteCount={post.upvoteCount || 0}
                 downvoteCount={post.downvoteCount || 0}
                 commentCount={post.commentCount || 0}

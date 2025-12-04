@@ -52,7 +52,8 @@ function App() {
             <Route path="/Chats" element={<Chats />} />
             <Route path="/CreatePost" element={<CreatePost />} />
             <Route path="/Community" element={<CommunityPage />} />
-            <Route path="/Profile" element={<UserPage />} />
+            <Route path="/Profile" element={<UserPage isOwn={false}/>} />
+            <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
           </Routes>
         </div>
 

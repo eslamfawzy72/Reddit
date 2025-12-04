@@ -5,7 +5,7 @@ import SidebarLeft from "../Components/SidebarLeft.jsx";
 import SidebarRight from "../Components/SidebarRight.jsx";
 import CommunityHeader from "../Components/communityheader.jsx";
 import UserProfilePage from "../Components/UserProfilePage.jsx";
-function UserPage() {
+function UserPage(props) {
   return (
     <>
       {/* Full light background — removes black gaps */}
@@ -47,7 +47,7 @@ function UserPage() {
         }}
       >
         {/* Community Header */}
-        <UserProfilePage/>
+        <UserProfilePage isOwn={props.isOwn} />
 
         {/* Feed + Right Sidebar */}
        

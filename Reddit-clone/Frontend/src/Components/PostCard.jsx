@@ -15,6 +15,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ActionBar from './ActionBar';
 
+import CommentSection from "../Components/CommentSection";
 // Expand animation
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -299,10 +300,19 @@ export default function PostCard(props) {
 
       { (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-            <Typography>{props.post_details}</Typography>
-          </CardContent>
-        </Collapse>
+  <CardContent>
+    {/* POST DETAILS */}
+    {props.post_details && (
+      <Typography sx={{ marginBottom: 2 }}>
+        {props.post_details}
+      </Typography>
+    )}
+
+    {/* COMMENT SECTION */}
+    <CommentSection comments={props.comments || []} />
+  </CardContent>
+</Collapse>
+
       )}
     </Card>
   );
