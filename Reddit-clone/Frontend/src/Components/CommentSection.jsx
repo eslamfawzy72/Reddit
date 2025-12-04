@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Share2, Bookmark, Flag, Award, MessageSquare } from 'lucide-react';
+import { ChevronDown, ChevronUp, Share2, Bookmark, Flag, Award, MessageSquare, Clock } from 'lucide-react';
 
 // Sample data
 const sampleComments = [
@@ -18,106 +18,98 @@ const sampleComments = [
   }
 ];
 
-const formatVotes = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n);
+const formatVotes = (n) => {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + "m";
+  if (n >= 1000)     return (n / 1000).toFixed(1) + "k";
+  return n;
+};
 
-const Avatar = ({ avatar, username }) => (
+const Avatar = ({ avatar, username, size = 32 }) => (
   <div style={{
-    width: '36px',
-    height: '36px',
+    width: size,
+    height: size,
     borderRadius: '50%',
     backgroundColor: '#0079D3',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '15px',
+    fontSize: size * 0.4,
     fontWeight: '600',
     color: 'white',
     flexShrink: 0,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-  }}>
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    cursor: 'pointer',
+    transition: 'transform 0.2s ease'
+  }}
+  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+  >
     {avatar || username.charAt(0).toUpperCase()}
   </div>
 );
 
-const VoteButtons = ({ votes = 0, orientation = 'vertical' }) => {
-  const [voteState, setVoteState] = useState(null); // null, 'up', or 'down'
-
-  const handleVote = (type) => {
-    if (voteState === type) {
-      setVoteState(null); // Remove vote if clicking same button
-    } else {
-      setVoteState(type); // Set new vote
-    }
-  };
-
-  // Calculate displayed count based on vote state
+const VoteButtons = ({ votes = 0, isLiked, isDisliked, onVote }) => {
   const getCount = () => {
-    if (voteState === 'up') return votes + 1;
-    if (voteState === 'down') return votes - 1;
-    return votes;
+    let count = votes;
+    if (isLiked) count += 1;
+    if (isDisliked) count -= 1;
+    return count;
   };
-
-  const baseBtn = {
-    padding: '6px',
-    borderRadius: '4px',
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s ease'
-  };
-
-  const upColor = voteState === 'up' ? '#FF4500' : '#878A8C';
-  const downColor = voteState === 'down' ? '#7193FF' : '#878A8C';
-
-  if(orientation === 'horizontal') {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button 
-          style={{...baseBtn, backgroundColor: voteState === 'up' ? '#FFF3F0' : 'transparent'}} 
-          onClick={() => handleVote('up')}
-          onMouseEnter={e => e.currentTarget.style.backgroundColor = voteState === 'up' ? '#FFF3F0' : '#F6F7F8'} 
-          onMouseLeave={e => e.currentTarget.style.backgroundColor = voteState === 'up' ? '#FFF3F0' : 'transparent'}
-        >
-          <ChevronUp size={18} color={upColor} strokeWidth={2.5}/>
-        </button>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: voteState ? (voteState === 'up' ? '#FF4500' : '#7193FF') : '#1c1c1c', minWidth: '40px', textAlign: 'center' }}>
-          {formatVotes(getCount())}
-        </span>
-        <button 
-          style={{...baseBtn, backgroundColor: voteState === 'down' ? '#F0F5FF' : 'transparent'}} 
-          onClick={() => handleVote('down')}
-          onMouseEnter={e => e.currentTarget.style.backgroundColor = voteState === 'down' ? '#F0F5FF' : '#F6F7F8'} 
-          onMouseLeave={e => e.currentTarget.style.backgroundColor = voteState === 'down' ? '#F0F5FF' : 'transparent'}
-        >
-          <ChevronDown size={18} color={downColor} strokeWidth={2.5}/>
-        </button>
-      </div>
-    );
-  }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', marginRight: '14px' }}>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      gap: '4px', 
+      marginRight: '16px',
+      minWidth: '40px'
+    }}>
       <button 
-        style={{...baseBtn, backgroundColor: voteState === 'up' ? '#FFF3F0' : 'transparent'}} 
-        onClick={() => handleVote('up')}
-        onMouseEnter={e => e.currentTarget.style.backgroundColor = voteState === 'up' ? '#FFF3F0' : '#F6F7F8'} 
-        onMouseLeave={e => e.currentTarget.style.backgroundColor = voteState === 'up' ? '#FFF3F0' : 'transparent'}
+        onClick={() => onVote('up')}
+        style={{
+          padding: '6px',
+          borderRadius: '4px',
+          border: 'none',
+          background: isLiked ? 'rgba(255, 69, 0, 0.1)' : 'transparent',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = isLiked ? 'rgba(255, 69, 0, 0.15)' : '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = isLiked ? 'rgba(255, 69, 0, 0.1)' : 'transparent'}
       >
-        <ChevronUp size={20} color={upColor} strokeWidth={2.5}/>
+        <ChevronUp size={20} color={isLiked ? '#FF4500' : '#878A8C'} strokeWidth={2.5}/>
       </button>
-      <span style={{ fontSize: '13px', fontWeight: '700', color: voteState ? (voteState === 'up' ? '#FF4500' : '#7193FF') : '#1c1c1c' }}>
+      <span style={{ 
+        fontSize: '13px', 
+        fontWeight: '700', 
+        color: isLiked ? '#FF4500' : isDisliked ? '#7193FF' : '#1c1c1c',
+        padding: '2px 8px',
+        borderRadius: '12px',
+        backgroundColor: isLiked ? 'rgba(255, 69, 0, 0.08)' : isDisliked ? 'rgba(113, 147, 255, 0.08)' : 'transparent'
+      }}>
         {formatVotes(getCount())}
       </span>
       <button 
-        style={{...baseBtn, backgroundColor: voteState === 'down' ? '#F0F5FF' : 'transparent'}} 
-        onClick={() => handleVote('down')}
-        onMouseEnter={e => e.currentTarget.style.backgroundColor = voteState === 'down' ? '#F0F5FF' : '#F6F7F8'} 
-        onMouseLeave={e => e.currentTarget.style.backgroundColor = voteState === 'down' ? '#F0F5FF' : 'transparent'}
+        onClick={() => onVote('down')}
+        style={{
+          padding: '6px',
+          borderRadius: '4px',
+          border: 'none',
+          background: isDisliked ? 'rgba(113, 147, 255, 0.1)' : 'transparent',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = isDisliked ? 'rgba(113, 147, 255, 0.15)' : '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = isDisliked ? 'rgba(113, 147, 255, 0.1)' : 'transparent'}
       >
-        <ChevronDown size={20} color={downColor} strokeWidth={2.5}/>
+        <ChevronDown size={20} color={isDisliked ? '#7193FF' : '#878A8C'} strokeWidth={2.5}/>
       </button>
     </div>
   );
@@ -127,38 +119,59 @@ const ActionBar = ({ onReplyClick }) => {
   const buttonStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '5px',
-    padding: '6px 10px',
-    borderRadius: '4px',
+    gap: '6px',
+    padding: '8px 12px',
+    borderRadius: '6px',
     border: 'none',
     background: 'transparent',
     cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: '600',
-    color: '#878A8C',
+    fontSize: '13px',
+    fontWeight: '500',
+    color: '#64748B',
     transition: 'all 0.2s ease'
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
-      <button style={buttonStyle} onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#F6F7F8'; e.currentTarget.style.color = '#1c1c1c'}} onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#878A8C'}}>
-        <Share2 size={15} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '12px', flexWrap: 'wrap' }}>
+      <button 
+        style={buttonStyle}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+      >
+        <Share2 size={16} />
         <span>Share</span>
       </button>
-      <button style={buttonStyle} onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#F6F7F8'; e.currentTarget.style.color = '#1c1c1c'}} onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#878A8C'}}>
-        <Bookmark size={15} />
+      <button 
+        style={buttonStyle}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+      >
+        <Bookmark size={16} />
         <span>Save</span>
       </button>
-      <button style={buttonStyle} onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#F6F7F8'; e.currentTarget.style.color = '#1c1c1c'}} onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#878A8C'}}>
-        <Flag size={15} />
+      <button 
+        style={buttonStyle}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+      >
+        <Flag size={16} />
         <span>Report</span>
       </button>
-      <button style={buttonStyle} onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#F6F7F8'; e.currentTarget.style.color = '#1c1c1c'}} onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#878A8C'}}>
-        <Award size={15} />
-        <span>Award</span>
+      <button 
+        style={buttonStyle}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+      >
+        <Award size={16} />
+        <span>Give Award</span>
       </button>
-      <button onClick={onReplyClick} style={buttonStyle} onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#F6F7F8'; e.currentTarget.style.color = '#1c1c1c'}} onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#878A8C'}}>
-        <MessageSquare size={15} />
+      <button 
+        onClick={onReplyClick}
+        style={{...buttonStyle, color: '#0079D3', fontWeight: '600'}}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8FAFC'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+      >
+        <MessageSquare size={16} />
         <span>Reply</span>
       </button>
     </div>
@@ -170,6 +183,8 @@ const Comment = ({ comment, depth = 0, maxDepth = 10 }) => {
   const [showReply, setShowReply] = useState(false);
   const [replies, setReplies] = useState(comment.replies || []);
   const [replyText, setReplyText] = useState('');
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
 
   const handleAddReply = () => {
     if(!replyText.trim()) return;
@@ -191,119 +206,205 @@ const Comment = ({ comment, depth = 0, maxDepth = 10 }) => {
     setShowReply(false);
   };
 
+  const handleVote = (type) => {
+    if (type === 'up') {
+      setIsLiked(!isLiked);
+      if (isDisliked) setIsDisliked(false);
+    } else {
+      setIsDisliked(!isDisliked);
+      if (isLiked) setIsLiked(false);
+    }
+  };
+
   const tooDeep = depth >= maxDepth && replies.length > 0;
 
   return (
     <div style={{
-      padding: '10px 0',
-      ...(depth > 0 ? { paddingLeft: '18px', borderLeft: '2px solid #E8EAED' } : {})
+      padding: '16px 0',
+      borderBottom: depth === 0 ? '1px solid #F1F5F9' : 'none',
+      ...(depth > 0 ? { 
+        paddingLeft: '32px', 
+        marginLeft: '16px',
+        borderLeft: '2px solid #E2E8F0'
+      } : {})
     }}>
       <div style={{ display: 'flex' }}>
-        {depth === 0 && <VoteButtons votes={comment.votes} orientation="vertical" />}
+        <VoteButtons 
+          votes={comment.votes} 
+          isLiked={isLiked} 
+          isDisliked={isDisliked} 
+          onVote={handleVote}
+        />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <Avatar avatar={comment.avatar} username={comment.username} />
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#1c1c1c' }}>u/{comment.username}</span>
-            {comment.isOP && <span style={{ fontSize: '11px', backgroundColor: '#0079D3', color: 'white', padding: '3px 8px', borderRadius: '12px', fontWeight: '700', letterSpacing: '0.5px' }}>OP</span>}
-            {comment.isMod && <span style={{ fontSize: '11px', backgroundColor: '#46D160', color: 'white', padding: '3px 8px', borderRadius: '12px', fontWeight: '700', letterSpacing: '0.5px' }}>MOD</span>}
-            <span style={{ fontSize: '12px', color: '#7c7c7c', fontWeight: '500' }}>• {comment.timestamp}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <Avatar avatar={comment.avatar} username={comment.username} size={32} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B' }}>
+                u/{comment.username}
+              </span>
+              {comment.isOP && (
+                <span style={{ 
+                  fontSize: '11px', 
+                  backgroundColor: '#0079D3', 
+                  color: 'white', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px', 
+                  fontWeight: '700', 
+                  letterSpacing: '0.3px' 
+                }}>
+                  OP
+                </span>
+              )}
+              {comment.isMod && (
+                <span style={{ 
+                  fontSize: '11px', 
+                  backgroundColor: '#10B981', 
+                  color: 'white', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px', 
+                  fontWeight: '700' 
+                }}>
+                  MOD
+                </span>
+              )}
+              <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={12} />
+                {comment.timestamp}
+              </span>
+            </div>
             <button 
               onClick={() => setCollapsed(!collapsed)}
               style={{
                 marginLeft: 'auto',
-                fontSize: '14px',
-                color: '#878A8C',
-                fontWeight: '700',
+                fontSize: '12px',
+                color: '#94A3B8',
+                fontWeight: '600',
                 padding: '4px 8px',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
+                border: '1px solid #E2E8F0',
+                background: 'white',
                 borderRadius: '4px',
+                cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F6F7F8'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#CBD5E1';
+                e.currentTarget.style.backgroundColor = '#F8FAFC';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#E2E8F0';
+                e.currentTarget.style.backgroundColor = 'white';
+              }}
             >
-              [{collapsed ? '+' : '−'}]
+              {collapsed ? 'Show' : 'Hide'}
             </button>
           </div>
 
           {!collapsed && (
             <>
-              <div style={{ fontSize: '14px', color: '#1c1c1c', lineHeight: '22px', marginBottom: '10px' }}>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#334155', 
+                lineHeight: '1.6', 
+                marginBottom: '12px',
+                paddingRight: '16px'
+              }}>
                 {comment.text}
               </div>
 
               {comment.awards && comment.awards.length > 0 && (
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
                   {comment.awards.map((award, i) => (
-                    <div key={i} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      fontSize: '11px',
-                      backgroundColor: '#FFF8E7',
-                      color: '#C18700',
-                      padding: '4px 10px',
-                      borderRadius: '16px',
-                      border: '1px solid #F4E5B8',
-                      fontWeight: '600',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}>
-                      <Award size={13} />
+                    <div 
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '12px',
+                        background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+                        color: '#7C5900',
+                        padding: '4px 10px',
+                        borderRadius: '16px',
+                        border: '1px solid #F4E5B8',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(255, 215, 0, 0.2)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                    >
+                      <Award size={12} />
                       <span>{award}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {depth > 0 && (
-                <div style={{ marginBottom: '10px' }}>
-                  <VoteButtons votes={comment.votes} orientation="horizontal" />
-                </div>
-              )}
-
               <ActionBar onReplyClick={() => setShowReply(!showReply)} />
 
               {showReply && (
-                <div style={{ marginTop: '14px', padding: '12px', backgroundColor: '#F8F9FA', borderRadius: '8px', border: '1px solid #E8EAED' }}>
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  backgroundColor: '#F8FAFC', 
+                  borderRadius: '8px', 
+                  border: '1px solid #E2E8F0' 
+                }}>
                   <textarea
                     rows={3}
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
-                    placeholder="Write a reply..."
+                    placeholder="What are your thoughts?"
                     style={{
                       width: '100%',
-                      borderRadius: '6px',
-                      border: '1px solid #E0E3E6',
-                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      padding: '12px',
                       fontSize: '14px',
-                      color: '#1c1c1c',
+                      color: '#1E293B',
                       fontFamily: 'inherit',
                       resize: 'vertical',
                       backgroundColor: 'white',
-                      transition: 'border-color 0.2s ease',
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
                       outline: 'none'
                     }}
-                    onFocus={e => e.target.style.borderColor = '#0079D3'}
-                    onBlur={e => e.target.style.borderColor = '#E0E3E6'}
+                    onFocus={e => {
+                      e.target.style.borderColor = '#0079D3';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(0, 121, 211, 0.1)';
+                    }}
+                    onBlur={e => {
+                      e.target.style.borderColor = '#CBD5E1';
+                      e.target.style.boxShadow = 'none';
+                    }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', gap: '12px' }}>
                     <button
                       onClick={() => setShowReply(false)}
                       style={{
                         padding: '8px 20px',
                         borderRadius: '20px',
-                        border: '1.5px solid #0079D3',
-                        color: '#0079D3',
+                        border: '1px solid #CBD5E1',
+                        color: '#64748B',
                         fontSize: '13px',
-                        fontWeight: '700',
+                        fontWeight: '600',
                         backgroundColor: 'white',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease'
                       }}
-                      onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#E8F4FD'; e.currentTarget.style.transform = 'translateY(-1px)'}}
-                      onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.transform = 'translateY(0)'}}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = '#94A3B8';
+                        e.currentTarget.style.backgroundColor = '#F8FAFC';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = '#CBD5E1';
+                        e.currentTarget.style.backgroundColor = 'white';
+                      }}
                     >
                       Cancel
                     </button>
@@ -314,18 +415,30 @@ const Comment = ({ comment, depth = 0, maxDepth = 10 }) => {
                         padding: '8px 20px',
                         borderRadius: '20px',
                         border: 'none',
-                        backgroundColor: replyText.trim() ? '#0079D3' : '#E0E3E6',
-                        color: replyText.trim() ? 'white' : '#A0A3A6',
+                        backgroundColor: replyText.trim() ? '#0079D3' : '#E2E8F0',
+                        color: replyText.trim() ? 'white' : '#94A3B8',
                         fontSize: '13px',
-                        fontWeight: '700',
+                        fontWeight: '600',
                         cursor: replyText.trim() ? 'pointer' : 'not-allowed',
                         transition: 'all 0.2s ease',
-                        boxShadow: replyText.trim() ? '0 2px 4px rgba(0,121,211,0.2)' : 'none'
+                        boxShadow: 'none'
                       }}
-                      onMouseEnter={e => {if(replyText.trim()) {e.currentTarget.style.backgroundColor = '#005EA6'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,121,211,0.3)'}}}
-                      onMouseLeave={e => {if(replyText.trim()) {e.currentTarget.style.backgroundColor = '#0079D3'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,121,211,0.2)'}}}
+                      onMouseEnter={e => {
+                        if(replyText.trim()) {
+                          e.currentTarget.style.backgroundColor = '#005EA6';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 121, 211, 0.2)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if(replyText.trim()) {
+                          e.currentTarget.style.backgroundColor = '#0079D3';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }
+                      }}
                     >
-                      Comment
+                      Reply
                     </button>
                   </div>
                 </div>
@@ -335,7 +448,12 @@ const Comment = ({ comment, depth = 0, maxDepth = 10 }) => {
                 <div style={{ marginTop: '14px' }}>
                   {tooDeep ? (
                     <div style={{ paddingLeft: '10px' }}>
-                      <a href="#" style={{ fontSize: '13px', color: '#0079D3', textDecoration: 'none', fontWeight: '600', transition: 'color 0.2s ease' }} onMouseEnter={e => e.target.style.color = '#005EA6'} onMouseLeave={e => e.target.style.color = '#0079D3'}>
+                      <a 
+                        href="#" 
+                        style={{ fontSize: '13px', color: '#0079D3', textDecoration: 'none', fontWeight: '600', transition: 'color 0.2s ease' }}
+                        onMouseEnter={e => e.target.style.color = '#005EA6'}
+                        onMouseLeave={e => e.target.style.color = '#0079D3'}
+                      >
                         Continue this thread →
                       </a>
                     </div>
@@ -352,7 +470,7 @@ const Comment = ({ comment, depth = 0, maxDepth = 10 }) => {
   );
 };
 
-const CommentSection = ({ initialComments}) => {
+const CommentSection = ({ initialComments = sampleComments }) => {
   const [comments, setComments] = useState(initialComments);
   const [sort, setSort] = useState('Best');
   const [newComment, setNewComment] = useState('');
@@ -413,40 +531,46 @@ const CommentSection = ({ initialComments}) => {
 
   return (
     <div style={{
-      maxWidth: '850px',
+      maxWidth: '900px',
       margin: '0 auto',
-      padding: '20px',
-      backgroundColor: '#DAE0E6',
+      padding: '24px',
+      backgroundColor: '#F8FAFC',
       minHeight: '100vh',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       <div style={{
         backgroundColor: 'white',
-        borderRadius: '8px',
-        padding: '20px',
+        borderRadius: '12px',
+        padding: '24px',
         marginBottom: '20px',
-        border: '1px solid #E0E3E6',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-          <label style={{ fontSize: '13px', fontWeight: '600', color: '#1c1c1c' }}>Sort by</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <label style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>Sort by</label>
           <select
             value={sort}
             onChange={e => setSort(e.target.value)}
             style={{
               backgroundColor: 'white',
-              border: '1.5px solid #E0E3E6',
+              border: '1px solid #CBD5E1',
               padding: '8px 14px',
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '13px',
               fontWeight: '600',
-              color: '#1c1c1c',
+              color: '#1E293B',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               outline: 'none'
             }}
-            onFocus={e => e.target.style.borderColor = '#0079D3'}
-            onBlur={e => e.target.style.borderColor = '#E0E3E6'}
+            onFocus={e => {
+              e.target.style.borderColor = '#0079D3';
+              e.target.style.boxShadow = '0 0 0 3px rgba(0, 121, 211, 0.1)';
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = '#CBD5E1';
+              e.target.style.boxShadow = 'none';
+            }}
           >
             {sortOptions.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -457,22 +581,30 @@ const CommentSection = ({ initialComments}) => {
             rows={4}
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
-            placeholder="Add a top-level comment"
+            placeholder="What are your thoughts?"
             style={{
               width: '100%',
               borderRadius: '8px',
-              border: '1.5px solid #E0E3E6',
+              border: '1px solid #CBD5E1',
               padding: '14px',
               fontSize: '14px',
-              color: '#1c1c1c',
+              color: '#1E293B',
               fontFamily: 'inherit',
               resize: 'vertical',
               transition: 'all 0.2s ease',
               outline: 'none',
               backgroundColor: '#FAFAFA'
             }}
-            onFocus={e => {e.target.style.borderColor = '#0079D3'; e.target.style.backgroundColor = 'white'}}
-            onBlur={e => {e.target.style.borderColor = '#E0E3E6'; e.target.style.backgroundColor = '#FAFAFA'}}
+            onFocus={e => {
+              e.target.style.borderColor = '#0079D3';
+              e.target.style.backgroundColor = 'white';
+              e.target.style.boxShadow = '0 0 0 3px rgba(0, 121, 211, 0.1)';
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = '#CBD5E1';
+              e.target.style.backgroundColor = '#FAFAFA';
+              e.target.style.boxShadow = 'none';
+            }}
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px', gap: '12px' }}>
             <button
@@ -480,16 +612,24 @@ const CommentSection = ({ initialComments}) => {
               style={{
                 padding: '10px 24px',
                 borderRadius: '24px',
-                border: '1.5px solid #0079D3',
-                color: '#0079D3',
+                border: '1px solid #CBD5E1',
+                color: '#64748B',
                 fontSize: '14px',
-                fontWeight: '700',
+                fontWeight: '600',
                 backgroundColor: 'white',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={e => {e.currentTarget.style.backgroundColor = '#E8F4FD'; e.currentTarget.style.transform = 'translateY(-2px)'}}
-              onMouseLeave={e => {e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.transform = 'translateY(0)'}}
+              onMouseEnter={e => {
+                e.currentTarget.style.backgroundColor = '#F8FAFC';
+                e.currentTarget.style.borderColor = '#94A3B8';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.backgroundColor = 'white';
+                e.currentTarget.style.borderColor = '#CBD5E1';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               Cancel
             </button>
@@ -500,23 +640,35 @@ const CommentSection = ({ initialComments}) => {
                 padding: '10px 24px',
                 borderRadius: '24px',
                 border: 'none',
-                backgroundColor: newComment.trim() ? '#0079D3' : '#E0E3E6',
-                color: newComment.trim() ? 'white' : '#A0A3A6',
+                backgroundColor: newComment.trim() ? '#0079D3' : '#E2E8F0',
+                color: newComment.trim() ? 'white' : '#94A3B8',
                 fontSize: '14px',
-                fontWeight: '700',
+                fontWeight: '600',
                 cursor: newComment.trim() ? 'pointer' : 'not-allowed',
                 transition: 'all 0.2s ease',
-                boxShadow: newComment.trim() ? '0 3px 6px rgba(0,121,211,0.25)' : 'none'
+                boxShadow: newComment.trim() ? '0 2px 4px rgba(0,121,211,0.15)' : 'none'
               }}
-              onMouseEnter={e => {if(newComment.trim()) {e.currentTarget.style.backgroundColor = '#005EA6'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 5px 12px rgba(0,121,211,0.35)'}}}
-              onMouseLeave={e => {if(newComment.trim()) {e.currentTarget.style.backgroundColor = '#0079D3'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 3px 6px rgba(0,121,211,0.25)'}}}
+              onMouseEnter={e => {
+                if(newComment.trim()) {
+                  e.currentTarget.style.backgroundColor = '#005EA6';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,121,211,0.25)';
+                }
+              }}
+              onMouseLeave={e => {
+                if(newComment.trim()) {
+                  e.currentTarget.style.backgroundColor = '#0079D3';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,121,211,0.15)';
+                }
+              }}
             >
               Comment
             </button>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           {getSortedComments().map(c => <Comment key={c.id} comment={c} depth={0} />)}
         </div>
       </div>
