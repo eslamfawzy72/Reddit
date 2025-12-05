@@ -29,6 +29,7 @@ import CreatePost from "./Full Pages/CreatePost.jsx";
 import CommunityPage from "./Full Pages/CommunityPage.jsx";
 import UserProfilePage from "./Components/UserProfilePage.jsx"
 import UserPage from "./Full Pages/UserPage.jsx";
+import BlueditAbout from "./Full Pages/BlueditAbout.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -54,6 +55,7 @@ function App() {
             <Route path="/Community" element={<CommunityPage />} />
             <Route path="/Profile" element={<UserPage isOwn={false}/>} />
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
+             <Route path="/About" element={<BlueditAbout />} />
           </Routes>
         </div>
 

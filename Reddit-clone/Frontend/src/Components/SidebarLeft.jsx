@@ -91,6 +91,25 @@ export default function SidebarLeft() {
             >
               Start a Community
             </button>
+            
+          </div>
+          <div style={{ marginTop: "30px" }}>
+            <button
+              style={{
+                width: "100%",
+                padding: "10px",
+                background: "#00b7d3ff",
+                color: "white",
+                borderRadius: "6px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+              onClick={() => navigate("/About")}
+            >
+              About Bluedit
+            </button>
+            
           </div>
         </>
       )}

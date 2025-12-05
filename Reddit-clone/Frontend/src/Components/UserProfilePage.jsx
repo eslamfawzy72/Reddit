@@ -432,7 +432,7 @@ function UserProfilePage(props){
               </p>
             </div>
 
-            {props.isOwnProfile && (
+            {props.isOwn && (
               <button
                 onClick={() => setShowEditModal(true)}
                 style={{

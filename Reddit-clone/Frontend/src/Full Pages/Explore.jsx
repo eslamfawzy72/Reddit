@@ -71,6 +71,26 @@ export const searchEverything = (query) => {
     renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)),
   };
 };
+export const searchcomm = (query) => {
+  if (!query?.trim()) return { results: [], renderItem: null };
+  const q = query.toLowerCase();
+
+  const comms = mockCommunities
+    .filter(c => c.name.includes(q))
+    .map(c => ({ ...c, score: c.name.startsWith(q) ? 100 : 50 }));
+
+  
+
+  const results = comms
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+
+  return {
+    results,
+    renderItem: (item) => (renderCommunity(item)),
+  };
+};
+
 
 function Explore() {
   const navigate = useNavigate();
@@ -80,7 +100,7 @@ function Explore() {
       <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <PrimarySearchAppBar
           loggedin={true}
-          searchFunction={searchEverything}
+          searchFunction={searchcomm}
           onResultClick={(item) => console.log("Clicked:", item)}
         />
       </Box>
