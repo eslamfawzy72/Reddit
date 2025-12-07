@@ -86,7 +86,7 @@ function Notifications() {
 
       {/* Sidebar - fixed position */}
       <Box sx={{ position: "fixed", top: 64, left: 0, bottom: 0, zIndex: 100 }}>
-        <SidebarLeft />
+        <SidebarLeft loggedin={true} />
       </Box>
 
       {/* Main content area */}

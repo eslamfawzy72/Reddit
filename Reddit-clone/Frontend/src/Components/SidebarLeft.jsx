@@ -1,14 +1,14 @@
 // src/components/SidebarLeft.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-export default function SidebarLeft() {
+export default function SidebarLeft(props) {
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
  const navItems = [
     { name: "Home", icon: "🏠" },
     { name: "Popular", icon: "🔥" },
     { name: "Explore", icon: "🔍" },
-    { name: "All", icon: "📚" },
+    
   ];
 
   const itemStyle = {
@@ -64,7 +64,7 @@ export default function SidebarLeft() {
           <ul style={{ listStyle: "none", padding: 0 }}>
             {navItems.map((item) => (
               <li key={item.name} style={{ marginBottom: "6px" }}>
-                <div style={itemStyle} onClick={() => navigate('/' + item.name)}>
+                <div style={itemStyle}  onClick={() => navigate('/' + item.name, { state: { loggedin: props.loggedin } })}>
                   <span>
                     {item.icon} {item.name}
                   </span>
@@ -74,7 +74,7 @@ export default function SidebarLeft() {
             ))}
           </ul>
 
-          {/* Start a Community Button */}
+          {props.loggedin&&(
           <div style={{ marginTop: "30px" }}>
             <button
               style={{
@@ -92,7 +92,7 @@ export default function SidebarLeft() {
               Start a Community
             </button>
             
-          </div>
+          </div>)}
           <div style={{ marginTop: "30px" }}>
             <button
               style={{

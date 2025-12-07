@@ -152,7 +152,7 @@ export const searchEverything = (query) => {
   };
 };
 
-function Home() {
+function Home(props) {
   const [posts, setPosts] = useState(mockPosts);
 
   /*useEffect(() => {
@@ -172,11 +172,11 @@ function Home() {
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
       {/* Fixed Top Navbar */}
       <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1300 }}>
-        <PrimarySearchAppBar loggedin={true} searchFunction={searchEverything} />
+        <PrimarySearchAppBar loggedin={props.loggedin} searchFunction={searchEverything}  />
       </Box>
 
       {/* Fixed Left Sidebar */}
-      <Box
+      <Box 
         sx={{
           position: "fixed",
           top: 64,
@@ -189,7 +189,7 @@ function Home() {
           zIndex: 1200,
         }}
       >
-        <SidebarLeft />
+        <SidebarLeft loggedin={props.loggedin} />
       </Box>
 
       {/* MAIN FEED — Perfect layout */}

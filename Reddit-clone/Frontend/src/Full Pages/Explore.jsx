@@ -92,7 +92,7 @@ export const searchcomm = (query) => {
 };
 
 
-function Explore() {
+function Explore(props) {
   const navigate = useNavigate();
   return (
     <Box sx={{ backgroundColor: "#ffffffff", minHeight: "100vh" }}>
@@ -107,7 +107,7 @@ function Explore() {
 
       {/* Sidebar - fixed position */}
       <Box sx={{ position: "fixed", top: 64, left: 0, bottom: 0, zIndex: 100 }}>
-        <SidebarLeft />
+        <SidebarLeft loggedin={props.loggedin} />
       </Box>
 
       {/* Main content area */}

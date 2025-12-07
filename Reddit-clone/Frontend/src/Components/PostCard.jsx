@@ -105,16 +105,16 @@ export default function PostCard(props) {
 
   return (
     <Card
-      sx={{
-        maxWidth: 1000,
-        marginBottom: 2,
-        border: '1px solid #ccc',
-        borderRadius: '10px',
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-        position: 'relative'
-
-      }}
-    >
+  sx={{
+    maxWidth: 600,     // try 500, 450, whatever feels good
+    marginBottom: 2,
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
+    position: 'relative',
+    margin: "0 auto"    // keeps it centered
+  }}
+>
       <div
   style={{
     position: "absolute",

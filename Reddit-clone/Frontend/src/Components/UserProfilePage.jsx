@@ -4,6 +4,7 @@ import {
   X, User, Lock, Palette, FileText, Bell, Save
 } from 'lucide-react';
 import Comment from "../Components/Comment.jsx";
+import PostCard from './PostCard.jsx';
 
 // DARK THEME COLORS
 const DARK_BG = "#0A0A0A";
@@ -363,10 +364,91 @@ const EditSettingsModal = ({ isOpen, onClose, profileData, onSave }) => {
     </div>
   );
 };
+const mockPosts = [
+  {
+    _id: "6929a50c021b68655cbdc96e",
+    userId: "6924c11062dbde5200745c28",
+    user_name: "ahmed_dev",
+    user_avatar: "https://i.pravatar.cc/48?img=3",
+    description: "adham howa entaaa??????!",
+    images: [
+      "https://source.unsplash.com/random/800x600?funny,meme",
+    ],
+    edited: false,
+    upvoteCount: 2,
+    downvoteCount: 0,
+    commentCount: 1,
+    date: "2025-11-24T21:46:14.170Z",
+    communityId: "6924f0a6098dc4c9933296f0",
+    community_name: "b/funny",
+    categories: ["meme", "funny"],
+    __v: 1,
+
+    comments: [
+      {
+        userID: "6924c11062dbde5200745c28",
+        username: "eslamFawzy",
+        text: "This is my first comment",
+        edited: false,
+        upvotedCount: 0,
+        downvotedCount: 0,
+        category: "tech",
+        replies: [],
+        _id: "692a5f124c321f0e66d753d2",
+        date: "2025-11-29T02:48:50.339Z",
+        communityID: "6924f0a6098dc4c9933296f0",
+      },
+    ],
+  },
+
+  {
+    _id: "6929a50c021b68655cbdc96f",
+    userId: "6924c4da62dbde5200745c29",
+    user_name: "mariam_codes",
+    user_avatar: "https://i.pravatar.cc/48?img=12",
+    description: "Check out my new post!",
+    images: [],
+    edited: false,
+    upvoteCount: 1,
+    downvoteCount: 0,
+    commentCount: 0,
+    date: "2025-11-25T10:00:00.000Z",
+    communityId: "6924f0a6098dc4c9933296f0",
+    community_name: "b/webdev",
+    categories: ["web", "project"],
+    __v: 0,
+
+    comments: [],
+  },
+
+  {
+    _id: "692a3961c639b83dc9c25c53",
+    userId: "6924c11062dbde5200745c28",
+    user_name: "ahmed_dev",
+    user_avatar: "https://i.pravatar.cc/48?img=3",
+    description: "My favorite movie is Inception!",
+    images: [
+      "https://source.unsplash.com/random/1200x800?inception,movie",
+      "https://source.unsplash.com/random/1200x800?leonardo,dicaprio",
+    ],
+    edited: false,
+    upvoteCount: 0,
+    downvoteCount: 0,
+    commentCount: 0,
+    date: "2025-11-29T00:08:01.208Z",
+    communityId: "6924f0a6098dc4c9933296f0",
+    community_name: "b/movies",
+    categories: ["movies"],
+    __v: 0,
+
+    comments: [],
+  },
+];
 // MAIN PAGE
 function UserProfilePage(props){
   const [activeTab, setActiveTab] = useState('Overview');
   const [showEditModal, setShowEditModal] = useState(false);
+  const [posts, setPosts] = useState(mockPosts);
 
   // This is the fix: profile data is now in state
   const [profileData, setProfileData] = useState(
@@ -503,6 +585,44 @@ function UserProfilePage(props){
                 )}
               </div>
             )}
+            {activeTab === 'Posts' && (
+  <div
+    style={{
+      backgroundColor: CARD_BG,
+      border: `1px solid ${BORDER}`,
+      borderTop: 'none',
+      borderRadius: '0 0 8px 8px',
+      padding: '20px'
+    }}
+  >
+    {posts.length === 0 ? (
+      <Box sx={{ textAlign: "center", color: "#666", py: 8 }}>
+        Loading posts...
+      </Box>
+    ) : (
+      posts.map((post) => (
+        <div key={post._id} style={{ marginBottom: "20px" }}>
+          <PostCard
+            id={post._id}
+            user_name={post.user_name || "Unknown User"}
+            user_avatar={post.user_avatar || "https://i.pravatar.cc/48?img=1"}
+            description={post.description}
+            images={post.images || []}
+            comments={post.comments}
+            upvoteCount={post.upvoteCount || 0}
+            downvoteCount={post.downvoteCount || 0}
+            commentCount={post.commentCount || 0}
+            date={post.date}
+            community_name={post.community_name || "b/unknown"}
+            categories={post.categories || []}
+            edited={post.edited || false}
+          />
+        </div>
+      ))
+    )}
+  </div>
+)}
+
           </div>
 
           {/* Right: Sidebar */}
