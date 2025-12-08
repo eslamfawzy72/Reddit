@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
-
+import { useLocation } from 'react-router-dom';
 
 // Generate lots of mock posts
 const users = [
@@ -75,12 +75,14 @@ const sortByPopularity = (posts) => {
 };
 
 function Popular(props) {
-  const [posts] = useState(sortByPopularity(generateMockPosts(50))); // 50 posts
+  const [posts] = useState(sortByPopularity(generateMockPosts(50)));
+    const location = useLocation();
+  const loggedinpage = location.state?.loggedin ?? false; // 50 posts
 
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
       <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1300 }}>
-        <PrimarySearchAppBar loggedin={props.loggedin} />
+        <PrimarySearchAppBar loggedin={loggedinpage} />
       </Box>
 
       <Box 
@@ -96,7 +98,7 @@ function Popular(props) {
           zIndex: 1200,
         }}
       >
-        <SidebarLeft loggedin={props.loggedin} />
+        <SidebarLeft loggedin={loggedinpage} />
       </Box>
 
       <Box

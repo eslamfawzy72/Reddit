@@ -537,7 +537,7 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
   );
 }
 
-export default function ChatApp() {
+export default function ChatApp(props) {
   const [chats, setChats] = useState(initialChats);
   const [selectedChat, setSelectedChat] = useState(null);
 

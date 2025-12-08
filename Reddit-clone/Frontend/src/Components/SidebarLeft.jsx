@@ -64,7 +64,7 @@ export default function SidebarLeft(props) {
           <ul style={{ listStyle: "none", padding: 0 }}>
             {navItems.map((item) => (
               <li key={item.name} style={{ marginBottom: "6px" }}>
-                <div style={itemStyle}  onClick={() => navigate('/' + item.name, { state: { loggedin: props.loggedin } })}>
+                <div style={itemStyle} onClick={() => navigate('/' + item.name)}>
                   <span>
                     {item.icon} {item.name}
                   </span>

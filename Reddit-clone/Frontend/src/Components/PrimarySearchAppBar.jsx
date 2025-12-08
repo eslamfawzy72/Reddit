@@ -52,7 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 // -------- MAIN COMPONENT --------
 export default function PrimarySearchAppBar({
-  loggedin = false,
+  loggedin,
   searchFunction,
   onResultClick,
   placeholder = "Search Bluedit…",

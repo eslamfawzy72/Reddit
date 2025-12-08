@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Button, Avatar, Typography } from "@mui/material";
 
-export default function CommunityHeader() {
+export default function CommunityHeader(props) {
   return (
     <Box
       sx={{
