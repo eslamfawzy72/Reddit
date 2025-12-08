@@ -32,6 +32,7 @@ import UserPage from "./Full Pages/UserPage.jsx";
 import BlueditAbout from "./Full Pages/BlueditAbout.jsx";
 import SignUp from "./Full Pages/Signup.jsx";
 import Popular from "./Full Pages/Popular.jsx";
+import Login from "./Full Pages/Login.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -60,6 +61,7 @@ function App() {
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
             <Route path="/About" element={<BlueditAbout />} />
             <Route path="/Signup" element={<SignUp/>} />
+            <Route path="/Login" element={<Login/>} />
             <Route path="/Popular" element={<Popular/>} />
           </Routes>
         </div>

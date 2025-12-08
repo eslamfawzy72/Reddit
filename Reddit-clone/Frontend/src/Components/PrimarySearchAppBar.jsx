@@ -228,6 +228,7 @@ export default function PrimarySearchAppBar({
               <>
                 <Button
   variant="contained"
+  onClick={() => navigate("/Login")}
   sx={{
     backgroundColor: '#ffffffff',
     borderRadius: '20px',
@@ -240,6 +241,7 @@ export default function PrimarySearchAppBar({
 
 <Button
   variant="contained"
+  onClick={() => navigate("/Signup")}
   sx={{
     backgroundColor: '#ffffffff',
     borderRadius: '20px',
