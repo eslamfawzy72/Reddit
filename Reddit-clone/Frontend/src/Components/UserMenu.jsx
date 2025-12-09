@@ -10,12 +10,15 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import TimerIcon from '@mui/icons-material/Timer';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { useNavigate } from "react-router-dom";
 
 export default function UserMenu({ darkMode, setDarkMode }) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
-
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  const handleClose = () => {
+
+  };
 
   return (
     <div>
@@ -30,7 +33,7 @@ export default function UserMenu({ darkMode, setDarkMode }) {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <MenuItem onClick={handleClose}><AccountCircleIcon sx={{ mr: 1 }} /> View Profile</MenuItem>
+        <MenuItem onClick={()=>navigate("/ProfilePage")}><AccountCircleIcon sx={{ mr: 1 }} /> View Profile</MenuItem>
         <MenuItem onClick={handleClose}><DraftsIcon sx={{ mr: 1 }} /> Notifications</MenuItem>
         {/*<MenuItem onClick={handleClose}><EmojiEventsIcon sx={{ mr: 1 }} /> Achievements</MenuItem>
         <MenuItem onClick={handleClose}><AttachMoneyIcon sx={{ mr: 1 }} /> Earn</MenuItem>

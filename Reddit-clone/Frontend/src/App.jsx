@@ -27,6 +27,12 @@ import Explore from "./Full Pages/Explore.jsx";
 import Home from "./Full Pages/Home.jsx";
 import CreatePost from "./Full Pages/CreatePost.jsx";
 import CommunityPage from "./Full Pages/CommunityPage.jsx";
+import UserProfilePage from "./Components/UserProfilePage.jsx"
+import UserPage from "./Full Pages/UserPage.jsx";
+import BlueditAbout from "./Full Pages/BlueditAbout.jsx";
+import SignUp from "./Full Pages/Signup.jsx";
+import Popular from "./Full Pages/Popular.jsx";
+import Login from "./Full Pages/Login.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -43,13 +49,20 @@ function App() {
         {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "20px", marginTop: "20px" }}>
           <Routes>
+            <Route path="/" element={<Home loggedin={false}/>} />
             <Route path="/StartCommunity" element={<CreateCommunity />} />
-            <Route path="/Explore" element={<Explore />} />
-            <Route path="/Home" element={<Home />} />
+            <Route path="/Explore" element={<Explore  />} />
+            <Route path="/Home" element={<Home loggedin={true} />} />
             <Route path="/Notifications" element={<Notifications />} />     
-            <Route path="/Chats" element={<Chats />} />
+            <Route path="/Chats" element={<Chats />}/>
             <Route path="/CreatePost" element={<CreatePost />} />
             <Route path="/Community" element={<CommunityPage />} />
+            <Route path="/Profile" element={<UserPage isOwn={false}/>} />
+            <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
+            <Route path="/About" element={<BlueditAbout />} />
+            <Route path="/Signup" element={<SignUp/>} />
+            <Route path="/Login" element={<Login/>} />
+            <Route path="/Popular" element={<Popular/>} />
           </Routes>
         </div>
 

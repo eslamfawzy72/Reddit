@@ -1,11 +1,10 @@
 import React from "react";
-import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import { Box } from "@mui/material";
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import SidebarLeft from "../Components/SidebarLeft.jsx";
-import CommunityCard from "../Components/CommunityCard.jsx";
-import NotificationPage from "../Components/NotificationPage.jsx";
-
-// Mock data
+import SidebarRight from "../Components/SidebarRight.jsx";
+import CommunityHeader from "../Components/communityheader.jsx";
+import UserProfilePage from "../Components/UserProfilePage.jsx";
 const mockCommunities = [
   { id: 1, type: 'community', name: 'reactjs', display: 'b/reactjs', members: '412k', icon: 'React' },
   { id: 2, type: 'community', name: 'javascript', display: 'b/javascript', members: '1.2M', icon: 'JS' },
@@ -72,45 +71,55 @@ export const searchEverything = (query) => {
   };
 };
 
-function Notifications() {
+function UserPage(props) {
   return (
-    <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
-      {/* Fixed top bar */}
-      <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
-        <PrimarySearchAppBar
-          loggedin={true}
-          searchFunction={searchEverything}
-          onResultClick={(item) => console.log("Clicked:", item)}
-        />
+    <>
+      {/* Full light background — removes black gaps */}
+      <Box sx={{ position: "fixed", inset: 0, bgcolor: "#f5f5f5", zIndex: -1 }} />
+
+      {/* Fixed Top Navbar */}
+      <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1300 }}>
+        <PrimarySearchAppBar loggedin={true} searchFunction={searchEverything} />
       </Box>
 
-      {/* Sidebar - fixed position */}
-      <Box sx={{ position: "fixed", top: 64, left: 0, bottom: 0, zIndex: 100 }}>
-        <SidebarLeft loggedin={true} />
-      </Box>
-
-      {/* Main content area */}
+      {/* Fixed Left Sidebar — NEVER SCROLLS */}
       <Box
-  sx={{
-    position: "fixed",
-    top: 64,                         // Under navbar
-    left: { xs: 0, sm: 260 },        // Next to sidebar (260px on desktop)
-    right: 0,
-    bottom: 0,
-    overflowY: "auto",               // Only vertical scroll
-    overflowX: "hidden",
-    bgcolor: "#f5f5f5ff",              // Light background (no black!)
-    px: { xs: 2, sm: 4 },            // Nice padding
-    py: 3,
-  }}
->
-  {/* Optional: center the content like Reddit */}
-  <Box sx={{ maxWidth: "800px", mx: "auto", width: "100%" }}>
-    <NotificationPage />
-  </Box>
-</Box>
-    </Box>
+        sx={{
+          position: "fixed",
+          top: 64,
+          left: 0,
+          width: { xs: 0, sm: 280 },
+          height: "calc(100vh - 64px)",
+          bgcolor: "white",
+          borderRight: "1px solid #edeff1",
+          zIndex: 1200,
+          overflow: "hidden",        // ← THIS IS KEY: no scroll
+        }}
+      >
+        <SidebarLeft />
+      </Box>
+
+      {/* MAIN FIXED + VERTICALLY SCROLLABLE AREA */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 64,
+          left: { xs: 0, sm: 260 },
+          right: 0,
+          bottom: 0,
+          overflowY: "auto",     // ← Only vertical scroll
+          overflowX: "hidden",   // ← No horizontal scroll
+          bgcolor: "#f5f5f5",
+        }}
+      >
+        {/* Community Header */}
+        <UserProfilePage isOwn={props.isOwn} />
+
+        {/* Feed + Right Sidebar */}
+       
+      </Box>
+    </>
   );
 }
 
-export default Notifications;
+export default UserPage;

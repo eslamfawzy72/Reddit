@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const communities = [
   { name: "anime_irl", members: "908K", visitors: "weekly visitors", description: "Very shitposts and memes. Very fun. Very anime.", emoji: "🎌", color: "#FF6B9D", categories: ["Performing Arts", "Art"] },
@@ -16,6 +17,7 @@ const communities = [
 ];
 
 export default function CommunityCard() {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const pageContainerStyle = {
@@ -223,6 +225,7 @@ export default function CommunityCard() {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={() =>navigate('/Community')}
       >
         <div style={cardHeaderStyle}>
           <div style={leftSectionStyle}>

@@ -52,7 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 // -------- MAIN COMPONENT --------
 export default function PrimarySearchAppBar({
-  loggedin = false,
+  loggedin,
   searchFunction,
   onResultClick,
   placeholder = "Search Bluedit…",
@@ -226,12 +226,32 @@ export default function PrimarySearchAppBar({
               </>
             ) : (
               <>
-                <Button variant="contained" sx={{ backgroundColor: '#ea00ffff', borderRadius: '20px', px: 3 }}>
-                  Log In
-                </Button>
-                <Button variant="contained" sx={{ backgroundColor: '#ff0000ff', borderRadius: '20px', px: 3 }}>
-                  Sign Up
-                </Button>
+                <Button
+  variant="contained"
+  onClick={() => navigate("/Login")}
+  sx={{
+    backgroundColor: '#ffffffff',
+    borderRadius: '20px',
+    px: 3,
+    color: 'blue', // text color
+  }}
+>
+  Log In
+</Button>
+
+<Button
+  variant="contained"
+  onClick={() => navigate("/Signup")}
+  sx={{
+    backgroundColor: '#ffffffff',
+    borderRadius: '20px',
+    px: 3,
+    color: 'blue', // text color
+  }}
+>
+  Sign Up
+</Button>
+
               </>
             )}
           </Box>

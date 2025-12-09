@@ -15,6 +15,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ActionBar from './ActionBar';
 
+import CommentSection from "../Components/CommentSection";
 // Expand animation
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -104,16 +105,16 @@ export default function PostCard(props) {
 
   return (
     <Card
-      sx={{
-        maxWidth: 1000,
-        marginBottom: 2,
-        border: '1px solid #ccc',
-        borderRadius: '10px',
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-        position: 'relative'
-
-      }}
-    >
+  sx={{
+    maxWidth: 600,     // try 500, 450, whatever feels good
+    marginBottom: 2,
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
+    position: 'relative',
+    margin: "0 auto"    // keeps it centered
+  }}
+>
       <div
   style={{
     position: "absolute",
@@ -299,10 +300,19 @@ export default function PostCard(props) {
 
       { (
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-            <Typography>{props.post_details}</Typography>
-          </CardContent>
-        </Collapse>
+  <CardContent>
+    {/* POST DETAILS */}
+    {props.post_details && (
+      <Typography sx={{ marginBottom: 2 }}>
+        {props.post_details}
+      </Typography>
+    )}
+
+    {/* COMMENT SECTION */}
+    <CommentSection comments={props.comments || []} />
+  </CardContent>
+</Collapse>
+
       )}
     </Card>
   );
