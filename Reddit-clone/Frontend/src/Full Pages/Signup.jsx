@@ -28,6 +28,8 @@ useEffect(()=>{
       setError("All fields are required.");
       return;
     }
+
+    
     axios.post(`${import.meta.env.VITE_API_URL}/users`,{
     userName:formData.username,
     email:formData.email,

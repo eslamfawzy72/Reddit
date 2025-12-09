@@ -62,6 +62,10 @@ const [posts,setPosts]=React.useState([])
     console.log(err);
   })
 },[])
+
+
+
+
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
       {/* Top search bar */}
