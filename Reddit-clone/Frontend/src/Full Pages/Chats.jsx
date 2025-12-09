@@ -140,7 +140,12 @@ function OtherUserName({ participants }) {
 
 function ChatSidebar({ chats, selectedChat, handleChatSelect }) {
 
-  const sortedChats = [...chats].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedChats = [...chats].sort((a, b) => {
+  const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
+  const timeB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+
+  return timeB - timeA; // recent first
+});
 
   return (
     <>
@@ -183,7 +188,7 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect }) {
               <ListItem key={chat._id} disablePadding>
                 <ListItemButton
                   selected={selectedChat?._id === chat._id}
-                  onClick={() => { }}
+                 onClick={() => handleChatSelect(chat)}
                   sx={{
                     py: 2,
                     borderBottom: "1px solid #1e293b",
@@ -209,7 +214,7 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect }) {
                   />
 
                   <Typography variant="caption" color="gray" sx={{ ml: 2 }}>
-                    {formatTimestamp(chat.timestamp)}
+                    {formatTimestamp(chat.lastMessage?.createdAt)}
                   </Typography>
 
                 </ListItemButton>
@@ -238,60 +243,55 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
     scrollToBottom();
   }, [selectedChat?.messages]);
 
-  const handleSendClick = () => {
-    if (!selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
+ const handleSendClick = async () => {
+  if (!selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
 
-    const now = new Date();
-    const newMessages = [];
+  try {
+    const payload = {
+      sender: localStorage.getItem("userId"),
+      content: message.trim(),
+      attachments: attachedFiles.map((file) => ({
+        url: file.url,
+        type: "file"
+      }))
+    };
 
-    if (message.trim()) {
-      newMessages.push({
-        id: Date.now(),
-        senderId: 0,
-        type: "text",
-        content: message.trim(),
-        time: now,
-      });
-    }
-
-    attachedFiles.forEach((file) =>
-      newMessages.push({
-        id: Date.now() + Math.random(),
-        senderId: 0,
-        type: "file",
-        file,
-        fileName: file.name,
-        fileType: file.type,
-        time: now,
-      })
+    // WAIT FOR THE RESPONSE
+    const res = await axios.post(
+      `http://localhost:5000/messages/${selectedChat._id}`,
+      payload
     );
 
-    const lastMsgContent =
-      message.trim() || (attachedFiles.length === 1 ? attachedFiles[0].name : `${attachedFiles.length} files`);
+    const realMsg = res.data.data; // populated message from backend
 
+    // Update chat messages
+    setSelectedChat((prev) => ({
+      ...prev,
+      messages: [...prev.messages, realMsg],
+    }));
+
+    // Update chat list (sidebar)
     setChats((prev) =>
       prev.map((chat) =>
         chat._id === selectedChat._id
-
           ? {
-            ...chat,
-            messages: [...chat.messages, ...newMessages],
-            timestamp: now,
-            lastMessage: { content: lastMsgContent, time: now },
-          }
+              ...chat,
+              lastMessage: realMsg,
+              updatedAt: realMsg.createdAt,
+            }
           : chat
       )
     );
 
-    setSelectedChat((prev) => ({
-      ...prev,
-      messages: [...prev.messages, ...newMessages],
-      timestamp: now,
-    }));
-
     setMessage("");
     setAttachedFiles([]);
-  };
+
+  } catch (err) {
+    console.error("Send message failed:", err);
+  }
+};
+
+
 
   const removeFile = (index) => {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
@@ -332,18 +332,21 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
 
           return (
             <Box
-              key={msg.id}
+              key={msg._id}
               sx={{
-                alignSelf: msg.senderId === 0 ? "flex-end" : "flex-start",
-                bgcolor: msg.senderId === 0 ? "#1e90ff" : "#1e293b",
+                alignSelf: msg.sender._id.toString() === localStorage.getItem("userId") ? "flex-end" : "flex-start",
+                bgcolor: msg.sender._id.toString() === localStorage.getItem("userId") ? "#1e90ff" : "#111e34ff",
                 color: "white",
                 px: 2.5,
                 py: 1.5,
                 borderRadius: "18px",
                 maxWidth: "70%",
-                boxShadow: msg.senderId === 0 ? "0 4px 20px rgba(30,144,255,0.4)" : "none",
+                boxShadow: msg.sender._id.toString() === localStorage.getItem("userId") ? "0 4px 20px rgba(30,144,255,0.4)" : "none",
               }}
             >
+              <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.75rem", display: "block", mt: 0.5 }}>
+                {msg.sender.userName}
+              </Typography>
               {isFile && (isImage || isVideo) ? (
                 <Box sx={{ borderRadius: 2, overflow: "hidden", mb: 1 }}>
                   {isImage && (
@@ -371,7 +374,7 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
               )}
 
               <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.75rem", display: "block", mt: 0.5 }}>
-                {formatTimestamp(msg.time)}
+                {formatTimestamp(msg.createdAt)}
               </Typography>
             </Box>
           );
@@ -444,16 +447,19 @@ export default function ChatApp(props) {
   }, []);
 
 
-  // const handleChatSelect = async (chat) => {
-  //   setSelectedChat({ ...chat, loading: true });
+const handleChatSelect = async (chat) => {
+  const chatIdToFetch =chat._id; // use chatId if exists
 
-  //   try {
-  //     const res = await axios.get(`http://localhost:5000/chat/${chat._id}/messages`);
-  //     setSelectedChat({ ...chat, messages: res.data, loading: false });
-  //   } catch (err) {
-  //     console.error("Error loading messages:", err);
-  //   }
-  // };
+  setSelectedChat({ ...chat, messages: [], loading: true });
+
+  try {
+    const res = await axios.get(`http://localhost:5000/messages/${chatIdToFetch}`);
+    setSelectedChat({ ...chat, messages: res.data.data, loading: false });
+  } catch (err) {
+    console.error("Error loading messages:", err);
+  }
+};
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -475,6 +481,7 @@ export default function ChatApp(props) {
       >
         <ChatSidebar chats={chats}
           selectedChat={selectedChat}
+          handleChatSelect={handleChatSelect}
         />
 
         <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} chats={chats} setChats={setChats} />

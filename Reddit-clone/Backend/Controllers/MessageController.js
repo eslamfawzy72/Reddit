@@ -1,6 +1,5 @@
 import Message from "../Models/Message.js";
-
-
+import Chat from "../Models/Chat.js";
 export const createMessage = async (req, res) => {
     try {
         const { chatId } = req.params;
@@ -10,7 +9,7 @@ export const createMessage = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields." });
         }
 
-        // Create the message
+        // 1️⃣ Create the message
         let message = await Message.create({
             chatId,
             sender,
@@ -18,15 +17,26 @@ export const createMessage = async (req, res) => {
             attachments: attachments || []
         });
 
-        // Populate sender info
+        // 2️⃣ Populate sender before returning
         message = await message.populate("sender", "userName image");
 
+        // 3️⃣ UPDATE LAST MESSAGE IN CHAT
+        await Chat.findByIdAndUpdate(
+            chatId,
+            {
+                lastMessage: message._id,  // set new last message
+                updatedAt: Date.now()      // update timestamp
+            }
+        );
+
+        // 4️⃣ Return the created message
         res.status(201).json({ success: true, data: message });
 
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
 
 
 
