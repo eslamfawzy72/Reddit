@@ -22,9 +22,10 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:5173", // frontend origin
-  credentials: true,               // allow cookies
-}));app.use(cookieParser());
+  origin: ["http://localhost:5173", "http://localhost:5175"],
+  credentials: true
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 // Test route
@@ -39,7 +40,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes 
 //auth router (middleware)
-app.use("/auth",authRouter)
+app.use("/auth", authRouter)
 // user routes (middleware)
 app.use("/users", userRoutes);
 // Posts routes(middleware)

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+
 import {
   Avatar,
   List,
@@ -14,10 +16,6 @@ import {
   ThemeProvider,
   createTheme,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  InputBase,
   Paper,
   Stack,
 } from "@mui/material";
@@ -39,73 +37,7 @@ const theme = createTheme({
   typography: { fontFamily: '"Inter", sans-serif' },
 });
 
-const availableUsers = [
-  { id: 6, name: "Jordan Lee", avatarUrl: null },
-  { id: 7, name: "Taylor Swift", avatarUrl: "https://randomuser.me/api/portraits/women/65.jpg" },
-  { id: 8, name: "Chris Hemsworth", avatarUrl: null },
-  { id: 9, name: "Lana Del Rey", avatarUrl: "https://randomuser.me/api/portraits/women/22.jpg" },
-  { id: 10, name: "Elon Musk", avatarUrl: null },
-  { id: 11, name: "Zendaya", avatarUrl: "https://randomuser.me/api/portraits/women/77.jpg" },
-  { id: 12, name: "Drake", avatarUrl: null },
-  { id: 13, name: "Ariana Grande", avatarUrl: "https://randomuser.me/api/portraits/women/33.jpg" },
-];
 
-const initialChats = [
-  {
-    id: 1,
-    name: "Alex Chen",
-    avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg",
-    timestamp: new Date(Date.now() - 2 * 60 * 1000),
-    lastMessage: { content: "All good here, just cruising", time: new Date(Date.now() - 2 * 60 * 1000) },
-    messages: [
-      { id: 1, senderId: 1, content: "Hey! How's it going?", time: new Date(Date.now() - 4 * 60 * 1000) },
-      { id: 2, senderId: 0, content: "All good here, just cruising", time: new Date(Date.now() - 2 * 60 * 1000) },
-    ],
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    avatarUrl: null,
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    lastMessage: { content: "Glad it helped", time: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    messages: [
-      { id: 3, senderId: 2, content: "That article was super helpful!", time: new Date(Date.now() - 24 * 60 * 60 * 1000 - 2 * 60 * 1000) },
-      { id: 4, senderId: 0, content: "Glad it helped", time: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    ],
-  },
-  {
-    id: 3,
-    name: "Mike Rivera",
-    avatarUrl: null,
-    timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
-    lastMessage: { content: "Locked and loaded", time: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
-    messages: [
-      { id: 5, senderId: 3, content: "Don't forget the slides tomorrow.", time: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 - 2 * 60 * 1000) },
-      { id: 6, senderId: 0, content: "Locked and loaded", time: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
-    ],
-  },
-  {
-    id: 4,
-    name: "Emma Davis",
-    avatarUrl: null,
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    lastMessage: { content: "You're a legend", time: new Date(Date.now() - 30 * 60 * 1000) },
-    messages: [
-      { id: 7, senderId: 4, content: "I'll start designing the layout now.", time: new Date(Date.now() - 35 * 60 * 1000) },
-      { id: 8, senderId: 0, content: "You're a legend", time: new Date(Date.now() - 30 * 60 * 1000) },
-    ],
-  },
-  {
-    id: 5,
-    name: "Tom Wilson",
-    avatarUrl: null,
-    timestamp: new Date(Date.now() - 20 * 60 * 1000),
-    lastMessage: { content: "Do you have the latest version?", time: new Date(Date.now() - 20 * 60 * 1000) },
-    messages: [
-      { id: 9, senderId: 5, content: "Do you have the latest version?", time: new Date(Date.now() - 20 * 60 * 1000) },
-    ],
-  },
-];
 
 const formatTimestamp = (date) => {
   const now = new Date();
@@ -119,25 +51,7 @@ const formatTimestamp = (date) => {
   return msgDate.toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
-function ChatAvatar({ name, avatarUrl, ...props }) {
-  const firstLetter = name.charAt(0).toUpperCase();
-  return (
-    <Avatar
-      alt={name}
-      src={avatarUrl || undefined}
-      {...props}
-      sx={{
-        width: 50,
-        height: 50,
-        bgcolor: avatarUrl ? undefined : "#1e90ff",
-        boxShadow: "0 0 15px rgba(30,144,255,0.5)",
-        ...props.sx,
-      }}
-    >
-      {!avatarUrl && firstLetter}
-    </Avatar>
-  );
-}
+
 
 function FilePreview({ files, onRemove }) {
   if (files.length === 0) return null;
@@ -187,81 +101,45 @@ function FilePreview({ files, onRemove }) {
   );
 }
 
-function AddChatDialog({ open, onClose, chats, setChats, setSelectedChat }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const filteredUsers = availableUsers.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
-  const handleStartChat = (user) => {
-    const now = new Date();
-    const exists = chats.some((c) => c.id === user.id);
+const getUserNameById = async (id) => {
+  try {
+    const res = await axios.get(`http://localhost:5000/users/${id}`);
+    return res.data?.user?.userName || res.data?.data?.userName || "Unknown User";
+  } catch (err) {
+    console.error("Failed to fetch username:", err);
+    return "Unknown User";
+  }
+};
 
-    if (exists) {
-      setSelectedChat(chats.find((c) => c.id === user.id));
-      onClose();
+function OtherUserName({ participants }) {
+  const myId = localStorage.getItem("userId");
+  const [name, setName] = React.useState("Loading...");
+
+  useEffect(() => {
+    if (!participants || participants.length < 2) {
+      setName("Unknown User");
       return;
     }
 
-    const waveMessage = {
-      id: Date.now(),
-      senderId: 0,
-      content: "You started a chat",
-      time: now,
-    };
+    // participants are FULL USER OBJECTS from populate()
+    const otherUser = participants.find(p => p._id !== myId);
 
-    const newChat = {
-      id: user.id,
-      name: user.name,
-      avatarUrl: user.avatarUrl,
-      timestamp: now,
-      lastMessage: waveMessage,
-      messages: [waveMessage],
-    };
+    if (otherUser) {
+      setName(otherUser.userName);
+    } else {
+      setName("Unknown User");
+    }
+  }, [participants]);
 
-    setChats((prev) => [...prev, newChat]);
-    setSelectedChat(newChat);
-    onClose();
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { bgcolor: "#0f172a" } }}>
-      <DialogTitle sx={{ bgcolor: "#020617", color: "white" }}>Start New Chat</DialogTitle>
-      <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ p: 2, borderBottom: "1px solid #1e293b" }}>
-          <InputBase
-            fullWidth
-            placeholder="Search people..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            startAdornment={<SearchIcon sx={{ mr: 1, color: "gray" }} />}
-            sx={{ bgcolor: "#111827", borderRadius: 2, px: 2, py: 1, color: "white" }}
-          />
-        </Box>
-
-        <List sx={{ maxHeight: 400, overflow: "auto" }}>
-          {filteredUsers.length === 0 ? (
-            <Typography sx={{ p: 3, textAlign: "center", color: "gray" }}>No users found</Typography>
-          ) : (
-            filteredUsers.map((user) => (
-              <ListItem key={user.id} disablePadding>
-                <ListItemButton onClick={() => handleStartChat(user)}>
-                  <ListItemAvatar>
-                    <ChatAvatar name={user.name} avatarUrl={user.avatarUrl} />
-                  </ListItemAvatar>
-                  <ListItemText primary={user.name} />
-                </ListItemButton>
-              </ListItem>
-            ))
-          )}
-        </List>
-      </DialogContent>
-    </Dialog>
-  );
+  return <>{name}</>;
 }
 
-function ChatSidebar({ chats, selectedChat, setSelectedChat, setChats }) {
-  const [addChatOpen, setAddChatOpen] = useState(false);
+
+
+
+function ChatSidebar({ chats, selectedChat, handleChatSelect }) {
+
   const sortedChats = [...chats].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
@@ -293,52 +171,56 @@ function ChatSidebar({ chats, selectedChat, setSelectedChat, setChats }) {
             Chats
           </Typography>
 
-          <Button variant="contained" color="success" size="small" startIcon={<WavingHandIcon />} onClick={() => setAddChatOpen(true)}>
-            New Chat
-          </Button>
         </Box>
-
         <List sx={{ flexGrow: 1, overflow: "auto" }}>
-          {sortedChats.map((chat) => (
-            <ListItem key={chat.id} disablePadding>
-              <ListItemButton
-                selected={selectedChat?.id === chat.id}
-                onClick={() => setSelectedChat(chat)}
-                sx={{
-                  py: 2,
-                  borderBottom: "1px solid #1e293b",
-                  "&.Mui-selected": { bgcolor: "#0f172a" },
-                }}
-              >
-                <ListItemAvatar>
-                  <ChatAvatar name={chat.name} avatarUrl={chat.avatarUrl} />
-                </ListItemAvatar>
+          {sortedChats.map((chat) => {
 
-                <ListItemText
-                  primary={<Typography color="white" fontWeight="600">{chat.name}</Typography>}
-                  secondary={
-                    <Typography variant="body2" color="gray" noWrap>
-                      {chat.lastMessage.content}
-                    </Typography>
-                  }
-                />
+            // 🔥 ADD THESE DEBUG LOGS RIGHT HERE 🔥
+            console.log("Chat Participants:", chat.participants);
+            console.log("My ID:", localStorage.getItem("userId"));
 
-                <Typography variant="caption" color="gray" sx={{ ml: 2 }}>
-                  {formatTimestamp(chat.timestamp)}
-                </Typography>
-              </ListItemButton>
-            </ListItem>
-          ))}
+            return (
+              <ListItem key={chat._id} disablePadding>
+                <ListItemButton
+                  selected={selectedChat?._id === chat._id}
+                  onClick={() => { }}
+                  sx={{
+                    py: 2,
+                    borderBottom: "1px solid #1e293b",
+                    "&.Mui-selected": { bgcolor: "#0f172a" },
+                  }}
+                >
+
+                  <ListItemText
+                    primary={
+                      <Typography color="white" fontWeight="600">
+                        {chat.isGroupChat ? (
+                          chat.name
+                        ) : (
+                          <OtherUserName participants={chat.participants} />
+                        )}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography variant="body2" color="gray" noWrap>
+                        {chat.lastMessage?.content || "No messages yet"}
+                      </Typography>
+                    }
+                  />
+
+                  <Typography variant="caption" color="gray" sx={{ ml: 2 }}>
+                    {formatTimestamp(chat.timestamp)}
+                  </Typography>
+
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
+
+
       </Box>
 
-      <AddChatDialog
-        open={addChatOpen}
-        onClose={() => setAddChatOpen(false)}
-        chats={chats}
-        setChats={setChats}
-        setSelectedChat={setSelectedChat}
-      />
     </>
   );
 }
@@ -389,13 +271,14 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
 
     setChats((prev) =>
       prev.map((chat) =>
-        chat.id === selectedChat.id
+        chat._id === selectedChat._id
+
           ? {
-              ...chat,
-              messages: [...chat.messages, ...newMessages],
-              timestamp: now,
-              lastMessage: { content: lastMsgContent, time: now },
-            }
+            ...chat,
+            messages: [...chat.messages, ...newMessages],
+            timestamp: now,
+            lastMessage: { content: lastMsgContent, time: now },
+          }
           : chat
       )
     );
@@ -428,9 +311,12 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", bgcolor: "#0f172a" }}>
       {/* Header */}
       <Box sx={{ bgcolor: "#020617", p: 2, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #1e293b" }}>
-        <ChatAvatar name={selectedChat.name} avatarUrl={selectedChat.avatarUrl} />
+
         <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
-          {selectedChat.name}
+          {selectedChat.isGroupChat
+            ? selectedChat.name
+            : <OtherUserName participants={selectedChat.participants} />
+          }
         </Typography>
         <IconButton color="primary">
           <MoreVertIcon />
@@ -537,9 +423,37 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
   );
 }
 
+
 export default function ChatApp(props) {
-  const [chats, setChats] = useState(initialChats);
+  const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  localStorage.setItem("userId", "6924c11062dbde5200745c28");
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+
+        const res = await axios.get(`http://localhost:5000/chat/user/${userId}`);
+        setChats(res.data.data);
+      } catch (err) {
+        console.error("Error fetching chats:", err);
+      }
+    };
+
+    fetchChats();
+  }, []);
+
+
+  // const handleChatSelect = async (chat) => {
+  //   setSelectedChat({ ...chat, loading: true });
+
+  //   try {
+  //     const res = await axios.get(`http://localhost:5000/chat/${chat._id}/messages`);
+  //     setSelectedChat({ ...chat, messages: res.data, loading: false });
+  //   } catch (err) {
+  //     console.error("Error loading messages:", err);
+  //   }
+  // };
 
   return (
     <ThemeProvider theme={theme}>
@@ -559,7 +473,10 @@ export default function ChatApp(props) {
           p: 0,
         }}
       >
-        <ChatSidebar chats={chats} selectedChat={selectedChat} setSelectedChat={setSelectedChat} setChats={setChats} />
+        <ChatSidebar chats={chats}
+          selectedChat={selectedChat}
+        />
+
         <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} chats={chats} setChats={setChats} />
       </Box>
     </ThemeProvider>
