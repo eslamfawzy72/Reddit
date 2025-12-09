@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 // const communities = [
 //   { name: "anime_irl", members: "908K", visitors: "weekly visitors", description: "Very shitposts and memes. Very fun. Very anime.", emoji: "🎌", color: "#FF6B9D", categories: ["Performing Arts", "Art"] },
 //   { name: "funny", members: "42.2M", visitors: "weekly visitors", description: "Reddit's largest humour depository.", emoji: "😂", color: "#FF4500", categories: ["Performing Arts"] },
@@ -217,7 +217,7 @@ const filteredCommunities =
       );
 
   const CommunityCardItem = ({ community }) => {
-    const [joined, setJoined] = useState(false);
+const [joined, setJoined] = useState(community.isJoined);
     const [isHovered, setIsHovered] = useState(false);
 
     return (
@@ -240,16 +240,30 @@ onClick={() => navigate(`/community`)}
           </div>
           <button
             type="button"
-            style={{
-              ...joinButtonStyle,
-              backgroundColor: joined ? "#F5F5F5" : "#0079D3",
-              color: joined ? "#0079D3" : "#fff",
-              border: joined ? "1px solid #0079D3" : "none",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setJoined(!joined);
-            }}
+      style={{
+  ...joinButtonStyle,
+  backgroundColor: joined ? "#F5F5F5" : "#0079D3",
+  color: joined ? "#0079D3" : "#fff",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: joined ? "#0079D3" : "transparent",
+}}
+           onClick={async (e) => {
+  e.stopPropagation();
+
+  try {
+    await axios.post(
+      `${import.meta.env.VITE_API_URL}/communities/${community._id}/join`,
+      {},
+      { withCredentials: true }
+    );
+
+    setJoined(true);
+  } catch (err) {
+    console.error(err.response?.data || err);
+    alert(err.response?.data?.message || "Failed to join community");
+  }
+}}
             onMouseEnter={(e) => {
               if (!joined) {
                 e.target.style.backgroundColor = "#1484D6";

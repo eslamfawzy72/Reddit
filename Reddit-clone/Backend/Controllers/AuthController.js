@@ -20,7 +20,7 @@ export const register = async (req, res) => {
     email,
     password: hashedPassword,
     interests,
-     createdAt: new Date()
+    createdAt: new Date()
   });
 
   generateToken(res, user._id);
@@ -65,3 +65,7 @@ export const logout = (req, res) => {
 
   res.json({ message: "Logged out successfully" });
 };
+
+export const check=(req,res)=>{
+  res.json({ user: req.user });
+}

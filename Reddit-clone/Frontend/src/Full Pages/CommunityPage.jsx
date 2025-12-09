@@ -1,4 +1,6 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Box } from "@mui/material";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import SidebarLeft from "../Components/SidebarLeft.jsx";
@@ -81,6 +83,10 @@ const mockPosts = [
 ];
 
 function CommunityPage(props) {
+    const { communityID } = useParams();
+  const [community, setCommunity] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   return (
     <>
       {/* Full light background */}

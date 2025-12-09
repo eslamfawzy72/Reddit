@@ -15,7 +15,8 @@ import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { useNavigate } from 'react-router-dom';
-import UserMenu from './UserMenu';
+import { useAuth } from "../Context/AuthContext";
+import UserMenu from "../Components/UserMenu";
 // -------- SEARCH STYLING --------
 const SearchContainer = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -52,7 +53,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 // -------- MAIN COMPONENT --------
 export default function PrimarySearchAppBar({
-  loggedin,
   searchFunction,
   onResultClick,
   placeholder = "Search Bluedit…",
@@ -64,6 +64,7 @@ export default function PrimarySearchAppBar({
   const [open, setOpen] = React.useState(false);
   const [results, setResults] = React.useState([]);
   const [renderItem, setRenderItem] = React.useState(null);
+  const{isLoggedIn}=useAuth()
 
   const navigate = useNavigate()
     // Search logic
@@ -192,7 +193,7 @@ export default function PrimarySearchAppBar({
 
           {/* RIGHT SIDE BUTTONS */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1.5 }}>
-            {loggedin ? (
+            {isLoggedIn ? (
               <>
                 {/* DM ICON */}
                 <IconButton onClick={()=>navigate("/Chats")}size="large" sx={{ color: "white" }}>

@@ -1,23 +1,46 @@
 import Post from "../Models/Post.js";
 import User from "../Models/User.js";
-import dotenv from "dotenv";
-import OpenAI from "openai";
-dotenv.config();
-  const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import axios from "axios"
 
 export async function getAllPosts(req, res) {
   try {
-    const posts = await Post.find();
-    if (!posts) {
-      return;
+    const posts = await Post.find()
+      .populate({
+        path: "userID",          
+        select: "userName image", 
+      })
+      .sort({ date: -1 });       
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No posts found" });
     }
-    res.json(posts);
+
+    const formattedPosts = posts.map(post => ({
+      _id: post._id,
+      postID: post.postID,
+      communityID: post.communityID,
+      categories: post.categories,
+      description: post.description,
+      images: post.images,
+      edited: post.edited,
+      upvoteCount: post.upvoteCount,
+      downvoteCount: post.downvoteCount,
+      commentCount: post.commentCount,
+      comments: post.comments,
+      date: post.date,
+      user: post.userID ? {
+        userName: post.userID.userName,
+        image: post.userID.image,
+        _id: post.userID._id
+      } : null
+    }));
+
+    res.json(formattedPosts);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
+
 
 export async function getPostByID(req,res){
     try{
@@ -147,9 +170,6 @@ export async function updatePostByID(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-
-
-
 export async function getSummary(req, res) {
   try {
     const { postID } = req.params;
@@ -159,25 +179,98 @@ export async function getSummary(req, res) {
       return res.status(404).json({ message: "Post not found!" });
     }
 
-    let summary = '';
+    let summary = "";
 
-    // Check if post contains long text
     if (post.description && post.description.length > 100) {
       try {
-        const response = await openai.responses.create({
-          model: "gpt-3.5-turbo",
-          input: `Summarize this post in one short sentence: ${post.description}`
-        });
+        const response = await axios.post(
+          `${process.env.GEMINI_API_URL}/v1beta2/models/gemini-1.5:generateMessage`,
+          {
+            input: {
+              messages: [
+                {
+                  author: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: `Summarize this post in one short sentence: ${post.description}`,
+                    },
+                  ],
+                },
+              ],
+            },
+            temperature: 0.5,
+            maxOutputTokens: 50,
+          },
+          {
+            headers: {
+              "Authorization": `Bearer ${process.env.GEMINI_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      summary = response.output[0].content[0].text;
-      } catch (aiError) {
-        console.error("OpenAI Error:", aiError);
+        console.log("Gemini response:", JSON.stringify(response.data, null, 2));
+
+        summary =
+          response.data?.candidates?.[0]?.content?.[0]?.text?.trim() || "no summary";
+
+      } catch (apiError) {
+        console.error("Gemini API Error:", apiError.response?.data || apiError.message);
+        summary = "no summary";
       }
     }
 
     return res.status(200).json({ summary });
 
   } catch (err) {
+    console.error("Server Error:", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get all posts for a specific community
+export async function getPostsByCommunityID(req, res) {
+  try {
+    const { communityID } = req.params;
+
+    // Fetch posts for this community, newest first
+    const posts = await Post.find({ communityID })
+      .populate({
+        path: "userID",
+        select: "userName image", // include only necessary fields
+      })
+      .sort({ date: -1 });
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No posts found for this community" });
+    }
+
+    // Format posts
+    const formattedPosts = posts.map(post => ({
+      _id: post._id,
+      postID: post.postID,
+      communityID: post.communityID,
+      categories: post.categories,
+      description: post.description,
+      images: post.images,
+      edited: post.edited,
+      upvoteCount: post.upvoteCount,
+      downvoteCount: post.downvoteCount,
+      commentCount: post.commentCount,
+      comments: post.comments,
+      date: post.date,
+      user: post.userID ? {
+        userName: post.userID.userName,
+        image: post.userID.image,
+        _id: post.userID._id
+      } : null
+    }));
+
+    return res.status(200).json(formattedPosts);
+
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }

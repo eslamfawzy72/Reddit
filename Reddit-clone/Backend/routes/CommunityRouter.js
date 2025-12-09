@@ -1,21 +1,23 @@
  import express from "express";
  import {
 //   createCommunity,
-   getAllCommunities
-//   getCommunityById,
+   getAllCommunities,
+  getCommunityById,
+   joinCommunity
 //   updateCommunity,
 //   deleteCommunity,
-//   joinCommunity,
+  
 //   leaveCommunity,
 //   getCommunityByName,
  } from "../Controllers/CommunityController.js";
 // import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // // Public routes
- router.get("/", getAllCommunities);
-// router.get("/:id", getCommunityById);
+ router.get("/",getAllCommunities);
+ router.get("/:id", getCommunityById);
 // router.get("/name/:commName", getCommunityByName);
 
 // // Protected routes
@@ -23,7 +25,7 @@ const router = express.Router();
 // router.patch("/:id", authMiddleware, updateCommunity);
 // router.delete("/:id", authMiddleware, deleteCommunity);
 
-// router.post("/:id/join", authMiddleware, joinCommunity);
+ router.post("/:id/join",protect , joinCommunity);
 // router.post("/:id/leave", authMiddleware, leaveCommunity);
 
  export default router;

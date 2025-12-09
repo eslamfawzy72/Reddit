@@ -180,10 +180,13 @@ useEffect(() => {
     console.log(err);
   })
 },[])
-
-
-
-
+useEffect(() => {
+ axios.get(`${import.meta.env.VITE_API_URL}/users`,{withCredentials:true}).then((res)=>{
+    console.log(res.data);
+  }).catch((err)=>{
+    console.log(err);
+  })
+},[])
 
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
@@ -234,30 +237,30 @@ useEffect(() => {
             gap: 3,
           }}
         >
-          {posts.length === 0 ? (
-            <Box sx={{ textAlign: "center", color: "#666", py: 8 }}>
-              Loading posts...
-            </Box>
-          ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post._id}
-                id={post._id}
-                user_name={post.userId || "Unknown User"}
-                user_avatar={post.user_avatar || "https://i.pravatar.cc/48?img=1"}
-                description={post.description}
-                images={post.images || []}
-                comments={post.comments}
-                upvoteCount={post.upvoteCount || 0}
-                downvoteCount={post.downvoteCount || 0}
-                commentCount={post.commentCount || 0}
-                date={post.date}
-                community_name={post.community_name || "b/unknown"}
-                categories={post.categories || []}
-                edited={post.edited || false}
-              />
-            ))
-          )}
+        {posts.length === 0 ? (
+  <Box sx={{ textAlign: "center", color: "#666", py: 8 }}>
+    Loading posts...
+  </Box>
+) : (
+  posts.map((post) => (
+    <PostCard
+      key={post._id}
+      id={post._id}
+      user_name={post.user?.userName || "Unknown User"}       // <- use populated user
+      user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"} // <- use populated user
+      description={post.description}
+      images={post.images || []}
+      comments={post.comments}
+      upvoteCount={post.upvoteCount || 0}
+      downvoteCount={post.downvoteCount || 0}
+      commentCount={post.commentCount || 0}
+      date={post.date}
+      community_name={post.community_name || "b/unknown"}
+      categories={post.categories || []}
+      edited={post.edited || false}
+    />
+  ))
+)}
         </Box>
       </Box>
     </Box>

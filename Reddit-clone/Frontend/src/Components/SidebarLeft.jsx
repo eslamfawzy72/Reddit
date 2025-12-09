@@ -1,9 +1,11 @@
 // src/components/SidebarLeft.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 export default function SidebarLeft(props) {
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
+  const{isLoggedIn}=useAuth()
  const navItems = [
     { name: "Home", icon: "🏠" },
     { name: "Popular", icon: "🔥" },
@@ -74,7 +76,7 @@ export default function SidebarLeft(props) {
             ))}
           </ul>
 
-          {props.loggedin&&(
+          {isLoggedIn&&(
           <div style={{ marginTop: "30px" }}>
             <button
               style={{
@@ -122,6 +124,7 @@ export default function SidebarLeft(props) {
               key={item.name}
               style={{ fontSize: "24px", textAlign: "center", cursor: "pointer" }}
               title={item.name}
+               onClick={() => navigate("/" + item.name)}
             >
               {item.icon}
             </div>

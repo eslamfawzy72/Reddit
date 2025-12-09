@@ -19,37 +19,54 @@
 // // Get all communities (with optional search)
 export const getAllCommunities = async (req, res) => {
   try {
+    const userId = req.user?._id; 
+
     const communities = await Community.find();
-    res.status(200).json(communities);
+
+    const communitiesWithJoinState = communities.map((community) => {
+      const isJoined =
+        userId &&
+        community.members.some(
+          (memberId) => memberId.toString() === userId.toString()
+        );
+
+      return {
+        ...community.toObject(),
+        isJoined,
+      };
+    });
+
+    res.status(200).json(communitiesWithJoinState);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// // Get a single community by ID
+export const getCommunityById = async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id)
+      .populate("members", "username")
+      .populate("moderators", "username");
+    if (!community) return res.status(404).json({ message: "Community not found" });
+    res.status(200).json(community);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
-// // Get a single community by ID
-// export const getCommunityById = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.id)
-//       .populate("members", "username")
-//       .populate("moderators", "username");
-//     if (!community) return res.status(404).json({ message: "Community not found" });
-//     res.status(200).json(community);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-// // Get a single community by ID
-// export const getCommunityByName = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.commName)
-//       .populate("members", "username")
-//       .populate("moderators", "username");
-//     if (!community) return res.status(404).json({ message: "Community not found" });
-//     res.status(200).json(community);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+// Get a single community by ID
+export const getCommunityByName = async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.commName)
+      .populate("members", "username")
+      .populate("moderators", "username");
+    if (!community) return res.status(404).json({ message: "Community not found" });
+    res.status(200).json(community);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // // Update community (only moderators)
 // export const updateCommunity = async (req, res) => {
@@ -87,21 +104,21 @@ export const getAllCommunities = async (req, res) => {
 // };
 
 // // Join community
-// export const joinCommunity = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.id);
-//     if (!community) return res.status(404).json({ message: "Community not found" });
+export const joinCommunity = async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).json({ message: "Community not found" });
 
-//     if (community.members.includes(req.user._id))
-//       return res.status(400).json({ message: "Already a member" });
+    if (community.members.includes(req.user._id))
+      return res.status(400).json({ message: "Already a member" });
 
-//     community.members.push(req.user._id);
-//     await community.save();
-//     res.status(200).json({ message: "Joined the community" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+    community.members.push(req.user._id);
+    await community.save();
+    res.status(200).json({ message: "Joined the community" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // // Leave community
 // export const leaveCommunity = async (req, res) => {

@@ -2,14 +2,14 @@ import express from "express";
 import {getAllUsers,getUserByID, getUserByName,
     deleteUserByID,getUserCommunities,getUserFollowers
     ,getSpecificPosts,addNewUser,updateUser,getUserPosts} from "../Controllers/UserController.js";
-
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 //http:localhost/reddit/users/
 // GET all users
-router.get("/", getAllUsers);
+router.get("/", protect,getAllUsers);
 //add user will be used in sign up
-router.post('/', addNewUser)
+//router.post('/', addNewUser)
 //get user by username
 router.get("/username/:username", getUserByName);
 //get user Communities

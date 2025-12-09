@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../Context/AuthContext";
 import {
   Box,
   Button,
@@ -15,6 +16,7 @@ const BLUE_HOVER = "#0055cc";
 
 export default function Login() {
   const navigate = useNavigate();
+const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,8 +31,9 @@ export default function Login() {
         { withCredentials: true } 
       );
 
-      alert("Login successful!");
-  navigate("/Home", { state: { isLoggedIn: true } });
+    alert("Login successful!");
+    login();  
+    navigate("/Home");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password");
     }

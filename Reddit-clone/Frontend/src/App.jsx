@@ -56,6 +56,7 @@ function App() {
             <Route path="/Notifications" element={<Notifications />} />     
             <Route path="/Chats" element={<Chats />}/>
             <Route path="/CreatePost" element={<CreatePost />} />
+             <Route path="/community/:communityID" element={<CommunityPage />} />
             <Route path="/Community" element={<CommunityPage />} />
             <Route path="/Profile" element={<UserPage isOwn={false}/>} />
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />

@@ -1,15 +1,23 @@
 import React from "react";
 import { Box, Button, Avatar, Typography } from "@mui/material";
 
-export default function CommunityHeader(props) {
+export default function CommunityHeader({
+  name = "Community Name",
+  avatar = "JH",
+  banner = "https://images.unsplash.com/photo-1503264116251-35a269479413",
+  membersCount = 0,
+  onlineCount = 0,
+  onCreatePost = () => {},
+  onJoin = () => {},
+}) {
   return (
     <Box
       sx={{
         bgcolor: "#0d0d0d",
         color: "#ffffff",
         width: "80%",
-        maxWidth: { xs: "100%", sm: "1000px" },   // Limits width like Reddit
-        mx: "auto",                               // Centers it
+        maxWidth: { xs: "100%", sm: "1000px" },
+        mx: "auto",
         borderRadius: 3,
         overflow: "hidden",
         mb: 4,
@@ -20,7 +28,7 @@ export default function CommunityHeader(props) {
       <Box
         sx={{
           height: { xs: 140, sm: 200 },
-          backgroundImage: 'url("https://images.unsplash.com/photo-1503264116251-35a269479413")',
+          backgroundImage: `url(${banner})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -46,18 +54,18 @@ export default function CommunityHeader(props) {
               fontSize: 32,
               fontWeight: "bold",
               border: "4px solid #0d0d0d",
-              mt: -6,                       // Pulls avatar up over the banner
+              mt: -6,
             }}
           >
-            JH
+            {avatar}
           </Avatar>
 
           <Box>
             <Typography variant="h5" fontWeight="bold">
-              r/janahasheesh
+              r/{name}
             </Typography>
             <Typography variant="body2" color="gray">
-              42k members • 1.2k online
+              {membersCount.toLocaleString()} members • {onlineCount.toLocaleString()} online
             </Typography>
           </Box>
         </Box>
@@ -73,6 +81,7 @@ export default function CommunityHeader(props) {
               px: 3,
               "&:hover": { bgcolor: "#0066cc" },
             }}
+            onClick={onCreatePost}
           >
             Create Post
           </Button>
@@ -85,6 +94,7 @@ export default function CommunityHeader(props) {
               fontWeight: "bold",
               "&:hover": { borderColor: "#0066cc", bgcolor: "rgba(0,100,200,0.1)" },
             }}
+            onClick={onJoin}
           >
             Join
           </Button>

@@ -73,25 +73,14 @@ export default function SignUp() {
 
     // Required fields
     if (!username || !email || !password) {
-      setError("Username, email, and password are required.");
+      alert("Username, email, and password are required.");
       return;
     }
 
-    // Validate email
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
 
     // Validate interests
     if (!Array.isArray(interests) || interests.some(i => typeof i !== "string")) {
-      setError("Interests must be a list of strings.");
+      alert("Interests must be a list of strings.");
       return;
     }
 
@@ -100,9 +89,9 @@ export default function SignUp() {
       email,
       password,
       interests,
-      createdAt: new Date(), // Required by Mongo validation
+      createdAt: new Date(), 
     };
-
+    
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/register`,
@@ -171,6 +160,18 @@ export default function SignUp() {
                   setError("All fields are required");
                   return;
                 }
+                    // Validate email
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
                 setError("");
                 setPage(2);
               }}
