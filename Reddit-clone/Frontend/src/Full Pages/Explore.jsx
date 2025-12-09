@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
 import CommunityCard from "../Components/CommunityCard";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 // Mock data - now in the exact format of your real community document
 const mockCommunities = [
@@ -183,6 +185,26 @@ export const searchcomm = (query) => {
 
 function Explore(props) {
   const navigate = useNavigate();
+ useEffect(() => {
+axios
+  .get(`${import.meta.env.VITE_API_URL}/communities`)
+  .then((res) => {
+    const mapped = res.data.map((c) => ({
+      _id: c._id,
+      name: c.commName,
+      displayName: c.displayName || `b/${c.commName}`,
+      description: c.description,
+      memberCount: c.memberCount || `${c.members.length}`,
+      categories: ["Programming"], // TEMP fallback
+      color: "#0079D3",
+      emoji: c.commName.charAt(0).toUpperCase(),
+    }));
+
+    setCommunities(mapped);
+  })
+  .catch(console.log);
+},[])
+  const[communities,setCommunities]=useState([])
   return (
     <Box sx={{ backgroundColor: "#ffffffff", minHeight: "100vh" }}>
       {/* Fixed top bar */}
@@ -216,7 +238,7 @@ function Explore(props) {
         }}
       >
         <Box sx={{ minWidth: "max-content" }}>
-          <CommunityCard />
+          <CommunityCard communities={communities} />
         </Box>
       </Box>
     </Box>

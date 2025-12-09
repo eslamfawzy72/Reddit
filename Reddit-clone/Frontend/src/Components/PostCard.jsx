@@ -1,295 +1,167 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ActionBar from './ActionBar';
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardMedia from "@mui/material/CardMedia";
+import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import Collapse from "@mui/material/Collapse";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import { red } from "@mui/material/colors";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
+import ActionBar from "./ActionBar";
 import CommentSection from "../Components/CommentSection";
+
 // Expand animation
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
 })(({ theme, expand }) => ({
-  marginLeft: 'auto',
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  transition: theme.transitions.create('transform', {
+  marginLeft: "auto",
+  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
+  transition: theme.transitions.create("transform", {
     duration: theme.transitions.duration.shortest,
   }),
 }));
 
-export default function PostCard(props) {
-  const { is_poll, options = [], votes: initialVotes = [], poll_question } = props;
+export default function PostCard({
+  id,
+  user_name,
+  user_avatar,
+  description,
+  images = [],
+  comments = [],
+  upvoteCount = 0,
+  downvoteCount = 0,
+  commentCount = 0,
+  date,
+  community_name,
+  edited = false,
+}) {
   const [expanded, setExpanded] = React.useState(false);
   const [index, setIndex] = React.useState(0);
   const [isHidden, setIsHidden] = React.useState(false);
 
-  // Track votes locally for toggle behavior
-  const [votes, setVotes] = React.useState([...initialVotes]);
-  const [selectedOption, setSelectedOption] = React.useState(null);
-
   const handleExpandClick = () => setExpanded(!expanded);
 
   const nextImage = () =>
-    setIndex((prev) => (prev + 1) % (props.images?.length || 0));
+    setIndex((prev) => (prev + 1) % images.length);
+
   const prevImage = () =>
-    setIndex((prev) =>
-      prev === 0 ? props.images.length - 1 : prev - 1
-    );
-
-  const toggleVote = (i) => {
-    const newVotes = [...votes];
-
-    if (selectedOption === i) {
-      newVotes[i] -= 1;
-      setSelectedOption(null);
-    } else {
-      if (selectedOption !== null) {
-        newVotes[selectedOption] -= 1;
-      }
-      newVotes[i] += 1;
-      setSelectedOption(i);
-    }
-
-    setVotes(newVotes);
-  };
+    setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
   if (isHidden) {
     return (
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '120px',
-          margin: '10px 0',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '8px',
-          boxShadow: '0px 2px 5px rgba(0,0,0,0.1)',
-          gap: '8px',
+          height: "120px",
+          margin: "10px 0",
+          backgroundColor: "#f5f5f5",
+          borderRadius: "8px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <span style={{ color: '#555', fontWeight: 'bold' }}>
-          Post hidden
-        </span>
-        <button
-          onClick={() => setIsHidden(false)}
-          style={{
-            padding: '8px 20px',
-            backgroundColor: '#1976d2',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-          }}
-        >
-          Undo
-        </button>
+        <Typography fontWeight="bold">Post hidden</Typography>
+        <button onClick={() => setIsHidden(false)}>Undo</button>
       </div>
     );
   }
 
-  const totalVotes = votes.reduce((a, b) => a + b, 0);
-
   return (
     <Card
-  sx={{
-    maxWidth: 600,     // try 500, 450, whatever feels good
-    marginBottom: 2,
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-    position: 'relative',
-    margin: "0 auto"    // keeps it centered
-  }}
->
-      <div
-  style={{
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    zIndex: 10,
-  }}
->
-  <button
-    style={{
-      padding: "6px 12px",
-      backgroundColor: "#1976d2",
-      color: "white",
-      border: "none",
-      borderRadius: "6px",
-      cursor: "pointer",
-      fontWeight: "bold",
-      boxShadow: "0px 2px 5px rgba(0,0,0,0.2)",
-    }}
-    onClick={() => alert("Running AI check…")}
-  >
-    Check for AI
-  </button>
-</div>
+      sx={{
+        maxWidth: 600,
+        margin: "0 auto",
+        marginBottom: 2,
+        borderRadius: "10px",
+        border: "1px solid #ccc",
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
+        position: "relative",
+      }}
+    >
+      {/* AI CHECK BUTTON */}
+      <div style={{ position: "absolute", top: 10, right: 10 }}>
+        <button
+          style={{
+            backgroundColor: "#1976d2",
+            color: "white",
+            border: "none",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Check for AI
+        </button>
+      </div>
 
+      {/* HEADER */}
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: red[500] }}>
-            <img src={props.img_src} style={{ width: '100%' }} />
+            <img src={user_avatar} alt="" style={{ width: "100%" }} />
           </Avatar>
         }
-        title={props.userId}
-        subheader={props.post_date}
+        title={user_name}
+        subheader={`${community_name} • ${date}${edited ? " • edited" : ""}`}
       />
 
-      {/* POLL POST */}
-      {is_poll && (
+      {/* DESCRIPTION */}
+      {description && (
         <CardContent>
-          {poll_question && (
-            <Typography variant="subtitle1" gutterBottom>
-              {poll_question}
-            </Typography>
-          )}
-          {options.map((option, i) => {
-            const percent = totalVotes
-              ? Math.round((votes[i] / totalVotes) * 100)
-              : 0;
-
-            return (
-              <div
-                key={i}
-                style={{
-                  marginBottom: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    padding: '10px',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '5px',
-                    fontWeight: '500',
-                  }}
-                >
-                  {option} ({votes[i]} votes)
-                  {totalVotes > 0 && (
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '10px',
-                        backgroundColor: '#ccc',
-                        borderRadius: '5px',
-                        marginTop: '4px',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div
-  style={{
-    width: `${percent}%`,
-    height: '100%',
-    backgroundColor: '#1976d2',
-    transition: 'width 0.3s',
-  }}
-></div>
-
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => toggleVote(i)}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor:
-                      selectedOption === i ? '#1976d2' : '#e0e0e0',
-                    color: selectedOption === i ? 'white' : 'black',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Vote
-                </button>
-              </div>
-            );
-          })}
-        </CardContent>
-      )}
-
-      {/* POST DESCRIPTION */}
-      {!is_poll && props.description && (
-        <CardContent>
-          <Typography variant="body1" gutterBottom>
-            {props.description}
-          </Typography>
+          <Typography variant="body1">{description}</Typography>
         </CardContent>
       )}
 
       {/* IMAGE SLIDER */}
-      {!is_poll && props.images?.length > 0 && (
-        <div style={{ position: 'relative' }}>
+      {images.length > 0 && (
+        <div style={{ position: "relative" }}>
           <CardMedia
             component="img"
             height="300"
-            image={props.images[index]}
+            image={images[index]}
           />
 
           <IconButton
             onClick={prevImage}
-            sx={{ position: 'absolute', top: '50%', left: 10, background: 'white' }}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: 10,
+              backgroundColor: "white",
+            }}
           >
             <ArrowBackIosNewIcon />
           </IconButton>
 
           <IconButton
             onClick={nextImage}
-            sx={{ position: 'absolute', top: '50%', right: 10, background: 'white' }}
+            sx={{
+              position: "absolute",
+              top: "50%",
+              right: 10,
+              backgroundColor: "white",
+            }}
           >
             <ArrowForwardIosIcon />
           </IconButton>
-
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 10,
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '5px',
-            }}
-          >
-            {props.images.map((_, idx) => (
-              <span
-                key={idx}
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  backgroundColor: idx === index ? '#1976d2' : '#ccc',
-                  transition: 'background-color 0.3s',
-                }}
-              ></span>
-            ))}
-          </div>
         </div>
       )}
 
+      {/* ACTION BAR */}
       <CardActions disableSpacing>
         <ActionBar
-          num_of_likes={props.num_of_likes}
-          num_of_comments={props.num_of_comments}
+          upvoteCount={upvoteCount}
+          downvoteCount={downvoteCount}
+          commentCount={commentCount}
           onHide={() => setIsHidden(true)}
         />
 
@@ -298,22 +170,12 @@ export default function PostCard(props) {
         </ExpandMore>
       </CardActions>
 
-      { (
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-  <CardContent>
-    {/* POST DETAILS */}
-    {props.post_details && (
-      <Typography sx={{ marginBottom: 2 }}>
-        {props.post_details}
-      </Typography>
-    )}
-
-    {/* COMMENT SECTION */}
-    <CommentSection comments={props.comments || []} />
-  </CardContent>
-</Collapse>
-
-      )}
+      {/* COMMENTS */}
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent>
+          <CommentSection comments={comments} />
+        </CardContent>
+      </Collapse>
     </Card>
   );
 }

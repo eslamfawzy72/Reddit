@@ -1,35 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../ActionBar.css";
 import { ArrowUp, ArrowDown, MessageCircle, Share2 } from "lucide-react";
 
-export default function ActionBar(props) {
-  const [vote, setVote] = useState(null); // "up", "down", or null
-  const [likes, setLikes] = useState(props.num_of_likes || 0); // track local likes
+export default function ActionBar({
+  upvoteCount = 0,
+  downvoteCount = 0,
+  commentCount = 0,
+  onHide,
+}) {
+  // score = upvotes - downvotes
+  const initialScore = upvoteCount - downvoteCount;
+
+  const [vote, setVote] = useState(null); // "up" | "down" | null
+  const [score, setScore] = useState(initialScore);
 
   const handleUpvote = () => {
     if (vote === "up") {
+      // remove upvote
       setVote(null);
-      setLikes((prev) => prev - 1); // remove upvote
-    } else {
+      setScore((s) => s - 1);
+    } else if (vote === "down") {
+      // switch from down → up
       setVote("up");
-      setLikes((prev) => prev + 1); // add upvote
-      if (vote === "down") setLikes((prev) => prev + 1); // remove previous downvote
+      setScore((s) => s + 2);
+    } else {
+      // add upvote
+      setVote("up");
+      setScore((s) => s + 1);
     }
   };
 
   const handleDownvote = () => {
     if (vote === "down") {
+      // remove downvote
       setVote(null);
-      setLikes((prev) => prev + 1); // remove downvote (if needed)
-    } else {
+      setScore((s) => s + 1);
+    } else if (vote === "up") {
+      // switch from up → down
       setVote("down");
-      setLikes((prev) => prev - 1); // add downvote
-      if (vote === "up") setLikes((prev) => prev - 1); // remove previous upvote
+      setScore((s) => s - 2);
+    } else {
+      // add downvote
+      setVote("down");
+      setScore((s) => s - 1);
     }
   };
-
-  const open_full_post = () => console.log("Open full post");
-  const share_url = () => console.log("Share post URL");
 
   return (
     <div className="action-bar">
@@ -37,38 +52,38 @@ export default function ActionBar(props) {
       <button className="btn vote_up" onClick={handleUpvote}>
         <ArrowUp
           size={20}
-          color={vote === "up" ? "blue" : "gray"}
-          fill={vote === "up" ? "blue" : "none"}
+          color={vote === "up" ? "#1976d2" : "gray"}
+          fill={vote === "up" ? "#1976d2" : "none"}
         />
       </button>
 
-      {/* VOTE COUNT */}
-      <p className="vote-count">{likes}</p>
+      {/* SCORE */}
+      <p className="vote-count">{score}</p>
 
       {/* DOWNVOTE */}
       <button className="btn vote_down" onClick={handleDownvote}>
         <ArrowDown
           size={20}
-          color={vote === "down" ? "blue" : "gray"}
-          fill={vote === "down" ? "blue" : "none"}
+          color={vote === "down" ? "#1976d2" : "gray"}
+          fill={vote === "down" ? "#1976d2" : "none"}
         />
       </button>
 
       {/* COMMENTS */}
-      <button className="btn" onClick={open_full_post}>
+      <button className="btn">
         <MessageCircle size={20} />
-        <span>{props.num_of_comments}</span>
+        <span>{commentCount}</span>
       </button>
 
       {/* SHARE */}
-      <button className="btn" onClick={share_url}>
+      <button className="btn">
         <Share2 size={20} />
         <span>Share</span>
       </button>
 
       {/* HIDE */}
-      <button className="btn" onClick={props.onHide}>
-        <span>Hide</span>
+      <button className="btn" onClick={onHide}>
+        Hide
       </button>
     </div>
   );

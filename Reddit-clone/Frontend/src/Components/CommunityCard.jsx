@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const communities = [
-  { name: "anime_irl", members: "908K", visitors: "weekly visitors", description: "Very shitposts and memes. Very fun. Very anime.", emoji: "🎌", color: "#FF6B9D", categories: ["Performing Arts", "Art"] },
-  { name: "funny", members: "42.2M", visitors: "weekly visitors", description: "Reddit's largest humour depository.", emoji: "😂", color: "#FF4500", categories: ["Performing Arts"] },
-  { name: "FunnyAnimals", members: "1.4M", visitors: "weekly visitors", description: "Funny videos, gifs, and images of animals.", emoji: "🐶", color: "#FFA500", categories: ["Photography", "Art"] },
-  { name: "AskMen", members: "3M", visitors: "weekly visitors", description: "Become a better man by asking questions.", emoji: "👨", color: "#0079D3", categories: ["Personal Finance", "Startups & Entrepreneurship"] },
-  { name: "PersonalFinanceEgypt", members: "1.1K", visitors: "weekly visitors", description: "Finance tips and discussions for Egyptians.", emoji: "💰", color: "#46D160", categories: ["Personal Finance", "Economics", "Stocks & Investing"] },
-  { name: "Megumin", members: "11K", visitors: "weekly visitors", description: "Konosuba's most explosive mage community.", emoji: "💥", color: "#D32F2F", categories: ["PC Gaming", "Console Gaming"] },
-  { name: "webdev", members: "892K", visitors: "weekly visitors", description: "A community for web developers.", emoji: "🌐", color: "#61DAFB", categories: ["Web Development", "Programming"] },
-  { name: "MachineLearning", members: "2.3M", visitors: "weekly visitors", description: "Discuss AI and ML technologies.", emoji: "🤖", color: "#00D9FF", categories: ["AI & Machine Learning", "Data Science", "Programming"] },
-  { name: "CryptoTrading", members: "445K", visitors: "weekly visitors", description: "Cryptocurrency trading discussions.", emoji: "₿", color: "#F7931A", categories: ["Crypto", "Economics", "Stocks & Investing"] },
-  { name: "IndieGaming", members: "156K", visitors: "weekly visitors", description: "Indie game developers and players.", emoji: "🎮", color: "#9C27B0", categories: ["Game Development", "PC Gaming"] },
-  { name: "Cybersecurity", members: "678K", visitors: "weekly visitors", description: "Information security discussions.", emoji: "🔒", color: "#E91E63", categories: ["Cybersecurity", "Programming"] },
-  { name: "RealEstateInvesting", members: "234K", visitors: "weekly visitors", description: "Real estate investment strategies.", emoji: "🏠", color: "#795548", categories: ["Real Estate", "Personal Finance", "Stocks & Investing"] },
-];
+// const communities = [
+//   { name: "anime_irl", members: "908K", visitors: "weekly visitors", description: "Very shitposts and memes. Very fun. Very anime.", emoji: "🎌", color: "#FF6B9D", categories: ["Performing Arts", "Art"] },
+//   { name: "funny", members: "42.2M", visitors: "weekly visitors", description: "Reddit's largest humour depository.", emoji: "😂", color: "#FF4500", categories: ["Performing Arts"] },
+//   { name: "FunnyAnimals", members: "1.4M", visitors: "weekly visitors", description: "Funny videos, gifs, and images of animals.", emoji: "🐶", color: "#FFA500", categories: ["Photography", "Art"] },
+//   { name: "AskMen", members: "3M", visitors: "weekly visitors", description: "Become a better man by asking questions.", emoji: "👨", color: "#0079D3", categories: ["Personal Finance", "Startups & Entrepreneurship"] },
+//   { name: "PersonalFinanceEgypt", members: "1.1K", visitors: "weekly visitors", description: "Finance tips and discussions for Egyptians.", emoji: "💰", color: "#46D160", categories: ["Personal Finance", "Economics", "Stocks & Investing"] },
+//   { name: "Megumin", members: "11K", visitors: "weekly visitors", description: "Konosuba's most explosive mage community.", emoji: "💥", color: "#D32F2F", categories: ["PC Gaming", "Console Gaming"] },
+//   { name: "webdev", members: "892K", visitors: "weekly visitors", description: "A community for web developers.", emoji: "🌐", color: "#61DAFB", categories: ["Web Development", "Programming"] },
+//   { name: "MachineLearning", members: "2.3M", visitors: "weekly visitors", description: "Discuss AI and ML technologies.", emoji: "🤖", color: "#00D9FF", categories: ["AI & Machine Learning", "Data Science", "Programming"] },
+//   { name: "CryptoTrading", members: "445K", visitors: "weekly visitors", description: "Cryptocurrency trading discussions.", emoji: "₿", color: "#F7931A", categories: ["Crypto", "Economics", "Stocks & Investing"] },
+//   { name: "IndieGaming", members: "156K", visitors: "weekly visitors", description: "Indie game developers and players.", emoji: "🎮", color: "#9C27B0", categories: ["Game Development", "PC Gaming"] },
+//   { name: "Cybersecurity", members: "678K", visitors: "weekly visitors", description: "Information security discussions.", emoji: "🔒", color: "#E91E63", categories: ["Cybersecurity", "Programming"] },
+//   { name: "RealEstateInvesting", members: "234K", visitors: "weekly visitors", description: "Real estate investment strategies.", emoji: "🏠", color: "#795548", categories: ["Real Estate", "Personal Finance", "Stocks & Investing"] },
+// ];
 
-export default function CommunityCard() {
+export default function CommunityCard({communities=[]}) {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -207,10 +207,13 @@ export default function CommunityCard() {
   ];
 
   // Filter communities based on selected category
-  const filteredCommunities = selectedCategory === "All" 
-    ? communities 
-    : communities.filter(community => 
-        community.categories.includes(selectedCategory)
+const filteredCommunities =
+  selectedCategory === "All"
+    ? communities
+    : communities.filter(
+        (community) =>
+          community.categories &&
+          community.categories.includes(selectedCategory)
       );
 
   const CommunityCardItem = ({ community }) => {
@@ -225,7 +228,7 @@ export default function CommunityCard() {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() =>navigate('/Community')}
+onClick={() => navigate(`/community`)}
       >
         <div style={cardHeaderStyle}>
           <div style={leftSectionStyle}>

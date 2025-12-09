@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
+import { useLocation } from "react-router-dom";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
@@ -166,10 +167,12 @@ export const searchEverything = (query) => {
       });
   }, []);*/
 
-function Home() {
-    
+function Home(props) {
+  const location = useLocation();
+  const isLoggedIn = location.state?.isLoggedIn || false;
 const [posts,setPosts]=React.useState([])
-    useEffect(() => {
+    
+useEffect(() => {
  axios.get(`${import.meta.env.VITE_API_URL}/posts`).then((res)=>{
     console.log(res.data);
     setPosts(res.data);
@@ -181,11 +184,12 @@ const [posts,setPosts]=React.useState([])
 
 
 
+
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
       {/* Fixed Top Navbar */}
       <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1300 }}>
-        <PrimarySearchAppBar loggedin={props.loggedin} searchFunction={searchEverything}  />
+        <PrimarySearchAppBar loggedin={isLoggedIn} searchFunction={searchEverything}  />
       </Box>
 
       {/* Fixed Left Sidebar */}
@@ -202,7 +206,7 @@ const [posts,setPosts]=React.useState([])
           zIndex: 1200,
         }}
       >
-        <SidebarLeft loggedin={props.loggedin} />
+        <SidebarLeft loggedin={isLoggedIn} />
       </Box>
 
       {/* MAIN FEED — Perfect layout */}
@@ -239,7 +243,7 @@ const [posts,setPosts]=React.useState([])
               <PostCard
                 key={post._id}
                 id={post._id}
-                user_name={post.user_name || "Unknown User"}
+                user_name={post.userId || "Unknown User"}
                 user_avatar={post.user_avatar || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
                 images={post.images || []}

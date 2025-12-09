@@ -1,4 +1,4 @@
-// import Community from "../Models/Community.js";
+ import Community from "../Models/Community.js";
 
 // // Create a new community
 // export const createCommunity = async (req, res) => {
@@ -17,14 +17,14 @@
 // };
 
 // // Get all communities (with optional search)
-// export const getAllCommunities = async (req, res) => {
-//   try {
-//     const communities = await Community.find();
-//     res.status(200).json(communities);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+export const getAllCommunities = async (req, res) => {
+  try {
+    const communities = await Community.find();
+    res.status(200).json(communities);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // // Get a single community by ID
 // export const getCommunityById = async (req, res) => {

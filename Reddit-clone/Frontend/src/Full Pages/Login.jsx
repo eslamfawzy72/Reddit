@@ -20,25 +20,19 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+ 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, {
-        email,
-        password,
-      });
-
-      // Store token or session if your backend returns one
-      localStorage.setItem("token", res.data.token);
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        { email, password },
+        { withCredentials: true } 
+      );
 
       alert("Login successful!");
-      navigate("/"); // redirect home or dashboard
+  navigate("/Home", { state: { isLoggedIn: true } });
     } catch (err) {
-      setError("Invalid email or password");
+      setError(err.response?.data?.message || "Invalid email or password");
     }
   };
 

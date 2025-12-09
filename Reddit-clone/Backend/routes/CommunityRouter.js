@@ -1,20 +1,20 @@
-// import express from "express";
-// import {
+ import express from "express";
+ import {
 //   createCommunity,
-//   getAllCommunities,
+   getAllCommunities
 //   getCommunityById,
 //   updateCommunity,
 //   deleteCommunity,
 //   joinCommunity,
 //   leaveCommunity,
 //   getCommunityByName,
-// } from "../Controllers/CommunityController.js";
+ } from "../Controllers/CommunityController.js";
 // import { authMiddleware } from "../middlewares/authMiddleware.js";
 
-// const router = express.Router();
+const router = express.Router();
 
 // // Public routes
-// router.get("/", getAllCommunities);
+ router.get("/", getAllCommunities);
 // router.get("/:id", getCommunityById);
 // router.get("/name/:commName", getCommunityByName);
 
@@ -26,4 +26,4 @@
 // router.post("/:id/join", authMiddleware, joinCommunity);
 // router.post("/:id/leave", authMiddleware, leaveCommunity);
 
-// export default router;
+ export default router;

@@ -52,7 +52,7 @@ function App() {
             <Route path="/" element={<Home loggedin={false}/>} />
             <Route path="/StartCommunity" element={<CreateCommunity />} />
             <Route path="/Explore" element={<Explore  />} />
-            <Route path="/Home" element={<Home loggedin={true} />} />
+            <Route path="/Home" element={<Home/>} />
             <Route path="/Notifications" element={<Notifications />} />     
             <Route path="/Chats" element={<Chats />}/>
             <Route path="/CreatePost" element={<CreatePost />} />
