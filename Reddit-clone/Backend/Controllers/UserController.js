@@ -79,12 +79,22 @@ export async function getUserCommunities(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+// controllers/UserController.js
+
 export async function getUserFollowers(req, res) {
   try {
-    const user = await User.findById(req.params.userID)
-    if (!user) return res.status(404).json("User not found!");
-    const followers = await User.find({ _id: { $in: user.followers } })
-    res.json(followers)
+    const user = await User.findById(req.params.userID);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // THIS IS THE FIX — convert ObjectId to string
+    const followerIds = user.followers.map(id => id.toString());
+
+    const followers = await User.find({
+      _id: { $in: followerIds }
+    }).select("userName image _id"); // send _id too
+
+    // Send exactly what frontend expects
+    res.json({ followers });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

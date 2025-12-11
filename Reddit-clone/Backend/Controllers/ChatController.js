@@ -2,13 +2,13 @@ import Chat from "../Models/Chat.js";
 
 export const createChat = async (req, res) => {
     try {
-        const { participants } = req.body;
+        const { participants, creator } = req.body;
 
         if (!participants || participants.length < 2) {
             return res.status(400).json({ success: false, message: "At least 2 participants required." });
         }
 
-        // Check if a chat with exactly the same participants already exists (for non-group chats)
+        // ------------------- CHECK FOR EXISTING 1-TO-1 CHAT -------------------
         if (participants.length === 2) {
             const existingChat = await Chat.findOne({
                 isGroupChat: false,
@@ -20,15 +20,39 @@ export const createChat = async (req, res) => {
             }
         }
 
-        // Create a new chat
-        const newChat = await Chat.create({ participants, isGroupChat: participants.length > 2, name: req.body.name || null });
-        const populatedChat = await Chat.findById(newChat._id).populate("participants", "userName image");
+        // ------------------- CREATE NEW CHAT -------------------
+        const newChat = await Chat.create({
+            participants,
+            isGroupChat: participants.length > 2,
+            name: req.body.name || null
+        });
 
+        const populatedChat = await Chat.findById(newChat._id)
+            .populate("participants", "userName image");
+
+        // ------------------- EMIT TO OTHER PARTICIPANTS -------------------
+        const io = req.app.get("io");
+        const creatorId = creator || participants[0]; // fallback if creator not sent
+
+        participants.forEach(userId => {
+            if (userId !== creatorId) {
+                try {
+                    io.to(userId).emit("new_chat_created", populatedChat);
+                } catch (err) {
+                    console.log(`Socket emit failed for ${userId}: ${err.message}`);
+                }
+            }
+        });
+
+        // ------------------- SEND RESPONSE -------------------
         res.status(201).json({ success: true, data: populatedChat });
+
     } catch (err) {
+        console.error("Create chat error:", err);
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
 
 
 
