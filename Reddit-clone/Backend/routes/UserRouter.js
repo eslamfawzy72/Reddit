@@ -15,7 +15,7 @@ router.get("/username/:username", getUserByName);
 //get user Communities
 router.get("/communities/:userID", getUserCommunities)
 //get user Followers
-router.get("/followers/:userID", getUserFollowers)
+router.get("/followers", protect,getUserFollowers)
 //get posts
 router.get("/userposts/:userID",getUserPosts)
 //get specific posts

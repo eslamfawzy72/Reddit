@@ -1,12 +1,12 @@
 import express from "express";
 import { createChat, getUserChats, deleteChat, getChatById, renameGroupChat, removeParticipantsFromGroup, addParticipantsToGroup } from "../Controllers/ChatController.js";
-
+import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 
 router.post("/", createChat);
 
-router.get("/user/:userId", getUserChats);
+router.get("/user",protect, getUserChats);
 
 router.get("/:chatId", getChatById);
 

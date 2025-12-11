@@ -21,6 +21,7 @@ const router = express.Router();
 // router.get("/name/:commName", getCommunityByName);
 
 // // Protected routes
+
 // router.post("/", authMiddleware, createCommunity);
 // router.patch("/:id", authMiddleware, updateCommunity);
 // router.delete("/:id", authMiddleware, deleteCommunity);
