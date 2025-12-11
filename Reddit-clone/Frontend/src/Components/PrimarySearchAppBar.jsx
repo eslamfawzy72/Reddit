@@ -112,19 +112,63 @@ export default function PrimarySearchAppBar({
                 <IconButton onClick={() => navigate("/Notifications")} className="psa-icon-button">
                   <NotificationsIcon />
                 </IconButton>
-                <Button onClick={() => navigate("/CreatePost")} className="psa-create-btn" startIcon={<AddIcon />}>
-                  Create
-                </Button>
+                <Button
+  onClick={() => navigate("/CreatePost")}
+  startIcon={<AddIcon />}
+  sx={{
+    backgroundColor: "rgba(213, 227, 238, 1)",
+    borderRadius: "20px",
+    textTransform: "none",
+    fontWeight: 600,
+    px: 3, // padding left & right
+    color: "black",
+    "&:hover": {
+      backgroundColor: "#00e043ff"
+    }
+  }}
+>
+  Create Post
+</Button>
                 <UserMenu darkMode={darkMode} setDarkMode={setDarkMode} />
               </>
             ) : (
               <>
-                <Button onClick={() => navigate("/Login")} className="psa-auth-btn">
-                  Log In
-                </Button>
-                <Button onClick={() => navigate("/Signup")} className="psa-auth-btn">
-                  Sign Up
-                </Button>
+                <Button
+  onClick={() => navigate("/Login")}
+  sx={{
+    backgroundColor: "rgba(213, 227, 238, 1)",
+    borderRadius: "20px",
+    textTransform: "none",
+    fontWeight: 600,
+    px: 3,
+    color: "black",
+    "&:hover": {
+      backgroundColor: "#00e031",
+      color: "white",
+    },
+  }}
+>
+  Log In
+</Button>
+
+<Button
+  onClick={() => navigate("/Signup")}
+  sx={{
+    backgroundColor: "rgba(213, 227, 238, 1)",
+    borderRadius: "20px",
+    textTransform: "none",
+    fontWeight: 600,
+    px: 3,
+    color: "black",
+    "&:hover": {
+      backgroundColor: "#00e031",
+      color: "white",
+    },
+  }}
+>
+  Sign Up
+</Button>
+
               </>
             )}
           </Box>

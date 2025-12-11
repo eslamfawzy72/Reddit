@@ -63,7 +63,7 @@ export async function deleteUserByID(req, res) {
 }
 export async function getUserCommunities(req, res) {
   try {
-    const user = await User.findById(req.params.userID);
+    const user = await User.findById(req.user._id);
 
     if (!user) return res.status(404).json("User not found!");
     console.log("joinedCommunities:", user.joinedCommunities);

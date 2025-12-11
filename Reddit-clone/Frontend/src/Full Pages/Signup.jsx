@@ -26,31 +26,25 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [interests, setInterests] = useState([]);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleCreateAccount = async () => {
     setError("");
     if (!username || !email || !password) {
-      alert("Username, email, and password are required.");
+      setError("Username, email, and password are required.");
       return;
     }
 
-    if (!Array.isArray(interests) || interests.some(i => typeof i !== "string")) {
-      alert("Interests must be a list of strings.");
+    if (interests.length === 0) {
+      setError("Select at least 1 interest.");
       return;
     }
 
     const payload = { username, email, password, interests, createdAt: new Date() };
-    
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        payload,
-        { withCredentials: true }
-      );
-      alert("Account created successfully!");
-      console.log(res.data);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, payload, { withCredentials: true });
       navigate("/login");
     } catch (err) {
       console.error(err.response?.data || err);
@@ -58,11 +52,18 @@ export default function SignUp() {
     }
   };
 
+  // Filter topics by search
+  const filteredTopics = mockTopics.map(group => ({
+    ...group,
+    topics: group.topics.filter(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
+  }));
+
   return (
     <>
       <CssBaseline />
       <Box className="signup-background" />
 
+      {/* Page 1 */}
       {page === 1 && (
         <Box className="signup-page1-container">
           <Box className="signup-page1-card">
@@ -76,6 +77,7 @@ export default function SignUp() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="signup-input"
+              sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
@@ -84,6 +86,7 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="signup-input"
+              sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
@@ -92,6 +95,7 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="signup-input"
+              sx={{ mb: 3 }}
             />
 
             <Button
@@ -120,6 +124,7 @@ export default function SignUp() {
         </Box>
       )}
 
+      {/* Page 2 */}
       {page === 2 && (
         <Box className="signup-page2-container">
           <Box className="signup-page2-card">
@@ -129,23 +134,30 @@ export default function SignUp() {
             </Box>
 
             <Box className="signup-page2-body">
-              <Box className="signup-search">
-                <SearchIcon className="signup-search-icon"/>
-                <InputBase placeholder="Search topics..." className="signup-search-input"/>
+              {/* Search Input */}
+              <Box className="signup-search" sx={{ mb: 3 }}>
+                <SearchIcon className="signup-search-icon" />
+                <InputBase
+                  placeholder="Search topics..."
+                  className="signup-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </Box>
 
-              {mockTopics.map((group) => (
+              {/* Topics List */}
+              {filteredTopics.map(group => (
                 <Box key={group.category} className="signup-topic-group">
                   <Typography className="signup-topic-category">{group.category}</Typography>
                   <Box className="signup-topic-list">
-                    {group.topics.map((topic) => (
+                    {group.topics.map(topic => (
                       <Chip
                         key={topic}
                         label={topic}
                         clickable
                         onClick={() => {
                           if (interests.includes(topic)) {
-                            setInterests(interests.filter((t) => t !== topic));
+                            setInterests(interests.filter(t => t !== topic));
                           } else if (interests.length < 5) {
                             setInterests([...interests, topic]);
                           }
@@ -157,9 +169,16 @@ export default function SignUp() {
                 </Box>
               ))}
 
+              {/* Actions */}
               <Box className="signup-topic-actions">
                 <Button className="signup-back-btn" onClick={() => setPage(1)}>Back</Button>
-                <Button className="signup-create-btn" onClick={handleCreateAccount}>Create Account</Button>
+                <Button
+                  className="signup-create-btn"
+                  onClick={handleCreateAccount}
+                  disabled={interests.length === 0}
+                >
+                  Create Account
+                </Button>
               </Box>
             </Box>
           </Box>

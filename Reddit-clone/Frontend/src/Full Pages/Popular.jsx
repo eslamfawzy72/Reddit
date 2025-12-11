@@ -1,158 +1,91 @@
 // src/pages/Popular.jsx
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import { useLocation } from "react-router-dom";
-<<<<<<< HEAD
-
-import "../styles/Popular.css";
-
-// Mock data
-const users = [
-  { id: "u1", name: "ahmed_dev", avatar: "https://i.pravatar.cc/48?img=3" },
-  { id: "u2", name: "mariam_codes", avatar: "https://i.pravatar.cc/48?img=12" },
-  { id: "u3", name: "john_dev", avatar: "https://i.pravatar.cc/48?img=5" },
-  { id: "u4", name: "sara_web", avatar: "https://i.pravatar.cc/48?img=7" },
-  { id: "u5", name: "bluecoder", avatar: "https://i.pravatar.cc/48?img=8" },
-];
-
-const communities = [
-  { id: "c1", name: "funny", display: "b/funny" },
-  { id: "c2", name: "webdev", display: "b/webdev" },
-  { id: "c3", name: "movies", display: "b/movies" },
-  { id: "c4", name: "gaming", display: "b/gaming" },
-];
-
-const randomImages = [
-  "https://source.unsplash.com/random/800x600?funny,meme",
-  "https://source.unsplash.com/random/1200x800?movie,cinema",
-  "https://source.unsplash.com/random/800x600?coding,tech",
-  "https://source.unsplash.com/random/800x600?game,play",
-  "https://source.unsplash.com/random/1200x800?landscape,nature",
-];
-
-// Generate posts
-const generateMockPosts = (num = 50) => {
-  const posts = [];
-  for (let i = 0; i < num; i++) {
-    const user = users[Math.floor(Math.random() * users.length)];
-    const community = communities[Math.floor(Math.random() * communities.length)];
-    const imgCount = Math.floor(Math.random() * 3);
-    const images = Array.from({ length: imgCount }, () => randomImages[Math.floor(Math.random() * randomImages.length)]);
-    const upvotes = Math.floor(Math.random() * 1000);
-    const downvotes = Math.floor(Math.random() * 50);
-    const comments = Array.from({ length: Math.floor(Math.random() * 10) }, (_, idx) => ({
-      userID: users[Math.floor(Math.random() * users.length)].id,
-      username: users[Math.floor(Math.random() * users.length)].name,
-      text: "Random comment " + idx,
-      edited: false,
-      upvotedCount: Math.floor(Math.random() * 20),
-      downvotedCount: Math.floor(Math.random() * 5),
-      _id: `${i}-${idx}`,
-      date: new Date(Date.now() - Math.random() * 1e10).toISOString(),
-    }));
-
-    posts.push({
-      _id: `post-${i}`,
-      userId: user.id,
-      user_name: user.name,
-      user_avatar: user.avatar,
-      description: `This is mock post #${i} by ${user.name}`,
-      images,
-      edited: false,
-      upvoteCount: upvotes,
-      downvoteCount: downvotes,
-      commentCount: comments.length,
-      comments,
-      date: new Date(Date.now() - Math.random() * 1e10).toISOString(),
-      community_name: community.display,
-      categories: [community.name],
-    });
-  }
-  return posts;
-};
-
-const sortByPopularity = (posts) => posts.sort((a, b) => (b.upvoteCount + b.commentCount) - (a.upvoteCount + a.commentCount));
-
-function Popular() {
-  const [posts] = useState(sortByPopularity(generateMockPosts(50)));
-  const location = useLocation();
-  const loggedinpage = location.state?.loggedin ?? false;
-
-  return (
-    <Box className="popular-bg">
-      <Box className="popular-topbar">
-        <PrimarySearchAppBar loggedin={loggedinpage} />
-      </Box>
-
-      <Box className="popular-sidebar">
-        <SidebarLeft loggedin={loggedinpage} />
-      </Box>
-
-      <Box className="popular-content">
-        <Box className="popular-posts-wrapper">
-          {posts.map((post) => (
-            <PostCard
-              key={post._id}
-              id={post._id}
-              user_name={post.user_name}
-              user_avatar={post.user_avatar}
-              description={post.description}
-              images={post.images}
-              comments={post.comments}
-              upvoteCount={post.upvoteCount}
-              downvoteCount={post.downvoteCount}
-              commentCount={post.commentCount}
-              date={post.date}
-              community_name={post.community_name}
-              categories={post.categories}
-              edited={post.edited}
-            />
-          ))}
-=======
 import axios from "axios";
 
-// Sort by popularity: upvotes + comments (same as your mock)
-const sortByPopularity = (posts) => {
-  return [...posts].sort((a, b) => {
-    const scoreA = (a.upvoteCount || 0) + (a.commentCount || 0);
-    const scoreB = (b.upvoteCount || 0) + (b.commentCount || 0);
-    return scoreB - scoreA;
-  });
-};
-
 function Popular() {
-  // EXACTLY how you do it in Home.jsx
   const location = useLocation();
-  const isLoggedIn = location.state?.isLoggedIn || false;
-  // Note: if you use "loggedin" in some places and "isLoggedIn" in others,
-  // this line handles both safely:
-  // const isLoggedIn = location.state?.isLoggedIn || location.state?.loggedin || false;
+  const isLoggedIn = location.state?.isLoggedIn || location.state?.loggedin || false;
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 1️⃣ Fetch logged-in user
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/posts`)
-      .then((res) => {
-        const sortedPosts = sortByPopularity(res.data);
-        setPosts(sortedPosts);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch posts:", err);
-        setPosts([]); // or fallback to mockPosts if you want
-      })
-      .finally(() => {
+      .get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
+      .then(res => setCurrentUser(res.data.user))
+      .catch(() => {
+        console.log("Not logged in");
         setLoading(false);
       });
   }, []);
+
+  // 2️⃣ Fetch posts from user's joined communities
+useEffect(() => {
+  if (!currentUser) return;
+
+  (async () => {
+    try {
+      // 1️⃣ Fetch all communities
+      const commRes = await axios.get(`${import.meta.env.VITE_API_URL}/communities`, {
+        withCredentials: true,
+      });
+      const allCommunities = commRes.data || [];
+
+      // 2️⃣ Split communities: joined vs public (not joined)
+      const joinedCommunities = allCommunities.filter(c => c.isJoined);
+      const publicCommunities = allCommunities.filter(
+        c => !c.isJoined && c.privacystate === "public"
+      );
+
+      // 3️⃣ Fetch posts for joined communities
+      const joinedPostsPromises = joinedCommunities.map(c =>
+        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
+          .then(res => res.data)
+          .catch(() => [])
+      );
+      const joinedPostsArrays = await Promise.all(joinedPostsPromises);
+      const joinedPosts = joinedPostsArrays.flat();
+
+      // 4️⃣ Fetch posts for public communities
+      const publicPostsPromises = publicCommunities.map(c =>
+        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
+          .then(res => res.data)
+          .catch(() => [])
+      );
+      const publicPostsArrays = await Promise.all(publicPostsPromises);
+      const publicPosts = publicPostsArrays.flat();
+
+      // 5️⃣ Filter public posts by popularity threshold
+      const POPULARITY_THRESHOLD = 5; // adjust as needed
+      const filteredPublicPosts = publicPosts.filter(
+        p => (p.upvoteCount || 0) + (p.commentCount || 0) >= POPULARITY_THRESHOLD
+      );
+
+      // 6️⃣ Merge all posts and sort by popularity (upvotes + comments)
+      const mergedPosts = [...joinedPosts, ...filteredPublicPosts];
+      mergedPosts.sort(
+        (a, b) =>
+          (b.upvoteCount || 0) + (b.commentCount || 0) -
+          ((a.upvoteCount || 0) + (a.commentCount || 0))
+      );
+
+      setPosts(mergedPosts);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching popular posts:", err);
+      setPosts([]);
+      setLoading(false);
+    }
+  })();
+}, [currentUser]);
+
 
   return (
     <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
@@ -218,11 +151,7 @@ function Popular() {
                 key={post._id}
                 id={post._id}
                 user_name={post.user?.userName || post.user_name || "Anonymous"}
-                user_avatar={
-                  post.user?.image ||
-                  post.user_avatar ||
-                  "https://i.pravatar.cc/48?img=1"
-                }
+                user_avatar={post.user?.image || post.user_avatar || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
                 images={post.images || []}
                 comments={post.comments || []}
@@ -236,7 +165,6 @@ function Popular() {
               />
             ))
           )}
->>>>>>> b36b3c103fd90eae266efdd76797564a63c5acd4
         </Box>
       </Box>
     </Box>

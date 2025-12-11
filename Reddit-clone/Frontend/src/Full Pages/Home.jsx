@@ -60,12 +60,52 @@ function Home() {
   const location = useLocation();
   const isLoggedIn = location.state?.isLoggedIn || false;
   const [posts, setPosts] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+   useEffect(() => {
+    axios.get("http://localhost:5000/auth/me")
+      .then(res => setCurrentUser(res.data.user))
+      .catch(() => console.log("Not logged in"));
+  }, []);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/posts`)
-      .then((res) => setPosts(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+  if (!currentUser) return;
+
+  (async () => {
+    try {
+      // 1️⃣ Get the communities the user has joined
+      const commRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/users/communities`,
+        { withCredentials: true }
+      );
+      const communities = commRes.data;
+
+      if (!communities || communities.length === 0) {
+        setPosts([]); // no communities → empty feed
+        return;
+      }
+
+      // 2️⃣ Fetch posts from all communities in parallel
+      const allPostsPromises = communities.map(c =>
+        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
+          .then(r => r.data)
+          .catch(() => []) // ignore errors for individual communities
+      );
+
+      const postsArrays = await Promise.all(allPostsPromises);
+
+      // 3️⃣ Flatten and sort by date descending
+      const mergedPosts = postsArrays.flat();
+      mergedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // 4️⃣ Update state
+      setPosts(mergedPosts);
+
+    } catch (err) {
+      console.error("Error fetching feed:", err);
+    }
+  })();
+}, [currentUser]);
+
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/users`, { withCredentials: true })

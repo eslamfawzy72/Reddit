@@ -134,16 +134,15 @@
 }
 
 .psa-create-btn {
-  background-color: #008cffff;
+  background-color: rgba(213, 227, 238, 1); /* fully opaque */
   border-radius: 20px;
   text-transform: none;
   font-weight: 600;
   padding-left: 24px;
   padding-right: 24px;
 }
-
 .psa-create-btn:hover {
-  background-color: #00e047;
+  background-color: #0400e0;
 }
 
 .psa-auth-btn {
