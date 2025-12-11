@@ -26,6 +26,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
 
+import "../styles/chats.css";
+
 // -------------------- THEME --------------------
 const theme = createTheme({
   palette: {
@@ -44,11 +46,15 @@ const formatTimestamp = (date) => {
   const now = new Date();
   const msgDate = new Date(date);
   const isToday = now.toDateString() === msgDate.toDateString();
-  const isYesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toDateString() === msgDate.toDateString();
+  const isYesterday =
+    new Date(now.getTime() - 24 * 60 * 60 * 1000).toDateString() ===
+    msgDate.toDateString();
 
-  if (isToday) return msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (isToday)
+    return msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   if (isYesterday) return "Yesterday";
-  if (now.getFullYear() === msgDate.getFullYear()) return msgDate.toLocaleDateString([], { weekday: "long" });
+  if (now.getFullYear() === msgDate.getFullYear())
+    return msgDate.toLocaleDateString([], { weekday: "long" });
   return msgDate.toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
@@ -57,7 +63,7 @@ function FilePreview({ files, onRemove }) {
   if (files.length === 0) return null;
 
   return (
-    <Box sx={{ mt: 1, mb: 2 }}>
+    <Box className="file-preview">
       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
         {files.map((file, index) => {
           const url = URL.createObjectURL(file);
@@ -65,32 +71,18 @@ function FilePreview({ files, onRemove }) {
           const isVideo = file.type.startsWith("video/");
 
           return (
-            <Paper
-              key={index}
-              sx={{
-                position: "relative",
-                width: 100,
-                height: 100,
-                borderRadius: 2,
-                overflow: "hidden",
-                bgcolor: "#1e293b",
-              }}
-            >
-              {isImage && <img src={url} alt={file.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
-              {isVideo && <video src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />}
+            <Paper key={index} className="file-card">
+              {isImage && <img src={url} alt={file.name} className="file-img" />}
+              {isVideo && <video src={url} className="file-img" muted />}
               {!isImage && !isVideo && (
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "gray" }}>
-                  <InsertDriveFileIcon sx={{ fontSize: 40 }} />
-                  <Typography variant="caption" noWrap sx={{ px: 1 }}>
+                <Box className="file-placeholder">
+                  <InsertDriveFileIcon className="file-icon" />
+                  <Typography variant="caption" noWrap>
                     {file.name}
                   </Typography>
                 </Box>
               )}
-              <IconButton
-                size="small"
-                onClick={() => onRemove(index)}
-                sx={{ position: "absolute", top: 4, right: 4, bgcolor: "rgba(0,0,0,0.6)", color: "white" }}
-              >
+              <IconButton size="small" className="file-remove-btn" onClick={() => onRemove(index)}>
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Paper>
@@ -111,7 +103,7 @@ function OtherUserName({ participants }) {
       setName("Unknown User");
       return;
     }
-    const otherUser = participants.find(p => p._id !== myId);
+    const otherUser = participants.find((p) => p._id !== myId);
     setName(otherUser ? otherUser.userName : "Unknown User");
   }, [participants]);
 
@@ -121,41 +113,45 @@ function OtherUserName({ participants }) {
 // -------------------- CHAT SIDEBAR --------------------
 function ChatSidebar({ chats, selectedChat, handleChatSelect }) {
   const sortedChats = [...chats].sort((a, b) => {
-    const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
-    const timeB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
-    return timeB - timeA; // recent first
+    const timeA = a.lastMessage?.createdAt
+      ? new Date(a.lastMessage.createdAt).getTime()
+      : 0;
+    const timeB = b.lastMessage?.createdAt
+      ? new Date(b.lastMessage.createdAt).getTime()
+      : 0;
+    return timeB - timeA;
   });
 
   return (
-    <Box
-      sx={{
-        width: { xs: "100%", sm: "380px" },
-        maxWidth: { xs: "100%", sm: 420 },
-        minWidth: { xs: "100%", sm: 320 },
-        bgcolor: "#020617",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        borderRight: { sm: "1px solid #1e293b" },
-        flexShrink: 0,
-      }}
-    >
-      <Box sx={{ p: 2, borderBottom: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6" fontWeight="bold" color="primary">Chats</Typography>
+    <Box className="chat-sidebar">
+      <Box className="chat-sidebar-header">
+        <Typography variant="h6" fontWeight="bold" color="primary">
+          Chats
+        </Typography>
       </Box>
-      <List sx={{ flexGrow: 1, overflow: "auto" }}>
+      <List className="chat-list">
         {sortedChats.map((chat) => (
           <ListItem key={chat._id} disablePadding>
             <ListItemButton
               selected={selectedChat?._id === chat._id}
               onClick={() => handleChatSelect(chat)}
-              sx={{ py: 2, borderBottom: "1px solid #1e293b", "&.Mui-selected": { bgcolor: "#0f172a" } }}
+              className="chat-list-item"
             >
               <ListItemText
-                primary={<Typography color="white" fontWeight="600">{chat.isGroupChat ? chat.name : <OtherUserName participants={chat.participants} />}</Typography>}
-                secondary={<Typography variant="body2" color="gray" noWrap>{chat.lastMessage?.content || "No messages yet"}</Typography>}
+                primary={
+                  <Typography color="white" fontWeight="600">
+                    {chat.isGroupChat ? chat.name : <OtherUserName participants={chat.participants} />}
+                  </Typography>
+                }
+                secondary={
+                  <Typography variant="body2" color="gray" noWrap>
+                    {chat.lastMessage?.content || "No messages yet"}
+                  </Typography>
+                }
               />
-              <Typography variant="caption" color="gray" sx={{ ml: 2 }}>{formatTimestamp(chat.lastMessage?.createdAt)}</Typography>
+              <Typography variant="caption" color="gray" className="chat-timestamp">
+                {formatTimestamp(chat.lastMessage?.createdAt)}
+              </Typography>
             </ListItemButton>
           </ListItem>
         ))}
@@ -170,7 +166,8 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
   const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = () =>
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(() => scrollToBottom(), [selectedChat?.messages]);
 
   const handleSendClick = async () => {
@@ -180,19 +177,24 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
       const payload = {
         sender: localStorage.getItem("userId"),
         content: message.trim(),
-        attachments: attachedFiles.map(file => ({ url: file.url, type: "file" })),
+        attachments: attachedFiles.map((file) => ({ url: file.url, type: "file" })),
       };
 
-      const res = await axios.post(`http://localhost:5000/messages/${selectedChat._id}`, payload);
+      const res = await axios.post(
+        `http://localhost:5000/messages/${selectedChat._id}`,
+        payload
+      );
       const realMsg = res.data.data;
 
-      // update messages in panel
-      setSelectedChat(prev => ({ ...prev, messages: [...prev.messages, realMsg] }));
+      setSelectedChat((prev) => ({ ...prev, messages: [...prev.messages, realMsg] }));
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat._id === selectedChat._id
+            ? { ...chat, lastMessage: realMsg, updatedAt: realMsg.createdAt }
+            : chat
+        )
+      );
 
-      // update sidebar chats
-      setChats(prev => prev.map(chat => chat._id === selectedChat._id ? { ...chat, lastMessage: realMsg, updatedAt: realMsg.createdAt } : chat));
-
-      // emit socket to all users in chat page
       socket.emit("new_message", realMsg);
 
       setMessage("");
@@ -202,68 +204,81 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
     }
   };
 
-  const removeFile = (index) => setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  const removeFile = (index) =>
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
 
-  if (!selectedChat) return (
-    <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#0f172a" }}>
-      <Typography variant="h5" color="gray">Select a chat to begin</Typography>
-    </Box>
-  );
+  if (!selectedChat)
+    return (
+      <Box className="chat-panel-empty">
+        <Typography variant="h5" color="gray">
+          Select a chat to begin
+        </Typography>
+      </Box>
+    );
 
   return (
-    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", bgcolor: "#0f172a" }}>
-      {/* Header */}
-      <Box sx={{ bgcolor: "#020617", p: 2, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #1e293b" }}>
-        <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
+    <Box className="chat-panel">
+      <Box className="chat-panel-header">
+        <Typography variant="h6" className="chat-panel-title">
           {selectedChat.isGroupChat ? selectedChat.name : <OtherUserName participants={selectedChat.participants} />}
         </Typography>
-        <IconButton color="primary"><MoreVertIcon /></IconButton>
+        <IconButton color="primary">
+          <MoreVertIcon />
+        </IconButton>
       </Box>
 
-      {/* Messages */}
-      <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
-        {selectedChat.messages.map(msg => {
+      <Box className="chat-messages">
+        {selectedChat.messages.map((msg) => {
           const isFile = msg.type === "file";
           const isImage = isFile && msg.fileType?.startsWith("image/");
           const isVideo = isFile && msg.fileType?.startsWith("video/");
 
+          const isMine = msg.sender._id.toString() === localStorage.getItem("userId");
+
           return (
             <Box
               key={msg._id}
-              sx={{
-                alignSelf: msg.sender._id.toString() === localStorage.getItem("userId") ? "flex-end" : "flex-start",
-                bgcolor: msg.sender._id.toString() === localStorage.getItem("userId") ? "#1e90ff" : "#111e34ff",
-                color: "white",
-                px: 2.5,
-                py: 1.5,
-                borderRadius: "18px",
-                maxWidth: "70%",
-                boxShadow: msg.sender._id.toString() === localStorage.getItem("userId") ? "0 4px 20px rgba(30,144,255,0.4)" : "none",
-              }}
+              className={`chat-message ${isMine ? "mine" : "other"}`}
             >
-              <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.75rem", display: "block", mt: 0.5 }}>{msg.sender.userName}</Typography>
+              <Typography variant="caption" className="msg-sender">
+                {msg.sender.userName}
+              </Typography>
               {isFile && (isImage || isVideo) ? (
-                <Box sx={{ borderRadius: 2, overflow: "hidden", mb: 1 }}>
-                  {isImage && <img src={URL.createObjectURL(msg.file)} alt={msg.fileName} style={{ maxWidth: "100%", borderRadius: 8, display: "block" }} />}
-                  {isVideo && <video src={URL.createObjectURL(msg.file)} controls style={{ maxWidth: "100%", borderRadius: 8, display: "block" }} />}
+                <Box className="msg-file">
+                  {isImage && <img src={URL.createObjectURL(msg.file)} alt={msg.fileName} className="msg-file-img" />}
+                  {isVideo && <video src={URL.createObjectURL(msg.file)} controls className="msg-file-img" />}
                 </Box>
               ) : isFile ? (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}><InsertDriveFileIcon /><Typography variant="body2">{msg.fileName}</Typography></Box>
-              ) : <Typography variant="body1">{msg.content}</Typography>}
-              <Typography variant="caption" sx={{ opacity: 0.6, fontSize: "0.75rem", display: "block", mt: 0.5 }}>{formatTimestamp(msg.createdAt)}</Typography>
+                <Box className="msg-file-placeholder">
+                  <InsertDriveFileIcon />
+                  <Typography variant="body2">{msg.fileName}</Typography>
+                </Box>
+              ) : (
+                <Typography variant="body1">{msg.content}</Typography>
+              )}
+              <Typography variant="caption" className="msg-time">
+                {formatTimestamp(msg.createdAt)}
+              </Typography>
             </Box>
           );
         })}
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* Input */}
-      <Box sx={{ p: 2, borderTop: "1px solid #1e293b", bgcolor: "#020617" }}>
+      <Box className="chat-input">
         <FilePreview files={attachedFiles} onRemove={removeFile} />
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box className="chat-input-row">
           <IconButton component="label">
-            <AttachFileIcon sx={{ color: "gray" }} />
-            <input type="file" hidden multiple onChange={e => { if (e.target.files) setAttachedFiles(prev => [...prev, ...Array.from(e.target.files)]); }} />
+            <AttachFileIcon className="icon-gray" />
+            <input
+              type="file"
+              hidden
+              multiple
+              onChange={(e) => {
+                if (e.target.files)
+                  setAttachedFiles((prev) => [...prev, ...Array.from(e.target.files)]);
+              }}
+            />
           </IconButton>
 
           <TextField
@@ -275,13 +290,17 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton><EmojiEmotionsIcon sx={{ color: "gray" }} /></IconButton>
+                  <IconButton>
+                    <EmojiEmotionsIcon className="icon-gray" />
+                  </IconButton>
                 </InputAdornment>
               ),
-              sx: { borderRadius: "30px", bgcolor: "#0f172a", color: "white" },
+              className: "chat-input-field",
             }}
           />
-          <IconButton color="primary" onClick={handleSendClick} disabled={!message.trim() && attachedFiles.length === 0}><SendIcon /></IconButton>
+          <IconButton color="primary" onClick={handleSendClick} disabled={!message.trim() && attachedFiles.length === 0}>
+            <SendIcon />
+          </IconButton>
         </Box>
       </Box>
     </Box>
@@ -294,7 +313,6 @@ export default function ChatApp() {
   const [selectedChat, setSelectedChat] = useState(null);
   localStorage.setItem("userId", "6924c11062dbde5200745c28"); // demo user
 
-  // fetch chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
@@ -308,7 +326,6 @@ export default function ChatApp() {
     fetchChats();
   }, []);
 
-  // select chat
   const handleChatSelect = async (chat) => {
     setSelectedChat({ ...chat, messages: [], loading: true });
     try {
@@ -319,13 +336,22 @@ export default function ChatApp() {
     }
   };
 
-  // socket: join page & listen for messages
   useEffect(() => {
     socket.emit("in_chats_page");
 
     socket.on("message_update", (msg) => {
-      setChats(prev => prev.map(chat => chat._id === msg.chatId ? { ...chat, lastMessage: msg, updatedAt: msg.createdAt } : chat));
-      setSelectedChat(prev => prev && prev._id === msg.chatId ? { ...prev, messages: [...prev.messages, msg] } : prev);
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat._id === msg.chatId
+            ? { ...chat, lastMessage: msg, updatedAt: msg.createdAt }
+            : chat
+        )
+      );
+      setSelectedChat((prev) =>
+        prev && prev._id === msg.chatId
+          ? { ...prev, messages: [...prev.messages, msg] }
+          : prev
+      );
     });
 
     return () => {
@@ -336,7 +362,7 @@ export default function ChatApp() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", height: "100vh", width: "100vw", maxWidth: "100vw", bgcolor: "#0f172a", overflow: "hidden", position: "fixed", top: 0, left: 0 }}>
+      <Box className="chat-app-container">
         <ChatSidebar chats={chats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} />
         <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} chats={chats} setChats={setChats} />
       </Box>

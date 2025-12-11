@@ -1,0 +1,23 @@
+/* Avatar button */
+.um-avatar-btn {
+  padding: 4px !important;
+}
+
+/* Menu items */
+.um-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Icon spacing */
+.um-icon {
+  margin-right: 8px;
+  min-width: 24px;
+  color: inherit;
+}
+
+/* Switch alignment */
+.um-switch {
+  margin-left: auto !important;
+}

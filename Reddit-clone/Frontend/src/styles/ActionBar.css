@@ -1,0 +1,31 @@
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.vote_up svg,
+.vote_down svg {
+  transition: 0.2s ease;
+}
+
+.vote_up:hover svg,
+.vote_down:hover svg {
+  transform: scale(1.1);
+}
+
+.vote-count {
+  font-weight: bold;
+  min-width: 24px;
+  text-align: center;
+}

@@ -1,40 +1,34 @@
 import React from "react";
-import {
-  Menu,
-  MenuItem,
-  Avatar,
-  IconButton,
-  Switch,
-} from "@mui/material";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import Brightness2Icon from '@mui/icons-material/Brightness2';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
+import { Menu, MenuItem, Avatar, IconButton, Switch } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import Brightness2Icon from "@mui/icons-material/Brightness2";
+import LogoutIcon from "@mui/icons-material/Logout";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../Context/AuthContext"; 
+import { useAuth } from "../Context/AuthContext";
+import "../styles/userMenu.css";
 
 export default function UserMenu({ darkMode, setDarkMode }) {
   const navigate = useNavigate();
-  const { logout } = useAuth(); 
+  const { logout } = useAuth();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
-
   const handleClose = () => setAnchorEl(null);
 
   const handleLogout = async () => {
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/logout`,
-        {}, 
+        {},
         { withCredentials: true }
       );
 
-      logout(); 
-      handleClose(); 
-      navigate("/Home"); // redirect to home
+      logout();
+      handleClose();
+      navigate("/Home");
     } catch (err) {
       console.error(err.response?.data?.message || "Logout failed");
     }
@@ -42,7 +36,7 @@ export default function UserMenu({ darkMode, setDarkMode }) {
 
   return (
     <div>
-      <IconButton onClick={handleOpen} size="large">
+      <IconButton onClick={handleOpen} size="large" className="um-avatar-btn">
         <Avatar src="https://i.pravatar.cc/150?img=3" />
       </IconButton>
 
@@ -52,27 +46,33 @@ export default function UserMenu({ darkMode, setDarkMode }) {
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        className="um-menu"
       >
-        <MenuItem onClick={() => { navigate("/ProfilePage"); handleClose(); }}>
-          <AccountCircleIcon sx={{ mr: 1 }} /> View Profile
+        <MenuItem
+          onClick={() => {
+            navigate("/ProfilePage");
+            handleClose();
+          }}
+          className="um-menu-item"
+        >
+          <AccountCircleIcon className="um-icon" /> View Profile
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <DraftsIcon sx={{ mr: 1 }} /> Notifications
+        <MenuItem onClick={handleClose} className="um-menu-item">
+          <DraftsIcon className="um-icon" /> Notifications
         </MenuItem>
-        <MenuItem>
-          <Brightness2Icon sx={{ mr: 1 }} />
-          Dark Mode
+        <MenuItem className="um-menu-item">
+          <Brightness2Icon className="um-icon" /> Dark Mode
           <Switch
             checked={darkMode}
             onChange={() => setDarkMode(!darkMode)}
-            sx={{ ml: "auto" }}
+            className="um-switch"
           />
         </MenuItem>
-        <MenuItem onClick={handleLogout}>
-          <LogoutIcon sx={{ mr: 1 }} /> Log Out
+        <MenuItem onClick={handleLogout} className="um-menu-item">
+          <LogoutIcon className="um-icon" /> Log Out
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <SettingsIcon sx={{ mr: 1 }} /> Settings
+        <MenuItem onClick={handleClose} className="um-menu-item">
+          <SettingsIcon className="um-icon" /> Settings
         </MenuItem>
       </Menu>
     </div>

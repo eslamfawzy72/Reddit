@@ -1,0 +1,155 @@
+/* -------- CONTAINER -------- */
+.psa-container {
+  flex-grow: 1;
+}
+
+.psa-appbar {
+  background-color: rgba(27, 0, 123, 0.93);
+}
+
+/* -------- LOGO -------- */
+.psa-logo {
+  display: none;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-right: 24px;
+}
+
+@media (min-width: 600px) {
+  .psa-logo {
+    display: block;
+  }
+}
+
+/* -------- SEARCH -------- */
+.psa-search-wrapper {
+  position: relative;
+  flex-grow: 1;
+  max-width: 720px;
+}
+
+.psa-search-container {
+  position: relative;
+  border-radius: 4px;
+  background-color: rgba(255,255,255,0.15);
+  margin-left: 24px;
+  width: 100%;
+}
+
+.psa-search-container:hover {
+  background-color: rgba(255,255,255,0.25);
+}
+
+.psa-search-icon {
+  padding: 0 16px;
+  height: 100%;
+  position: absolute;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.psa-input {
+  color: inherit;
+  padding: 8px 8px 8px 48px;
+  width: 100%;
+  transition: width 0.3s;
+}
+
+@media (min-width: 960px) {
+  .psa-input {
+    width: 40ch;
+  }
+  .psa-input:focus {
+    width: 50ch;
+  }
+}
+
+/* -------- DROPDOWN -------- */
+.psa-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  margin-top: 8px;
+  max-height: 500px;
+  overflow: auto;
+  z-index: 1300;
+}
+
+.psa-no-results {
+  padding: 24px;
+  color: #1565c0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.psa-dropdown-item {
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.psa-dropdown-item.even {
+  background-color: #e3f2fd;
+}
+
+.psa-dropdown-item.odd {
+  background-color: #bbdefb;
+}
+
+.psa-dropdown-item:hover {
+  background-color: #90caf9;
+}
+
+.psa-full-search {
+  padding: 20px;
+  border-top: 2px solid #90caf9;
+  background-color: #bbdefb;
+  font-weight: 700;
+  color: #0d47a1;
+  text-align: center;
+  cursor: pointer;
+}
+
+.psa-full-search:hover {
+  background-color: #90caf9;
+}
+
+/* -------- BUTTONS -------- */
+.psa-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.psa-icon-button {
+  color: white;
+}
+
+.psa-create-btn {
+  background-color: #008cffff;
+  border-radius: 20px;
+  text-transform: none;
+  font-weight: 600;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.psa-create-btn:hover {
+  background-color: #00e047;
+}
+
+.psa-auth-btn {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding-left: 24px;
+  padding-right: 24px;
+  color: blue;
+}

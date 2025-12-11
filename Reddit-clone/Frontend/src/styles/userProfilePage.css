@@ -1,0 +1,245 @@
+/* src/pages/UserProfilePage.css */
+.profile-page {
+  background-color: #0A0A0A;
+  min-height: 100vh;
+  color: #EDEFF1;
+  padding-bottom: 50px;
+  font-family: Arial, sans-serif;
+}
+
+.profile-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 48px;
+  font-weight: bold;
+  border: 6px solid #0A0A0A;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+.profile-name h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+  color: #EDEFF1;
+}
+.profile-name p {
+  margin: 4px 0 0;
+  color: #818384;
+  font-size: 16px;
+}
+
+.edit-profile-btn {
+  padding: 12px 20px;
+  background-color: #1a1a1b;
+  border: 1px solid #343536;
+  color: #EDEFF1;
+  border-radius: 999px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.profile-bio {
+  margin: 0 0 20px 140px;
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.profile-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs-header {
+  display: flex;
+  background-color: #1a1a1b;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid #343536;
+  border-bottom: none;
+}
+.tab-btn {
+  padding: 14px 24px;
+  background: none;
+  border: none;
+  color: #818384;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 15px;
+  border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: #0066ff;
+  font-weight: 700;
+  border-bottom: 3px solid #0066ff;
+}
+
+.tab-content {
+  background-color: #1a1a1b;
+  border: 1px solid #343536;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 20px;
+}
+
+.loading-posts {
+  text-align: center;
+  color: #666;
+  padding: 60px 0;
+}
+
+.no-comments {
+  text-align: center;
+  padding: 60px 0;
+  color: #818384;
+}
+
+.profile-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+/* Sidebar */
+.sidebar-card {
+  background-color: #1a1a1b;
+  border: 1px solid #343536;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  color: #EDEFF1;
+}
+
+.sidebar-user-info {
+  margin-bottom: 16px;
+}
+.sidebar-username {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+.sidebar-stats {
+  display: flex;
+  gap: 16px;
+}
+.sidebar-number {
+  font-size: 20px;
+  font-weight: 800;
+}
+.sidebar-label {
+  color: #818384;
+  font-size: 12px;
+}
+
+.sidebar-divider {
+  border: 0.5px solid #343536;
+  margin: 16px 0;
+}
+
+.sidebar-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+.sidebar-stat {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Follow button */
+.follow-btn {
+  margin-top: 16px;
+  background-color: #0079D3;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+.follow-btn.following {
+  background-color: #F1F5F9;
+  color: #475569;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15,23,42,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.modal-card {
+  background-color: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  color: #0F172A;
+  padding: 32px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+}
+.modal-form .modal-section {
+  margin-bottom: 32px;
+}
+.modal-form h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

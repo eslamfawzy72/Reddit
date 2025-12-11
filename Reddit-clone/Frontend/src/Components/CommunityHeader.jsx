@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, Avatar, Typography } from "@mui/material";
+import "../styles/communityHeader.css";
 
 export default function CommunityHeader({
   name = "Community Name",
@@ -11,106 +12,39 @@ export default function CommunityHeader({
   onJoin = () => {},
 }) {
   return (
-    <Box
-      sx={{
-        bgcolor: "#0d0d0d",
-        color: "#ffffff",
-        width: "80%",
-        maxWidth: { xs: "100%", sm: "1000px" },
-        mx: "auto",
-        borderRadius: 3,
-        overflow: "hidden",
-        mb: 4,
-        boxShadow: 3,
-      }}
-    >
+    <Box className="community-header">
       {/* Banner Image */}
       <Box
-        sx={{
-          height: { xs: 140, sm: 200 },
-          backgroundImage: `url(${banner})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="community-banner"
+        style={{ backgroundImage: `url(${banner})` }}
       />
 
       {/* Header Content */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          p: { xs: 2, sm: 3 },
-          bgcolor: "rgba(255,255,255,0.05)",
-        }}
-      >
+      <Box className="community-header-content">
         {/* Left: Avatar + Name */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              bgcolor: "#0055aa",
-              fontSize: 32,
-              fontWeight: "bold",
-              border: "4px solid #0d0d0d",
-              mt: -6,
-            }}
-          >
-            {avatar}
-          </Avatar>
+        <Box className="community-left">
+          <Avatar className="community-avatar">{avatar}</Avatar>
 
           <Box>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" className="community-name">
               r/{name}
             </Typography>
-            <Typography variant="body2" color="gray">
-              {membersCount.toLocaleString()} members • {onlineCount.toLocaleString()} online
+            <Typography variant="body2" className="community-meta">
+              {membersCount.toLocaleString()} members •{" "}
+              {onlineCount.toLocaleString()} online
             </Typography>
           </Box>
         </Box>
 
         {/* Right: Buttons */}
-        <Box sx={{ display: "flex", gap: 1.5 }}>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "#0055aa",
-              textTransform: "none",
-              fontWeight: "bold",
-              px: 3,
-              "&:hover": { bgcolor: "#0066cc" },
-            }}
-            onClick={onCreatePost}
-          >
+        <Box className="community-buttons">
+          <Button className="btn-create-post" onClick={onCreatePost}>
             Create Post
           </Button>
-          <Button
-            variant="outlined"
-            sx={{
-              color: "#fff",
-              borderColor: "#0055aa",
-              textTransform: "none",
-              fontWeight: "bold",
-              "&:hover": { borderColor: "#0066cc", bgcolor: "rgba(0,100,200,0.1)" },
-            }}
-            onClick={onJoin}
-          >
+          <Button className="btn-join" onClick={onJoin}>
             Join
           </Button>
-          <Button
-            variant="outlined"
-            sx={{
-              minWidth: 44,
-              width: 44,
-              height: 44,
-              borderColor: "#0055aa",
-              color: "#fff",
-              "&:hover": { bgcolor: "rgba(0,100,200,0.1)" },
-            }}
-          >
-            ⋮
-          </Button>
+          <Button className="btn-options">⋮</Button>
         </Box>
       </Box>
     </Box>

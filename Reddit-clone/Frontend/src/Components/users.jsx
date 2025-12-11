@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "../styles/users.css";
 
 function UsersList() {
   const [users, setUsers] = useState([]);
@@ -6,21 +7,21 @@ function UsersList() {
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/users`)
       .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
-      })
+      .then((data) => setUsers(data))
       .catch((err) => console.error("Error fetching users:", err));
-  },[]);
+  }, []);
 
   return (
-    <div>
+    <div className="users-list-container">
       <h1>Users:</h1>
       {users.length === 0 ? (
-        <p>No users found</p>
+        <p className="no-users">No users found</p>
       ) : (
-        <ul>
+        <ul className="users-list">
           {users.map((u) => (
-            <li key={u._id}>{u.userName} — {u.email}</li>
+            <li key={u._id} className="user-item">
+              {u.userName} — {u.email}
+            </li>
           ))}
         </ul>
       )}

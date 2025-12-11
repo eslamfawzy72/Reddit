@@ -1,0 +1,66 @@
+.post-card {
+  max-width: 600px;
+  margin: 0 auto 16px auto;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* AI CHECK BUTTON */
+.ai-check-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.ai-check-button button {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* HIDDEN POST */
+.hidden-post {
+  height: 120px;
+  margin: 10px 0;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.undo-btn {
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #1976d2;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* IMAGE SLIDER */
+.image-slider {
+  position: relative;
+}
+
+.image-slider .prev-btn,
+.image-slider .next-btn {
+  position: absolute;
+  top: 50%;
+  background-color: white;
+  transform: translateY(-50%);
+}
+
+.image-slider .prev-btn {
+  left: 10px;
+}
+
+.image-slider .next-btn {
+  right: 10px;
+}

@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
+import "../styles/createPost.css";
+
 const redditTags = [
   { title: 'Programming' }, { title: 'Gaming' }, { title: 'Movies' }, { title: 'Music' },
   { title: 'Anime' }, { title: 'Technology' }, { title: 'Memes' }, { title: 'Funny' },
@@ -47,7 +49,7 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+      <Box className="post-type-chips">
         {types.map((type) => (
           <Chip
             key={type}
@@ -58,24 +60,11 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
               setTypeChosen(type);
               if (type !== 'Media') setMediaFiles([]);
             }}
-            sx={{
-              fontWeight: 500,
-              px: 2,
-              py: 1,
-              cursor: 'pointer',
-              transition: '0.2s',
-              backgroundColor: typeChosen === type ? BLUE : '#272729',
-              color: '#fff',
-              '&:hover': { 
-                bgcolor: typeChosen === type ? BLUE_HOVER : '#343536',
-                transform: 'scale(1.05)'
-              },
-            }}
+            className={`type-chip ${typeChosen === type ? 'active' : ''}`}
           />
         ))}
       </Box>
 
-      {/* Text Post */}
       {typeChosen === 'Text' && (
         <TextField
           placeholder="Text (optional)"
@@ -83,61 +72,38 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
           multiline
           rows={8}
           inputProps={{ maxLength: 1000 }}
-          sx={{
-            width: '100%',
-            '& .MuiOutlinedInput-root': {
-              bgcolor: '#1a1a1b',
-              color: '#EDEFF1',
-              '& fieldset': { borderColor: '#343536' },
-              '&:hover fieldset': { borderColor: '#565656' },
-              '&.Mui-focused fieldset': { borderColor: BLUE },
-            },
-          }}
+          className="text-post-field"
         />
       )}
 
-      {/* Media Post */}
       {typeChosen === 'Media' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box className="media-post-container">
           <input
             type="file"
             accept="image/*,video/*"
             multiple
             onChange={handleFileChange}
-            style={{ padding: '10px 0', fontSize: '14px', color: '#EDEFF1' }}
+            className="media-input"
           />
 
           {mediaPreviews.length > 0 && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box className="media-preview-list">
               {mediaPreviews.map((media, index) => (
-                <Box key={index} sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', border: '2px solid #343536' }}>
+                <Box key={index} className="media-preview-card">
                   <IconButton
                     onClick={() => removeMedia(index)}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      bgcolor: 'rgba(0,0,0,0.7)',
-                      color: 'white',
-                      zIndex: 10,
-                      '&:hover': { bgcolor: 'rgba(0,0,0,0.9)' },
-                    }}
+                    className="media-remove-btn"
                   >
                     <CloseIcon />
                   </IconButton>
 
                   {media.type === 'image' ? (
-                    <img src={media.url} alt={media.name} style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block' }} />
+                    <img src={media.url} alt={media.name} className="media-img" />
                   ) : (
-                    <video src={media.url} controls style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block' }} />
+                    <video src={media.url} controls className="media-img" />
                   )}
 
-                  <Typography variant="caption" sx={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0,
-                    bgcolor: 'rgba(0,0,0,0.8)', color: 'white', textAlign: 'center', py: 0.5, fontSize: '12px'
-                  }}>
-                    {media.name}
-                  </Typography>
+                  <Typography className="media-caption">{media.name}</Typography>
                 </Box>
               ))}
             </Box>
@@ -145,9 +111,8 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
         </Box>
       )}
 
-      {/* Poll Post */}
       {typeChosen === 'Poll' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box className="poll-options-container">
           {pollOptions.map((option, index) => (
             <TextField
               key={index}
@@ -159,28 +124,14 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
                 newOptions[index] = e.target.value;
                 setPollOptions(newOptions);
               }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: '#1a1a1b',
-                  color: '#EDEFF1',
-                  '& fieldset': { borderColor: '#343536' },
-                  '&:hover fieldset': { borderColor: '#565656' },
-                  '&.Mui-focused fieldset': { borderColor: BLUE },
-                },
-              }}
+              className="poll-option-field"
             />
           ))}
           <Chip
             label="Add Option"
             clickable
             onClick={() => setPollOptions([...pollOptions, ''])}
-            sx={{
-              width: 'fit-content',
-              mt: 1,
-              bgcolor: BLUE,
-              color: '#fff',
-              '&:hover': { bgcolor: BLUE_HOVER }
-            }}
+            className="add-poll-option"
           />
         </Box>
       )}
@@ -203,11 +154,11 @@ function FixedTags() {
             key={option.title}
             label={option.title}
             {...getTagProps({ index })}
-            sx={{ bgcolor: BLUE, color: '#fff', fontWeight: 600 }}
+            className="tag-chip"
           />
         ))
       }
-      sx={{ width: '100%', mt: 1 }}
+      className="tags-autocomplete"
       renderInput={(params) => (
         <TextField
           {...params}
@@ -215,15 +166,7 @@ function FixedTags() {
           placeholder={value.length === 0 ? "Add Tags" : ""}
           variant="outlined"
           size="small"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              bgcolor: '#1a1a1b',
-              color: '#EDEFF1',
-              '& fieldset': { borderColor: '#343536' },
-              '&:hover fieldset': { borderColor: '#565656' },
-              '&.Mui-focused fieldset': { borderColor: BLUE },
-            },
-          }}
+          className="tags-field"
         />
       )}
     />
@@ -235,7 +178,7 @@ function ComboBox() {
     <Autocomplete
       disablePortal
       options={['adhams', 'Movie Lovers', 'ReactJS', 'Memes', 'Funny', 'Bluedit', 'WebDev']}
-      sx={{ width: '100%', mb: 2 }}
+      className="community-autocomplete"
       renderInput={(params) => (
         <TextField
           {...params}
@@ -243,15 +186,7 @@ function ComboBox() {
           placeholder="Select Community"
           variant="outlined"
           size="small"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              bgcolor: '#1a1a1b',
-              color: '#EDEFF1',
-              '& fieldset': { borderColor: '#343536' },
-              '&:hover fieldset': { borderColor: '#565656' },
-              '&.Mui-focused fieldset': { borderColor: BLUE },
-            },
-          }}
+          className="community-field"
         />
       )}
     />
@@ -266,36 +201,18 @@ function CreatePost() {
   return (
     <React.Fragment>
       <CssBaseline />
-
-      {/* FULL DARK BACKGROUND */}
-      <Box sx={{ position: 'fixed', inset: 0, bgcolor: '#0A0A0A', zIndex: -1 }} />
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', py: 4 }}>
-        <Box sx={{ width: 740, bgcolor: '#1a1a1b', borderRadius: '12px', border: '1px solid #343536', overflow: 'hidden', boxShadow: 3 }}>
-          <Box sx={{ bgcolor: '#030303', padding: '14px 16px', borderBottom: '1px solid #343536' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '18px', color: '#EDEFF1' }}>
+      <Box className="full-background" />
+      <Box className="create-post-wrapper">
+        <Box className="create-post-container">
+          <Box className="create-post-header">
+            <Typography className="create-post-title">
               Create a post
             </Typography>
           </Box>
 
-          <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box className="create-post-body">
             <ComboBox />
-            <TextField
-              placeholder="Title"
-              variant="outlined"
-              size="small"
-              inputProps={{ maxLength: 300 }}
-              sx={{
-                width: '100%',
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: '#1a1a1b',
-                  color: '#EDEFF1',
-                  '& fieldset': { borderColor: '#343536' },
-                  '&:hover fieldset': { borderColor: '#565656' },
-                  '&.Mui-focused fieldset': { borderColor: BLUE },
-                },
-              }}
-            />
+            <TextField placeholder="Title" variant="outlined" size="small" inputProps={{ maxLength: 300 }} className="title-field" />
 
             <PostTypeFilter
               typeChosen={typeChosen}
@@ -308,23 +225,8 @@ function CreatePost() {
 
             <FixedTags />
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Box
-                component="button"
-                sx={{
-                  bgcolor: BLUE,
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '999px',
-                  px: 6,
-                  py: 1.5,
-                  fontWeight: 700,
-                  fontSize: '15px',
-                  cursor: 'pointer',
-                  transition: '0.2s',
-                  '&:hover': { bgcolor: BLUE_HOVER, transform: 'scale(1.05)' },
-                }}
-              >
+            <Box className="post-button-container">
+              <Box component="button" className="post-button">
                 Post
               </Box>
             </Box>

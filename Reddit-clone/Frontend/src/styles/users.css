@@ -1,0 +1,24 @@
+.users-list-container {
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  color: #1a1a1a;
+}
+
+.users-list-container h1 {
+  margin-bottom: 12px;
+}
+
+.no-users {
+  color: #616161;
+  font-style: italic;
+}
+
+.users-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.user-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}

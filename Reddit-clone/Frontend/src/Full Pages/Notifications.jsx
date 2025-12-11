@@ -1,8 +1,9 @@
 import React from "react";
-import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import { Box } from "@mui/material";
+import "../styles/notifications.css"; // Import CSS
+
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import SidebarLeft from "../Components/SidebarLeft.jsx";
-import CommunityCard from "../Components/CommunityCard.jsx";
 import NotificationPage from "../Components/NotificationPage.jsx";
 
 // Mock data
@@ -26,25 +27,21 @@ const mockUsers = [
 
 // Render helpers
 const renderCommunity = (c) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1 }}>
-    <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: '#1b007b', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-      {c.icon}
-    </Box>
+  <Box className="render-community">
+    <Box className="render-community-icon">{c.icon}</Box>
     <Box>
-      <Box sx={{ fontWeight: 600, color: "#0d47a1" }}>{c.display}</Box>
-      <Box sx={{ fontSize: 13, color: "#1565c0" }}>{c.members} members</Box>
+      <Box className="render-community-name">{c.display}</Box>
+      <Box className="render-community-members">{c.members} members</Box>
     </Box>
   </Box>
 );
 
 const renderUser = (u) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 1 }}>
-    <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#ff5722', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-      {u.icon}
-    </Box>
+  <Box className="render-user">
+    <Box className="render-user-icon">{u.icon}</Box>
     <Box>
-      <Box sx={{ fontWeight: 600, color: "#0d47a1" }}>{u.display}</Box>
-      <Box sx={{ fontSize: 13, color: "#1565c0" }}>• {u.karma} karma</Box>
+      <Box className="render-user-name">{u.display}</Box>
+      <Box className="render-user-karma">• {u.karma} karma</Box>
     </Box>
   </Box>
 );
@@ -74,9 +71,9 @@ export const searchEverything = (query) => {
 
 function Notifications() {
   return (
-    <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
+    <Box className="notifications-background">
       {/* Fixed top bar */}
-      <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000 }}>
+      <Box className="notifications-navbar">
         <PrimarySearchAppBar
           loggedin={true}
           searchFunction={searchEverything}
@@ -84,31 +81,17 @@ function Notifications() {
         />
       </Box>
 
-      {/* Sidebar - fixed position */}
-      <Box sx={{ position: "fixed", top: 64, left: 0, bottom: 0, zIndex: 100 }}>
+      {/* Sidebar */}
+      <Box className="notifications-sidebar">
         <SidebarLeft loggedin={true} />
       </Box>
 
-      {/* Main content area */}
-      <Box
-  sx={{
-    position: "fixed",
-    top: 64,                         // Under navbar
-    left: { xs: 0, sm: 260 },        // Next to sidebar (260px on desktop)
-    right: 0,
-    bottom: 0,
-    overflowY: "auto",               // Only vertical scroll
-    overflowX: "hidden",
-    bgcolor: "#f5f5f5ff",              // Light background (no black!)
-    px: { xs: 2, sm: 4 },            // Nice padding
-    py: 3,
-  }}
->
-  {/* Optional: center the content like Reddit */}
-  <Box sx={{ maxWidth: "800px", mx: "auto", width: "100%" }}>
-    <NotificationPage />
-  </Box>
-</Box>
+      {/* Main content */}
+      <Box className="notifications-main">
+        <Box className="notifications-main-inner">
+          <NotificationPage />
+        </Box>
+      </Box>
     </Box>
   );
 }

@@ -1,0 +1,211 @@
+/* ---------------- AVATAR ---------------- */
+.comment-avatar {
+  border-radius: 50%;
+  background: #0079d3;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* ---------------- VOTE BUTTONS ---------------- */
+.vote-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-right: 12px;
+  user-select: none;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #94a3b8;
+}
+
+.vote-btn.liked {
+  color: #ff4500;
+}
+
+.vote-btn.disliked {
+  color: #7193ff;
+}
+
+.vote-count {
+  font-weight: 700;
+  font-size: 13px;
+  color: #d7dadc;
+}
+
+.vote-count.liked {
+  color: #ff4500;
+}
+
+.vote-count.disliked {
+  color: #7193ff;
+}
+
+/* ---------------- COMMENT STRUCTURE ---------------- */
+.comment-wrapper.root {
+  border-bottom: 1px solid #343536;
+  padding: 16px 0;
+}
+
+.comment-wrapper.nested {
+  border-left: 2px solid #343536;
+  padding: 16px 0;
+}
+
+/* Container */
+.comment-container {
+  display: flex;
+}
+
+/* Content */
+.comment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------------- HEADER ---------------- */
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comment-user-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.username {
+  font-weight: 600;
+  color: #d7dadc;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #818384;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collapse-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid #343536;
+  color: #818384;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------------- BODY ---------------- */
+.comment-text {
+  color: #1b5597ff;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.collapsed-text {
+  color: #818384;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ---------------- ACTION BAR ---------------- */
+.action-bar {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.reply-btn {
+  font-size: 13px;
+  color: #64748b;
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.reply-btn:hover {
+  background-color: #f1f5f9;
+}
+
+/* ---------------- REPLY BOX ---------------- */
+.reply-box {
+  margin-top: 16px;
+  background-color: #1a1a1b;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #343536;
+}
+
+.reply-textarea {
+  width: 100%;
+  background-color: #0a0a0a;
+  color: #d7dadc;
+  border: 1px solid #343536;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  background: transparent;
+  color: #818384;
+  border: 1px solid #343536;
+  border-radius: 999px;
+}
+
+.btn-reply {
+  padding: 8px 20px;
+  background-color: #0079d3;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-reply:disabled {
+  background-color: #343536;
+  cursor: not-allowed;
+}
+
+/* ---------------- NESTED REPLIES ---------------- */
+.nested-replies {
+  margin-top: 16px;
+}
+
+.continue-thread {
+  color: #0079d3;
+  font-size: 13px;
+  font-weight: 600;
+}

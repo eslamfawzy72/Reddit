@@ -1,0 +1,45 @@
+.explore-background {
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.explore-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.explore-sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.explore-main {
+  position: fixed;
+  top: 64px;
+  left: 260px;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  padding: 16px 24px;
+  scrollbar-width: thin;
+}
+
+.explore-main::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.explore-main::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.explore-main > * {
+  min-width: fit-content;
+}

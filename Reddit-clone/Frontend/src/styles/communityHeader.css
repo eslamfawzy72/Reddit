@@ -1,0 +1,94 @@
+.community-header-container {
+  background-color: #0d0d0d;
+  color: #ffffff;
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto 32px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+}
+
+/* Banner Image */
+.banner-image {
+  height: 200px;
+  background-image: url("https://images.unsplash.com/photo-1503264116251-35a269479413");
+  background-size: cover;
+  background-position: center;
+}
+
+/* Header content */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background-color: rgba(255,255,255,0.05);
+}
+
+/* Left section */
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.community-avatar {
+  width: 80px;
+  height: 80px;
+  background-color: #0055aa;
+  font-size: 32px;
+  font-weight: bold;
+  border: 4px solid #0d0d0d;
+  margin-top: -48px; /* Pull avatar over banner */
+}
+
+.community-name {
+  font-weight: bold;
+}
+
+.community-stats {
+  color: gray;
+}
+
+/* Right buttons */
+.right-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.create-post-btn {
+  background-color: #0055aa;
+  color: #fff;
+  text-transform: none;
+  font-weight: bold;
+  padding: 0 24px;
+}
+
+.create-post-btn:hover {
+  background-color: #0066cc;
+}
+
+.join-btn {
+  color: #fff;
+  border-color: #0055aa;
+  text-transform: none;
+  font-weight: bold;
+}
+
+.join-btn:hover {
+  border-color: #0066cc;
+  background-color: rgba(0,100,200,0.1);
+}
+
+.menu-btn {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  border-color: #0055aa;
+  color: #fff;
+}
+
+.menu-btn:hover {
+  background-color: rgba(0,100,200,0.1);
+}
