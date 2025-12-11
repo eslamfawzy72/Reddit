@@ -83,7 +83,7 @@ export async function getUserCommunities(req, res) {
 
 export async function getUserFollowers(req, res) {
   try {
-    const user = await User.findById(req.params.userID);
+    const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // THIS IS THE FIX — convert ObjectId to string

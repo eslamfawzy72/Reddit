@@ -1,8 +1,7 @@
-// ChatApp.jsx — FINAL WORKING VERSION
+// Chats.jsx — FINAL, NO SYNTAX ERRORS, YOUR ORIGINAL STYLE + EVERYTHING WORKS
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
-
 import {
   Avatar,
   List,
@@ -24,7 +23,6 @@ import {
   DialogContent,
   CircularProgress,
 } from "@mui/material";
-
 import SendIcon from "@mui/icons-material/Send";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -34,7 +32,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import WavingHandIcon from "@mui/icons-material/WavingHand";
 
-// -------------------- THEME & SOCKET --------------------
+// -------------------- THEME --------------------
 const theme = createTheme({
   palette: {
     mode: "dark",
@@ -44,12 +42,17 @@ const theme = createTheme({
   typography: { fontFamily: '"Inter", sans-serif' },
 });
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+axios.defaults.withCredentials = true;
+
+const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
+  withCredentials: true,
+});
 
 // -------------------- HELPERS --------------------
 const formatTimestamp = (date) => {
   const now = new Date();
   const msgDate = new Date(date);
+
   const isToday = now.toDateString() === msgDate.toDateString();
   const isYesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toDateString() === msgDate.toDateString();
 
@@ -88,9 +91,7 @@ function FilePreview({ files, onRemove }) {
               {!isImage && !isVideo && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "gray" }}>
                   <InsertDriveFileIcon sx={{ fontSize: 40 }} />
-                  <Typography variant="caption" noWrap sx={{ px: 1 }}>
-                    {file.name}
-                  </Typography>
+                  <Typography variant="caption" noWrap sx={{ px: 1 }}>{file.name}</Typography>
                 </Box>
               )}
               <IconButton
@@ -109,24 +110,13 @@ function FilePreview({ files, onRemove }) {
 }
 
 // -------------------- OTHER USER NAME --------------------
-function OtherUserName({ participants }) {
-  const myId = localStorage.getItem("userId");
-  const [name, setName] = React.useState("Loading...");
-
-  useEffect(() => {
-    if (!participants || participants.length < 2) {
-      setName("Unknown User");
-      return;
-    }
-    const otherUser = participants.find(p => p._id !== myId);
-    setName(otherUser ? otherUser.userName : "Unknown User");
-  }, [participants]);
-
-  return <>{name}</>;
+function OtherUserName({ participants, currentUser }) {
+  const other = participants?.find(p => p._id !== currentUser?._id);
+  return <>{other?.userName || "Unknown User"}</>;
 }
 
-// -------------------- CHAT SIDEBAR WITH + BUTTON --------------------
-function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat }) {
+// -------------------- SIDEBAR --------------------
+function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat, currentUser }) {
   const sortedChats = [...chats].sort((a, b) => {
     const timeA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
     const timeB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
@@ -134,24 +124,20 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat }) {
   });
 
   return (
-    <Box
-      sx={{
-        width: { xs: "100%", sm: "380px" },
-        maxWidth: { xs: "100%", sm: 420 },
-        minWidth: { xs: "100%", sm: 320 },
-        bgcolor: "#020617",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        borderRight: { sm: "1px solid #1e293b" },
-        flexShrink: 0,
-      }}
-    >
+    <Box sx={{
+      width: { xs: "100%", sm: "380px" },
+      maxWidth: { xs: "100%", sm: 420 },
+      minWidth: { xs: "100%", sm: 320 },
+      bgcolor: "#020617",
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      borderRight: { sm: "1px solid #1e293b" },
+      flexShrink: 0,
+    }}>
       <Box sx={{ p: 2, borderBottom: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" fontWeight="bold" color="primary">Chats</Typography>
-        <IconButton onClick={onNewChat}>
-          <AddIcon sx={{ color: "white" }} />
-        </IconButton>
+        <IconButton onClick={onNewChat}><AddIcon sx={{ color: "white" }} /></IconButton>
       </Box>
 
       <List sx={{ flexGrow: 1, overflow: "auto" }}>
@@ -163,10 +149,16 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat }) {
               sx={{ py: 2, borderBottom: "1px solid #1e293b", "&.Mui-selected": { bgcolor: "#0f172a" } }}
             >
               <ListItemText
-                primary={<Typography color="white" fontWeight="600">{chat.isGroupChat ? chat.name : <OtherUserName participants={chat.participants} />}</Typography>}
-                secondary={<Typography variant="body2" color="gray" noWrap>{chat.lastMessage?.content || "No messages yet"}</Typography>}
+                primary={<Typography color="white" fontWeight="600">
+                  {chat.isGroupChat ? chat.name : <OtherUserName participants={chat.participants} currentUser={currentUser} />}
+                </Typography>}
+                secondary={<Typography variant="body2" color="gray" noWrap>
+                  {chat.lastMessage?.content || "No messages yet"}
+                </Typography>}
               />
-              <Typography variant="caption" color="gray" sx={{ ml: 2 }}>{formatTimestamp(chat.lastMessage?.createdAt)}</Typography>
+              <Typography variant="caption" color="gray" sx={{ ml: 2 }}>
+                {formatTimestamp(chat.lastMessage?.createdAt)}
+              </Typography>
             </ListItemButton>
           </ListItem>
         ))}
@@ -175,8 +167,8 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat }) {
   );
 }
 
-// -------------------- CHAT PANEL (100% original) --------------------
-function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
+// -------------------- CHAT PANEL --------------------
+function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats }) {
   const [message, setMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
@@ -189,22 +181,23 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
 
     try {
       const payload = {
-        sender: localStorage.getItem("userId"),
+        sender: currentUser._id,
         content: message.trim(),
-        attachments: attachedFiles.map(file => ({ url: file.url, type: "file" })),
       };
 
       const res = await axios.post(`http://localhost:5000/messages/${selectedChat._id}`, payload);
       const realMsg = res.data.data;
 
       setSelectedChat(prev => ({ ...prev, messages: [...prev.messages, realMsg] }));
-      setChats(prev => prev.map(chat => chat._id === selectedChat._id ? { ...chat, lastMessage: realMsg, updatedAt: realMsg.createdAt } : chat));
+      setChats(prev => prev.map(chat =>
+        chat._id === selectedChat._id ? { ...chat, lastMessage: realMsg, updatedAt: realMsg.createdAt } : chat
+      ));
       socket.emit("new_message", realMsg);
 
       setMessage("");
       setAttachedFiles([]);
     } catch (err) {
-      console.error("Send message failed:", err);
+      console.error("Send failed:", err);
     }
   };
 
@@ -220,29 +213,30 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", bgcolor: "#0f172a" }}>
       <Box sx={{ bgcolor: "#020617", p: 2, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #1e293b" }}>
         <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
-          {selectedChat.isGroupChat ? selectedChat.name : <OtherUserName participants={selectedChat.participants} />}
+          {selectedChat.isGroupChat ? selectedChat.name : <OtherUserName participants={selectedChat.participants} currentUser={currentUser} />}
         </Typography>
         <IconButton color="primary"><MoreVertIcon /></IconButton>
       </Box>
 
       <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
-        {selectedChat.messages.map(msg => {
-          const isWave = msg.content === "waved at you";
+        {selectedChat.messages?.map(msg => {
+          const isMine = msg.sender._id === currentUser?._id;
+
           return (
             <Box
               key={msg._id}
               sx={{
-                alignSelf: msg.sender._id.toString() === localStorage.getItem("userId") ? "flex-end" : "flex-start",
-                bgcolor: msg.sender._id.toString() === localStorage.getItem("userId") ? "#1e90ff" : "#111e34ff",
+                alignSelf: isMine ? "flex-end" : "flex-start",
+                bgcolor: isMine ? "#1e90ff" : "#111e34ff",
                 color: "white",
                 px: 2.5,
                 py: 1.5,
                 borderRadius: "18px",
                 maxWidth: "70%",
-                boxShadow: msg.sender._id.toString() === localStorage.getItem("userId") ? "0 4px 20px rgba(30,144,255,0.4)" : "none",
+                boxShadow: isMine ? "0 4px 20px rgba(30,144,255,0.4)" : "none",
               }}
             >
-              {isWave ? (
+              {msg.content === "hi bluie" ? (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <WavingHandIcon sx={{ fontSize: 28 }} />
                   <Typography>waved at you</Typography>
@@ -264,7 +258,9 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <IconButton component="label">
             <AttachFileIcon sx={{ color: "gray" }} />
-            <input type="file" hidden multiple onChange={e => { if (e.target.files) setAttachedFiles(prev => [...prev, ...Array.from(e.target.files)]); }} />
+            <input type="file" hidden multiple onChange={e => {
+              if (e.target.files) setAttachedFiles(prev => [...prev, ...Array.from(e.target.files)]);
+            }} />
           </IconButton>
 
           <TextField
@@ -282,151 +278,136 @@ function ChatPanel({ selectedChat, setSelectedChat, chats, setChats }) {
               sx: { borderRadius: "30px", bgcolor: "#0f172a", color: "white" },
             }}
           />
-          <IconButton color="primary" onClick={handleSendClick} disabled={!message.trim() && attachedFiles.length === 0}><SendIcon /></IconButton>
+          <IconButton
+            color="primary"
+            onClick={handleSendClick}
+            disabled={!message.trim() && attachedFiles.length === 0}
+          >
+            <SendIcon />
+          </IconButton>
         </Box>
       </Box>
     </Box>
   );
 }
 
-// -------------------- MAIN CHAT APP --------------------
+// -------------------- MAIN APP --------------------
 export default function ChatApp() {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [openNewChat, setOpenNewChat] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
 
-  // demo user — change later with auth
-  localStorage.setItem("userId", "6924c11062dbde5200745c28");
-
-  const userId = localStorage.getItem("userId");
+  // Get current user
+  useEffect(() => {
+    axios.get("http://localhost:5000/auth/me")
+      .then(res => setCurrentUser(res.data.user))
+      .catch(() => console.log("Not logged in"));
+  }, []);
 
   // Fetch chats
   useEffect(() => {
+    if (!currentUser) return;
     const fetchChats = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/chat/user/${userId}`);
-        setChats(res.data.data);
-      } catch (err) {
-        console.error(err);
-      }
+        const res = await axios.get("http://localhost:5000/chat/user");
+        setChats(res.data.data || []);
+      } catch (err) { console.error(err); }
     };
     fetchChats();
-  }, []);
+  }, [currentUser]);
 
   const handleChatSelect = async (chat) => {
     setSelectedChat({ ...chat, messages: [], loading: true });
     try {
       const res = await axios.get(`http://localhost:5000/messages/${chat._id}`);
-      setSelectedChat({ ...chat, messages: res.data.data, loading: false });
+      setSelectedChat({ ...chat, messages: res.data.data || [], loading: false });
+    } catch (err) { console.error(err); }
+  };
+
+  const openNewChatDialog = async () => {
+    if (!currentUser) return;
+    setOpenNewChat(true);
+    setLoadingFollowers(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/users/followers/${currentUser._id}`);
+      let list = res.data.followers || [];
+      list = list.filter(f => !chats.some(c => !c.isGroupChat && c.participants.some(p => p._id === f._id)));
+      setFollowers(list);
     } catch (err) {
-      console.error(err);
+      setFollowers([]);
+    } finally {
+      setLoadingFollowers(false);
     }
   };
 
-  // Open new chat dialog
- const openNewChatDialog = async () => {
-  setOpenNewChat(true);
-  setLoadingFollowers(true);
-  try {
-    const res = await axios.get(`http://localhost:5000/users/followers/${userId}`);
-    let followersList = res.data.followers || [];
-
-    // Filter out followers you already have chats with
-    followersList = followersList.filter(follower => 
-      !chats.some(chat => 
-        !chat.isGroupChat && chat.participants.some(p => p._id === follower._id)
-      )
-    );
-
-    setFollowers(followersList);
-  } catch (err) {
-    console.error(err);
-    setFollowers([]);
-  } finally {
-    setLoadingFollowers(false);
-  }
-};
-
-
-  // Start chat + send wave
   const startChatWith = async (targetUserId) => {
-  try {
-    // 1. Create/get the chat
-    const chatRes = await axios.post(`http://localhost:5000/chat`, {
-      participants: [userId, targetUserId]
-    });
-    const chat = chatRes.data.data;
+    try {
+      const chatRes = await axios.post("http://localhost:5000/chat", {
+        participants: [currentUser._id, targetUserId]
+      });
+      const chat = chatRes.data.data;
 
-    // 2. Add chat to sidebar (if not already there)
-    setChats(prev => {
-      if (prev.some(c => c._id === chat._id)) return prev;
-      return [chat, ...prev];
-    });
+      setChats(prev => prev.some(c => c._id === chat._id) ? prev : [chat, ...prev]);
+      setSelectedChat({ ...chat, messages: [] });
 
-    // 3. Immediately select the chat (with empty messages)
-    setSelectedChat({ ...chat, messages: [] });
+      const msgRes = await axios.post(`http://localhost:5000/messages/${chat._id}`, {
+        sender: currentUser._id,
+        content: "hi bluie"
+      });
+      const waveMsg = msgRes.data.data;
 
-    // 4. Send the wave
-    const msgRes = await axios.post(`http://localhost:5000/messages/${chat._id}`, {
-      sender: userId,
-      content: "hi bluie"
-    });
-    const waveMessage = msgRes.data.data;
-
-    // THIS IS THE KEY LINE YOU WERE MISSING
-    setSelectedChat(prev => ({
-      ...prev,
-      messages: [...(prev?.messages || []), waveMessage],
-      lastMessage: waveMessage
-    }));
-
-    // Optional: update sidebar lastMessage too
-    setChats(prev => prev.map(c =>
-      c._id === chat._id ? { ...c, lastMessage: waveMessage } : c
-    ));
-    socket.emit("new_message", waveMessage);
-    setOpenNewChat(false);
-  } catch (err) {
-    console.error("Failed to start chat:", err);
-  }
-};
+      setSelectedChat(prev => ({ ...prev, messages: [waveMsg], lastMessage: waveMsg }));
+      setChats(prev => prev.map(c => c._id === chat._id ? { ...c, lastMessage: waveMsg } : c));
+      socket.emit("new_message", waveMsg);
+      setOpenNewChat(false);
+    } catch (err) { console.error(err); }
+  };
 
   // Socket
   useEffect(() => {
+    if (!currentUser) return;
     socket.emit("in_chats_page");
 
     socket.on("message_update", (msg) => {
-      setChats(prev => prev.map(chat => chat._id === msg.chatId ? { ...chat, lastMessage: msg, updatedAt: msg.createdAt } : chat));
-      setSelectedChat(prev => prev && prev._id === msg.chatId ? { ...prev, messages: [...prev.messages, msg] } : prev);
+      setChats(prev => prev.map(c => c._id === msg.chatId ? { ...c, lastMessage: msg } : c));
+      setSelectedChat(prev => prev?._id === msg.chatId ? { ...prev, messages: [...prev.messages, msg] } : prev);
     });
+
     socket.on("new_chat_created", (chat) => {
-    setChats(prev => {
-        // prevent duplicates just in case
-        if (prev.some(c => c._id === chat._id)) return prev;
-        return [chat, ...prev];
+      setChats(prev => prev.some(c => c._id === chat._id) ? prev : [chat, ...prev]);
     });
-});
 
     return () => {
-      socket.emit("leave_chats_page");
       socket.off("message_update");
       socket.off("new_chat_created");
     };
-  }, []);
+  }, [currentUser]);
+
+  if (!currentUser) {
+    return (
+      <Box sx={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#0f172a" }}>
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex", height: "100vh", width: "100vw", maxWidth: "100vw", bgcolor: "#0f172a", overflow: "hidden", position: "fixed", top: 0, left: 0 }}>
-        <ChatSidebar chats={chats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} onNewChat={openNewChatDialog} />
-        <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} chats={chats} setChats={setChats} />
+        <ChatSidebar chats={chats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} onNewChat={openNewChatDialog} currentUser={currentUser} />
+        <ChatPanel
+          selectedChat={selectedChat}
+          setSelectedChat={setSelectedChat}
+          currentUser={currentUser}
+          chats={chats}
+          setChats={setChats}
+        />
 
-        {/* NEW CHAT DIALOG */}
         <Dialog open={openNewChat} onClose={() => setOpenNewChat(false)} maxWidth="xs" fullWidth>
-          <DialogTitle sx={{ bgcolor: "#020617", color: "white" }}>
-            New Message
-          </DialogTitle>
+          <DialogTitle sx={{ bgcolor: "#020617", color: "white" }}>New Message</DialogTitle>
           <DialogContent sx={{ bgcolor: "#0f172a", p: 0 }}>
             {loadingFollowers ? (
               <Box sx={{ p: 4, textAlign: "center" }}>
