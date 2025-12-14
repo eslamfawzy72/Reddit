@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
-import { useLocation } from "react-router-dom";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
-import "../styles/home.css"; // Import the CSS
+import "../styles/home.css";
 
-// Mock data
-const mockPosts = [ /* keep your mockPosts here */ ];
-const mockCommunities = [ /* keep your mockCommunities here */ ];
-const mockUsers = [ /* keep your mockUsers here */ ];
+// ---------------- SEARCH MOCKS (UNCHANGED) ----------------
+const mockPosts = [];
+const mockCommunities = [];
+const mockUsers = [];
 
-// Render helpers
 const renderCommunity = (c) => (
   <div className="communityItem">
     <div className="communityIcon">{c.icon}</div>
@@ -33,7 +31,6 @@ const renderUser = (u) => (
   </div>
 );
 
-// Search function
 export const searchEverything = (query) => {
   if (!query?.trim()) return { results: [], renderItem: null };
   const q = query.toLowerCase();
@@ -52,88 +49,147 @@ export const searchEverything = (query) => {
 
   return {
     results,
-    renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)),
+    renderItem: (item) =>
+      item.type === "user" ? renderUser(item) : renderCommunity(item),
   };
 };
 
+// ---------------- HOME ----------------
 function Home() {
-  const location = useLocation();
-  const isLoggedIn = location.state?.isLoggedIn || false;
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-   useEffect(() => {
-    axios.get("http://localhost:5000/auth/me")
+  const [loading, setLoading] = useState(true);
+
+  const API = import.meta.env.VITE_API_URL;
+
+  // 🔐 AUTH TRUTH — SINGLE SOURCE OF REALITY
+  useEffect(() => {
+    axios
+      .get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
-      .catch(() => console.log("Not logged in"));
+      .catch(() => setCurrentUser(null));
   }, []);
 
+  // 🟢 LOGGED IN → USER COMMUNITIES ONLY
   useEffect(() => {
-  if (!currentUser) return;
+    if (!currentUser) return;
 
-  (async () => {
-    try {
-      // 1️⃣ Get the communities the user has joined
-      const commRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/users/communities`,
-        { withCredentials: true }
-      );
-      const communities = commRes.data;
+    const loadUserFeed = async () => {
+      setLoading(true);
+      try {
+        const commRes = await axios.get(
+          `${API}/users/communities`,
+          { withCredentials: true }
+        );
 
-      if (!communities || communities.length === 0) {
-        setPosts([]); // no communities → empty feed
-        return;
+        const communities = commRes.data || [];
+
+        // 🚫 NO COMMUNITIES = NO POSTS
+        if (communities.length === 0) {
+          setPosts([]);
+          setLoading(false);
+          return;
+        }
+
+        const postsArrays = await Promise.all(
+          communities.map(c =>
+            axios
+              .get(`${API}/posts/community/${c._id}`)
+              .then(r => r.data)
+              .catch(() => [])
+          )
+        );
+
+        const mergedPosts = postsArrays.flat();
+        mergedPosts.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+
+        setPosts(mergedPosts);
+      } catch (err) {
+        console.error("User feed error:", err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // 2️⃣ Fetch posts from all communities in parallel
-      const allPostsPromises = communities.map(c =>
-        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
-          .then(r => r.data)
-          .catch(() => []) // ignore errors for individual communities
-      );
+    loadUserFeed();
+  }, [currentUser]);
 
-      const postsArrays = await Promise.all(allPostsPromises);
-
-      // 3️⃣ Flatten and sort by date descending
-      const mergedPosts = postsArrays.flat();
-      mergedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      // 4️⃣ Update state
-      setPosts(mergedPosts);
-
-    } catch (err) {
-      console.error("Error fetching feed:", err);
-    }
-  })();
-}, [currentUser]);
-
-
+  // 🔴 NOT LOGGED IN → PUBLIC COMMUNITIES ONLY
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/users`, { withCredentials: true })
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+    if (currentUser !== null) return;
 
+    const loadPublicFeed = async () => {
+      setLoading(true);
+      try {
+        const commRes = await axios.get(`${API}/communities`);
+
+        const publicCommunities = (commRes.data || []).filter(
+          c => c.privacystate === "public"
+        );
+
+        const postsArrays = await Promise.all(
+          publicCommunities.map(c =>
+            axios
+              .get(`${API}/posts/community/${c._id}`)
+              .then(r => r.data)
+              .catch(() => [])
+          )
+        );
+
+        const mergedPosts = postsArrays.flat();
+        mergedPosts.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+
+        setPosts(mergedPosts);
+      } catch (err) {
+        console.error("Public feed error:", err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPublicFeed();
+  }, [currentUser]);
+
+  // ---------------- UI ----------------
   return (
     <div className="homeContainer">
       <div className="topNavbar">
-        <PrimarySearchAppBar loggedin={isLoggedIn} searchFunction={searchEverything} />
+        <PrimarySearchAppBar
+          loggedin={!!currentUser}
+          searchFunction={searchEverything}
+        />
       </div>
 
       <div className="leftSidebar">
-        <SidebarLeft loggedin={isLoggedIn} />
+        <SidebarLeft loggedin={!!currentUser} />
       </div>
 
       <div className="mainFeed">
         <div className="feedWrapper">
-          {posts.length === 0 ? (
+          {loading ? (
             <div className="loadingPosts">Loading posts...</div>
+          ) : posts.length === 0 ? (
+            <div className="loadingPosts">
+              {currentUser
+                ? "Join some communities to personalize your feed."
+                : "Welcome! Showing posts from public communities."}
+            </div>
           ) : (
-            posts.map((post) => (
+            posts.map(post => (
               <PostCard
                 key={post._id}
                 id={post._id}
                 user_name={post.user?.userName || "Unknown User"}
-                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+                user_avatar={
+                  post.user?.image ||
+                  "https://i.pravatar.cc/48?img=1"
+                }
                 description={post.description}
                 images={post.images || []}
                 comments={post.comments}

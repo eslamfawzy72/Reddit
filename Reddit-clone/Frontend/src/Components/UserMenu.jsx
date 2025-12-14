@@ -1,16 +1,13 @@
 import React from "react";
-import { Menu, MenuItem, Avatar, IconButton, Switch } from "@mui/material";
+import { Menu, MenuItem, Avatar, IconButton } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import Brightness2Icon from "@mui/icons-material/Brightness2";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../Context/AuthContext";
 import "../styles/userMenu.css";
 
-export default function UserMenu({ darkMode, setDarkMode }) {
+export default function UserMenu() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -20,13 +17,11 @@ export default function UserMenu({ darkMode, setDarkMode }) {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, {
+        withCredentials: true,
+      });
 
-      logout();
+      logout(); // 🔥 triggers authVersion increment → rerenders Home/Popular
       handleClose();
       navigate("/Home");
     } catch (err) {
@@ -57,22 +52,9 @@ export default function UserMenu({ darkMode, setDarkMode }) {
         >
           <AccountCircleIcon className="um-icon" /> View Profile
         </MenuItem>
-        <MenuItem onClick={handleClose} className="um-menu-item">
-          <DraftsIcon className="um-icon" /> Notifications
-        </MenuItem>
-        <MenuItem className="um-menu-item">
-          <Brightness2Icon className="um-icon" /> Dark Mode
-          <Switch
-            checked={darkMode}
-            onChange={() => setDarkMode(!darkMode)}
-            className="um-switch"
-          />
-        </MenuItem>
+
         <MenuItem onClick={handleLogout} className="um-menu-item">
           <LogoutIcon className="um-icon" /> Log Out
-        </MenuItem>
-        <MenuItem onClick={handleClose} className="um-menu-item">
-          <SettingsIcon className="um-icon" /> Settings
         </MenuItem>
       </Menu>
     </div>
