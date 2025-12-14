@@ -1,99 +1,240 @@
-import React from "react";
-import { Box } from "@mui/material";
-import "../styles/notifications.css"; // Import CSS
+import React, { useState, useEffect } from "react";
+import { Bell, MessageSquare, ArrowUp, Mail } from "lucide-react";
+import axios from "axios";
 
-import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
-import SidebarLeft from "../Components/SidebarLeft.jsx";
-import NotificationPage from "../Components/NotificationPage.jsx";
-
-// Mock data
-const mockCommunities = [
-  { id: 1, type: 'community', name: 'reactjs', display: 'b/reactjs', members: '412k', icon: 'React' },
-  { id: 2, type: 'community', name: 'javascript', display: 'b/javascript', members: '1.2M', icon: 'JS' },
-  { id: 3, type: 'community', name: 'programming', display: 'b/programming', members: '2.8M', icon: 'Code' },
-  { id: 4, type: 'community', name: 'webdev', display: 'b/webdev', members: '892k', icon: 'Web' },
-  { id: 5, type: 'community', name: 'bluedit', display: 'b/bluedit', members: '89k', icon: 'Blue' },
-  { id: 6, type: 'community', name: 'nextjs', display: 'b/nextjs', members: '298k', icon: 'Next' },
-  { id: 7, type: 'community', name: 'tailwindcss', display: 'b/tailwindcss', members: '445k', icon: 'Wind' },
-];
-
-const mockUsers = [
-  { id: 101, type: 'user', name: 'john_dev', display: 'u/john_dev', karma: '12.4k', icon: 'J' },
-  { id: 102, type: 'user', name: 'react_master', display: 'u/react_master', karma: '45k', icon: 'R' },
-  { id: 103, type: 'user', name: 'bluecoder', display: 'u/bluecoder', karma: '8.9k', icon: 'B' },
-  { id: 104, type: 'user', name: 'webdev_guru', display: 'u/webdev_guru', karma: '67k', icon: 'W' },
-  { id: 105, type: 'user', name: 'js_ninja', display: 'u/js_ninja', karma: '89k', icon: 'Ninja' },
-];
-
-// Render helpers
-const renderCommunity = (c) => (
-  <Box className="render-community">
-    <Box className="render-community-icon">{c.icon}</Box>
-    <Box>
-      <Box className="render-community-name">{c.display}</Box>
-      <Box className="render-community-members">{c.members} members</Box>
-    </Box>
-  </Box>
+// Avatar Component
+const Avatar = ({ avatar, username, size = 40 }) => (
+  <div
+    style={{
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      backgroundColor: "#0079D3",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "14px",
+      fontWeight: "600",
+      color: "white",
+    }}
+  >
+    {avatar || username?.charAt(0)?.toUpperCase()}
+  </div>
 );
 
-const renderUser = (u) => (
-  <Box className="render-user">
-    <Box className="render-user-icon">{u.icon}</Box>
-    <Box>
-      <Box className="render-user-name">{u.display}</Box>
-      <Box className="render-user-karma">• {u.karma} karma</Box>
-    </Box>
-  </Box>
+// Empty State
+const EmptyState = ({ icon: Icon, title, description }) => (
+  <div
+    style={{
+      padding: "60px 20px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    }}
+  >
+    <div
+      style={{
+        width: "80px",
+        height: "80px",
+        borderRadius: "50%",
+        backgroundColor: "#F6F7F8",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: "20px",
+      }}
+    >
+      <Icon size={40} color="#878A8C" />
+    </div>
+
+    <h3 style={{ fontSize: "18px", fontWeight: "600" }}>{title}</h3>
+    <p style={{ fontSize: "14px", color: "#7c7c7c", marginTop: "6px" }}>
+      {description}
+    </p>
+  </div>
 );
 
-// Search function
-export const searchEverything = (query) => {
-  if (!query?.trim()) return { results: [], renderItem: null };
-  const q = query.toLowerCase();
-
-  const comms = mockCommunities
-    .filter(c => c.name.includes(q))
-    .map(c => ({ ...c, score: c.name.startsWith(q) ? 100 : 50 }));
-
-  const users = mockUsers
-    .filter(u => u.name.includes(q))
-    .map(u => ({ ...u, score: u.name.startsWith(q) ? 90 : 40 }));
-
-  const results = [...comms, ...users]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-
-  return {
-    results,
-    renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)),
+// Notification Tile
+const NotificationTile = ({ notification, onClick }) => {
+  const getIcon = () => {
+    switch (notification.type) {
+      case "post_comment":
+      case "comment_reply":
+        return <MessageSquare size={16} color="#0079D3" />;
+      case "post_upvote":
+      case "comment_upvote":
+        return <ArrowUp size={16} color="#FF4500" />;
+      case "message":
+        return <Mail size={16} color="#46D160" />;
+      default:
+        return <Bell size={16} />;
+    }
   };
+
+  const getText = () => {
+    const user = notification.actorId?.userName || "Someone";
+    const community = notification.subreddit || "general";
+
+    switch (notification.type) {
+      case "post_comment":
+        return `u/${user} commented on your post`;
+      case "comment_reply":
+        return `u/${user} replied to your comment`;
+      case "post_upvote":
+        return `u/${user} upvoted your post`;
+      case "comment_upvote":
+        return `u/${user} upvoted your comment`;
+      case "message":
+        return `u/${user} sent you a message`;
+      default:
+        return `u/${user} interacted with you`;
+    }
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: "flex",
+        gap: "12px",
+        padding: "16px",
+        backgroundColor: notification.isRead ? "white" : "#F0F7FF",
+        borderBottom: "1px solid #E0E3E6",
+        cursor: "pointer",
+      }}
+    >
+      {!notification.isRead && (
+        <div
+          style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            backgroundColor: "#0079D3",
+            marginTop: "16px",
+          }}
+        />
+      )}
+
+      <Avatar
+        avatar={notification.actorId?.image}
+        username={notification.actorId?.userName}
+      />
+
+      <div>
+        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          {getIcon()}
+          <span style={{ fontWeight: notification.isRead ? "400" : "600" }}>
+            {getText()}
+          </span>
+        </div>
+
+        <div style={{ fontSize: "12px", color: "#777" }}>
+          {new Date(notification.createdAt).toLocaleString()}
+        </div>
+      </div>
+    </div>
+  );
 };
 
-function Notifications() {
+// Main Notification Page
+const NotificationPage = () => {
+  const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState("All");
+
+  const filters = ["All", "Comments", "Upvotes"];
+
+  const fetchNotifications = async () => {
+    try {
+      const typeQuery =
+        filter === "All" ? "all" : filter === "Comments" ? "comments" : "upvotes";
+
+      const res = await axios.get(
+        `http://localhost:5000/notifications?type=${typeQuery}`,
+        { withCredentials: true }
+      );
+
+      setNotifications(res.data.notifications || []);
+    } catch (err) {
+      console.log("Error fetching notifications:", err);
+      setNotifications([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [filter]);
+
+  const handleNotificationClick = async (n) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/notifications/${n._id}/read`,
+        {},
+        { withCredentials: true }
+      );
+
+      setNotifications((prev) =>
+        prev.map((x) => (x._id === n._id ? { ...x, isRead: true } : x))
+      );
+    } catch (err) {
+      console.log("Error marking as read:", err);
+    }
+  };
+
   return (
-    <Box className="notifications-background">
-      {/* Fixed top bar */}
-      <Box className="notifications-navbar">
-        <PrimarySearchAppBar
-          loggedin={true}
-          searchFunction={searchEverything}
-          onResultClick={(item) => console.log("Clicked:", item)}
-        />
-      </Box>
+    <div style={{ backgroundColor: "#fff", minHeight: "100vh" }}>
+      <main style={{ maxWidth: "750px", margin: "0 auto", padding: "20px" }}>
+        <div style={{ background: "white", borderRadius: "8px", border: "1px solid #ddd" }}>
+          <div style={{ padding: "20px", borderBottom: "1px solid #ddd" }}>
+            <h1 style={{ fontSize: "20px", fontWeight: "700" }}>Notifications</h1>
+          </div>
 
-      {/* Sidebar */}
-      <Box className="notifications-sidebar">
-        <SidebarLeft loggedin={true} />
-      </Box>
+          <div
+            style={{
+              padding: "12px 20px",
+              display: "flex",
+              gap: "8px",
+              borderBottom: "1px solid #ddd",
+              background: "#FAFAFA",
+            }}
+          >
+            {filters.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "20px",
+                  border: filter === f ? "none" : "1px solid #ddd",
+                  background: filter === f ? "#0079D3" : "white",
+                  color: filter === f ? "white" : "#333",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
 
-      {/* Main content */}
-      <Box className="notifications-main">
-        <Box className="notifications-main-inner">
-          <NotificationPage />
-        </Box>
-      </Box>
-    </Box>
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <NotificationTile
+                key={notification._id}
+                notification={notification}
+                onClick={() => handleNotificationClick(notification)}
+              />
+            ))
+          ) : (
+            <EmptyState
+              icon={Bell}
+              title="No notifications"
+              description="When something happens, it will show here."
+            />
+          )}
+        </div>
+      </main>
+    </div>
   );
-}
+};
 
-export default Notifications;
+export default NotificationPage;

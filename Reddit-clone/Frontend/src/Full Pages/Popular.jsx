@@ -1,215 +1,143 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
+import "../styles/home.css";
+
+const POPULARITY_THRESHOLD = 5;
 
 function Popular() {
+  const [posts, setPosts] = useState([]);
+  const [currentUser, setCurrentUser] = useState(undefined);
+  const [loading, setLoading] = useState(true);
+  const [voteCounts, setVoteCounts] = useState({});
+
   const API = import.meta.env.VITE_API_URL;
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const POPULARITY_THRESHOLD = 5;
-
-  // 🔐 AUTH CHECK — SINGLE SOURCE OF TRUTH
+  // Auth check
   useEffect(() => {
     axios
       .get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
-      .catch(() => setCurrentUser(null))
-      .finally(() => setAuthChecked(true));
+      .catch(() => setCurrentUser(null));
   }, []);
 
-  // 📈 POPULAR FEED LOGIC
+  // Load popular posts
   useEffect(() => {
-    if (!authChecked) return;
+    if (currentUser === undefined) return;
 
-    const loadPopularFeed = async () => {
+    const loadPopular = async () => {
       setLoading(true);
       try {
-        // ---------------- 🔴 NOT LOGGED IN ----------------
-        if (!currentUser) {
-          const commRes = await axios.get(`${API}/communities`);
+        let joinedCommunities = [];
 
-          const publicCommunities = (commRes.data || []).filter(
-            c => c.privacystate === "public"
-          );
-
-          const postsArrays = await Promise.all(
-            publicCommunities.map(c =>
-              axios
-                .get(`${API}/posts/community/${c._id}`)
-                .then(r => r.data)
-                .catch(() => [])
-            )
-          );
-
-          const allPosts = postsArrays.flat();
-
-          const popularPosts = allPosts.filter(
-            p =>
-              (p.upvoteCount || 0) + (p.commentCount || 0) >=
-              POPULARITY_THRESHOLD
-          );
-
-          popularPosts.sort(
-            (a, b) =>
-              (b.upvoteCount || 0) + (b.commentCount || 0) -
-              ((a.upvoteCount || 0) + (a.commentCount || 0))
-          );
-
-          setPosts(popularPosts);
-          return;
+        if (currentUser) {
+          const res = await axios.get(`${API}/users/communities`, { withCredentials: true });
+          joinedCommunities = res.data || [];
         }
 
-        // ---------------- 🟢 LOGGED IN ----------------
-        const commRes = await axios.get(
-          `${API}/users/communities`,
-          { withCredentials: true }
+        // Posts from joined communities
+        const joinedPostsArrays = await Promise.all(
+          joinedCommunities.map(c =>
+            axios.get(`${API}/posts/community/${c._id}`).then(r => r.data).catch(() => [])
+          )
         );
 
-        const joinedCommunities = commRes.data || [];
-
-        // 🚫 LOGGED IN BUT NO COMMUNITIES → SAME AS LOGGED OUT
-        if (joinedCommunities.length === 0) {
-          const publicCommRes = await axios.get(`${API}/communities`);
-          const publicCommunities = (publicCommRes.data || []).filter(
-            c => c.privacystate === "public"
-          );
-
-          const postsArrays = await Promise.all(
-            publicCommunities.map(c =>
-              axios
-                .get(`${API}/posts/community/${c._id}`)
-                .then(r => r.data)
-                .catch(() => [])
-            )
-          );
-
-          const allPosts = postsArrays.flat();
-
-          const popularPosts = allPosts.filter(
-            p =>
-              (p.upvoteCount || 0) + (p.commentCount || 0) >=
-              POPULARITY_THRESHOLD
-          );
-
-          popularPosts.sort(
-            (a, b) =>
-              (b.upvoteCount || 0) + (b.commentCount || 0) -
-              ((a.upvoteCount || 0) + (a.commentCount || 0))
-          );
-
-          setPosts(popularPosts);
-          return;
-        }
-
-        // 🟢 JOINED COMMUNITIES POSTS (ALL)
-        const joinedPosts = (
-          await Promise.all(
-            joinedCommunities.map(c =>
-              axios
-                .get(`${API}/posts/community/${c._id}`)
-                .then(r => r.data)
-                .catch(() => [])
-            )
-          )
-        ).flat();
-
-        // 🟢 PUBLIC (NOT JOINED) → POPULAR ONLY
+        // Posts from public communities not joined
         const allCommRes = await axios.get(`${API}/communities`);
         const publicNotJoined = (allCommRes.data || []).filter(
-          c =>
-            c.privacystate === "public" &&
-            !joinedCommunities.some(j => j._id === c._id)
+          c => c.privacystate === "public" &&
+               !joinedCommunities.some(j => j._id === c._id)
         );
 
-        const publicPosts = (
-          await Promise.all(
-            publicNotJoined.map(c =>
-              axios
-                .get(`${API}/posts/community/${c._id}`)
-                .then(r => r.data)
-                .catch(() => [])
-            )
+        const publicPostsArrays = await Promise.all(
+          publicNotJoined.map(c =>
+            axios.get(`${API}/posts/community/${c._id}`).then(r => r.data).catch(() => [])
           )
-        ).flat();
-
-        const popularPublicPosts = publicPosts.filter(
-          p =>
-            (p.upvoteCount || 0) + (p.commentCount || 0) >=
-            POPULARITY_THRESHOLD
         );
 
-        const merged = [...joinedPosts, ...popularPublicPosts];
-        merged.sort(
-          (a, b) =>
-            (b.upvoteCount || 0) + (b.commentCount || 0) -
-            ((a.upvoteCount || 0) + (a.commentCount || 0))
+        const allPosts = [...joinedPostsArrays.flat(), ...publicPostsArrays.flat()];
+
+        // Apply popularity threshold
+        const popularPosts = allPosts.filter(
+          p => ((p.upvoteCount || 0) + (p.commentCount || 0)) >= POPULARITY_THRESHOLD
         );
 
-        setPosts(merged);
+        popularPosts.sort(
+          (a, b) => ((b.upvoteCount || 0) + (b.commentCount || 0)) - ((a.upvoteCount || 0) + (a.commentCount || 0))
+        );
+
+        // Initialize vote counts
+        const initialVotes = {};
+        popularPosts.forEach(p => {
+          initialVotes[p._id] = { upvoteCount: p.upvoteCount || 0, downvoteCount: p.downvoteCount || 0 };
+        });
+
+        setPosts(popularPosts);
+        setVoteCounts(initialVotes);
+
       } catch (err) {
-        console.error("Popular feed error:", err);
+        console.error(err);
         setPosts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadPopularFeed();
-  }, [authChecked, currentUser]);
+    loadPopular();
+  }, [currentUser]);
 
-  // ---------------- UI ----------------
+  // Handle vote
+  const handleVote = async (postId, type, prevVote) => {
+    if (!currentUser) return;
+
+    // Optimistic update
+    setVoteCounts(prev => {
+      const current = prev[postId] || { upvoteCount: 0, downvoteCount: 0 };
+      let up = current.upvoteCount;
+      let down = current.downvoteCount;
+
+      if (type === "upvote") {
+        if (prevVote === "upvote") up -= 1;
+        else if (prevVote === "downvote") { up += 1; down -= 1; }
+        else up += 1;
+      } else if (type === "downvote") {
+        if (prevVote === "downvote") down -= 1;
+        else if (prevVote === "upvote") { up -= 1; down += 1; }
+        else down += 1;
+      }
+
+      return { ...prev, [postId]: { upvoteCount: up, downvoteCount: down } };
+    });
+
+    try {
+      const res = await axios.patch(
+        `${API}/posts/${postId}`,
+        { action: type },
+        { withCredentials: true }
+      );
+
+      setVoteCounts(prev => ({
+        ...prev,
+        [postId]: { upvoteCount: res.data.upvoteCount, downvoteCount: res.data.downvoteCount }
+      }));
+    } catch (err) {
+      console.error(err);
+      // optional: revert optimistic update
+    }
+  };
+
   return (
-    <Box sx={{ backgroundColor: "#0A0A0A", minHeight: "100vh" }}>
-      <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1300 }}>
-        <PrimarySearchAppBar loggedin={!!currentUser} />
-      </Box>
-
-      <Box
-        sx={{
-          position: "fixed",
-          top: 64,
-          left: 0,
-          width: { xs: 0, sm: 290 },
-          height: "calc(100vh - 64px)",
-          bgcolor: "white",
-          borderRight: "1px solid #edeff1",
-          zIndex: 1200,
-        }}
-      >
-        <SidebarLeft loggedin={!!currentUser} />
-      </Box>
-
-      <Box
-        sx={{
-          position: "fixed",
-          top: 64,
-          left: { xs: 0, sm: 260 },
-          right: 0,
-          bottom: 0,
-          overflowY: "auto",
-          bgcolor: "#f5f5f5",
-          px: { xs: 2, sm: 4 },
-          py: 3,
-        }}
-      >
-        <Box sx={{ maxWidth: "960px", mx: "auto", display: "flex", flexDirection: "column", gap: 3 }}>
-          {!authChecked || loading ? (
-            <Box sx={{ textAlign: "center", py: 10 }}>
-              <CircularProgress />
-              <Typography sx={{ mt: 2 }}>Loading popular posts...</Typography>
-            </Box>
+    <div className="homeContainer">
+      <div className="topNavbar"><PrimarySearchAppBar loggedin={!!currentUser} /></div>
+      <div className="leftSidebar"><SidebarLeft loggedin={!!currentUser} /></div>
+      <div className="mainFeed">
+        <div className="feedWrapper">
+          {loading || currentUser === undefined ? (
+            <div className="loadingPosts">Loading popular posts...</div>
           ) : posts.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 10, color: "#666" }}>
-              <Typography variant="h6">No popular posts yet</Typography>
-              <Typography>Be the spark ⚡</Typography>
-            </Box>
+            <div className="loadingPosts">No popular posts available.</div>
           ) : (
             posts.map(post => (
               <PostCard
@@ -219,20 +147,22 @@ function Popular() {
                 user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
                 images={post.images || []}
-                comments={post.comments || []}
-                upvoteCount={post.upvoteCount || 0}
-                downvoteCount={post.downvoteCount || 0}
+                comments={post.comments}
+                upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+                downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
                 commentCount={post.commentCount || 0}
                 date={post.date}
                 community_name={post.community_name || "b/unknown"}
                 categories={post.categories || []}
                 edited={post.edited || false}
+                onVote={handleVote}
+                currentUser={currentUser}
               />
             ))
           )}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }
 

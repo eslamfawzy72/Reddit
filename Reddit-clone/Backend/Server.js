@@ -13,6 +13,8 @@ import chatRoutes from "./routes/ChatRouter.js";
 import messageRoutes from "./routes/MessageRouter.js";
 import communityRouter from "./routes/CommunityRouter.js";
 import authRouter from "./routes/authRouter.js";
+import NotificationRouter from "./routes/NotificationRouter.js";
+
 
 dotenv.config(); // load .env
 
@@ -83,9 +85,8 @@ app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
 app.use("/Communities", communityRouter);
+app.use("/notifications", NotificationRouter);
 //notifications router
-
-
 // comment routes(middleware)
 app.use("/comments", commentRouter);
 
