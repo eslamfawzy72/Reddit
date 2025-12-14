@@ -1,5 +1,5 @@
-import React from "react";
-import { Menu, MenuItem, Avatar, IconButton } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Menu, MenuItem, Avatar, IconButton, Typography, Box, Divider } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
@@ -10,17 +10,22 @@ import "../styles/userMenu.css";
 export default function UserMenu() {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Fetch current user from API (like Chats.jsx)
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
+      .then(res => setCurrentUser(res.data.user))
+      .catch(() => setCurrentUser(null));
+  }, []);
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, {
-        withCredentials: true,
-      });
-
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, { withCredentials: true });
       logout(); // 🔥 triggers authVersion increment → rerenders Home/Popular
       handleClose();
       navigate("/Home");
@@ -32,7 +37,9 @@ export default function UserMenu() {
   return (
     <div>
       <IconButton onClick={handleOpen} size="large" className="um-avatar-btn">
-        <Avatar src="https://i.pravatar.cc/150?img=3" />
+        <Avatar>
+          {currentUser?.userName?.[0]?.toUpperCase() || "U"}
+        </Avatar>
       </IconButton>
 
       <Menu
@@ -43,6 +50,19 @@ export default function UserMenu() {
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         className="um-menu"
       >
+        {/* Header with username & email */}
+        {currentUser && (
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              {currentUser.userName}
+            </Typography>
+            <Typography variant="body2" color="gray">
+              {currentUser.email}
+            </Typography>
+          </Box>
+        )}
+        {currentUser && <Divider sx={{ my: 1 }} />}
+
         <MenuItem
           onClick={() => {
             navigate("/ProfilePage");

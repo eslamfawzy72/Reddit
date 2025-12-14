@@ -4,36 +4,43 @@ import axios from "axios"
 
 export async function getAllPosts(req, res) {
   try {
-    const posts = await Post.find()
-      .populate({
-        path: "userID",
-        select: "userName image",
-      })
-      .sort({ date: -1 });
+   const posts = await Post.find()
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }
 
     const formattedPosts = posts.map(post => ({
-      _id: post._id,
-      postID: post.postID,
-      communityID: post.communityID,
-      categories: post.categories,
-      description: post.description,
-      images: post.images,
-      edited: post.edited,
-      upvoteCount: post.upvoteCount,
-      downvoteCount: post.downvoteCount,
-      commentCount: post.commentCount,
-      comments: post.comments,
-      date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
-    }));
+  _id: post._id,
+  postID: post.postID,
+  communityID: post.communityID?._id,       // keep the ID
+  commName: post.communityID?.commName,     // ✅ add this
+  categories: post.categories,
+  description: post.description,
+  images: post.images,
+  edited: post.edited,
+  upvoteCount: post.upvoteCount,
+  downvoteCount: post.downvoteCount,
+  commentCount: post.commentCount,
+  comments: post.comments,
+  date: post.date,
+  user: post.userID ? {
+    userName: post.userID.userName,
+    image: post.userID.image,
+    _id: post.userID._id
+  } : null
+}));
+
 
     res.json(formattedPosts);
   } catch (err) {
@@ -299,12 +306,18 @@ export async function getPostsByCommunityID(req, res) {
     const { communityID } = req.params;
 
     // Fetch posts for this community, newest first
-    const posts = await Post.find({ communityID })
-      .populate({
-        path: "userID",
-        select: "userName image", // include only necessary fields
-      })
-      .sort({ date: -1 });
+    const posts = await Post.find()
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found for this community" });
@@ -312,24 +325,26 @@ export async function getPostsByCommunityID(req, res) {
 
     // Format posts
     const formattedPosts = posts.map(post => ({
-      _id: post._id,
-      postID: post.postID,
-      communityID: post.communityID,
-      categories: post.categories,
-      description: post.description,
-      images: post.images,
-      edited: post.edited,
-      upvoteCount: post.upvoteCount,
-      downvoteCount: post.downvoteCount,
-      commentCount: post.commentCount,
-      comments: post.comments,
-      date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
-    }));
+  _id: post._id,
+  postID: post.postID,
+  communityID: post.communityID?._id,       // keep the ID
+  commName: post.communityID?.commName,     // ✅ add this
+  categories: post.categories,
+  description: post.description,
+  images: post.images,
+  edited: post.edited,
+  upvoteCount: post.upvoteCount,
+  downvoteCount: post.downvoteCount,
+  commentCount: post.commentCount,
+  comments: post.comments,
+  date: post.date,
+  user: post.userID ? {
+    userName: post.userID.userName,
+    image: post.userID.image,
+    _id: post.userID._id
+  } : null
+}));
+
 
     return res.status(200).json(formattedPosts);
 

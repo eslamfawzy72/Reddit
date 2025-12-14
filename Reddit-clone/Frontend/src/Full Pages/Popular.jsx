@@ -188,25 +188,25 @@ function Popular() {
             <div className="loadingPosts">No popular posts available.</div>
           ) : (
             posts.map(post => (
-              <PostCard
-                key={post._id}
-                id={post._id}
-                user_name={post.user?.userName || "Anonymous"}
-                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-                description={post.description}
-                images={post.images || []}
-                comments={post.comments}
-                upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
-                downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
-                commentCount={post.commentCount || 0}
-                date={post.date}
-                community_name={post.community_name || "b/unknown"}
-                categories={post.categories || []}
-                edited={post.edited || false}
-                onVote={handleVote}
-                currentUser={currentUser}
-              />
-            ))
+  <PostCard
+    key={post._id}
+    id={post._id}
+    user_name={`u/${post.user?.userName || "Unknown"}`}
+    user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+    description={post.description}
+    images={post.images || []}
+    comments={post.comments}
+    upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+    downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
+    commentCount={post.commentCount || 0}
+    date={post.date}
+    community_name={`b/${post.commName || "unknown"}`}
+    edited={post.edited || false}
+    onVote={handleVote}
+    currentUser={currentUser}
+  />
+))
+
           )}
         </div>
       </div>
