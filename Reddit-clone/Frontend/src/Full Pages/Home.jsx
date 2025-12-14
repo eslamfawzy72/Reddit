@@ -8,9 +8,9 @@ import axios from "axios";
 import "../styles/home.css"; // Import the CSS
 
 // Mock data
-const mockPosts = [ /* keep your mockPosts here */ ];
-const mockCommunities = [ /* keep your mockCommunities here */ ];
-const mockUsers = [ /* keep your mockUsers here */ ];
+const mockPosts = [ /* keep your mockPosts here */];
+const mockCommunities = [ /* keep your mockCommunities here */];
+const mockUsers = [ /* keep your mockUsers here */];
 
 // Render helpers
 const renderCommunity = (c) => (
@@ -57,54 +57,67 @@ export const searchEverything = (query) => {
 };
 
 function Home() {
+  console.log("Rendering Home component");
   const location = useLocation();
   const isLoggedIn = location.state?.isLoggedIn || false;
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-   useEffect(() => {
+  const handleVoteUpdate = ({ postId, upvoteCount, downvoteCount }) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId
+          ? { ...post, upvoteCount, downvoteCount }
+          : post
+      )
+    );
+  };
+  useEffect(() => {
     axios.get("http://localhost:5000/auth/me")
       .then(res => setCurrentUser(res.data.user))
       .catch(() => console.log("Not logged in"));
   }, []);
 
   useEffect(() => {
-  if (!currentUser) return;
+    if (!currentUser) return;
 
-  (async () => {
-    try {
-      // 1️⃣ Get the communities the user has joined
-      const commRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/users/communities`,
-        { withCredentials: true }
-      );
-      const communities = commRes.data;
+    (async () => {
+      try {
+        // 1️⃣ Get the communities the user has joined
+        const commRes = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/communities`,
+          { withCredentials: true }
+        );
+        const communities = commRes.data;
+        communities.forEach(element => {
+          console.log(element)
+        });
 
-      if (!communities || communities.length === 0) {
-        setPosts([]); // no communities → empty feed
-        return;
+        if (!communities || communities.length === 0) {
+          setPosts([]); // no communities → empty feed
+          return;
+        }
+
+        // 2️⃣ Fetch posts from all communities in parallel
+        const allPostsPromises = communities.map(c =>
+          axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
+            .then(r => r.data)
+            .catch(() => []) // ignore errors for individual communities
+        );
+
+        const postsArrays = await Promise.all(allPostsPromises);
+
+        // 3️⃣ Flatten and sort by date descending
+        const mergedPosts = postsArrays.flat();
+        mergedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // 4️⃣ Update state
+        setPosts(mergedPosts);
+
+      } catch (err) {
+        console.error("Error fetching feed:", err);
       }
-
-      // 2️⃣ Fetch posts from all communities in parallel
-      const allPostsPromises = communities.map(c =>
-        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
-          .then(r => r.data)
-          .catch(() => []) // ignore errors for individual communities
-      );
-
-      const postsArrays = await Promise.all(allPostsPromises);
-
-      // 3️⃣ Flatten and sort by date descending
-      const mergedPosts = postsArrays.flat();
-      mergedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      // 4️⃣ Update state
-      setPosts(mergedPosts);
-
-    } catch (err) {
-      console.error("Error fetching feed:", err);
-    }
-  })();
-}, [currentUser]);
+    })();
+  }, [currentUser]);
 
 
   useEffect(() => {
@@ -144,6 +157,8 @@ function Home() {
                 community_name={post.community_name || "b/unknown"}
                 categories={post.categories || []}
                 edited={post.edited || false}
+                onVote={handleVoteUpdate}
+
               />
             ))
           )}

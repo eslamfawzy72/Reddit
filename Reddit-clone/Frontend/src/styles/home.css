@@ -1,97 +1,134 @@
+/* =========================
+   ROOT CONTAINER
+   ========================= */
 .homeContainer {
-  background-color: #0A0A0A;
+  background-color: #0a0a0a;
+  /* slightly lighter than card */
   min-height: 100vh;
 }
 
-/* Top Navbar */
+.mainFeed {
+  background-color: #0a0a0a;
+}
+
+
+/* =========================
+   TOP NAVBAR
+   ========================= */
 .topNavbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1300;
+  background: #020617;
+  border-bottom: 1px solid #1F2933;
 }
 
-/* Left Sidebar */
+/* =========================
+   LEFT SIDEBAR
+   ========================= */
 .leftSidebar {
   position: fixed;
   top: 64px;
   left: 0;
   width: 290px;
   height: calc(100vh - 64px);
-  background-color: white;
-  border-right: 1px solid #edeff1;
+  background-color: #020617;
+  border-right: 1px solid #1F2933;
   overflow: hidden;
   z-index: 1200;
 }
 
-/* Main Feed */
+/* =========================
+   MAIN FEED
+   ========================= */
 .mainFeed {
   position: fixed;
   top: 64px;
-  left: 260px;
+  left: 290px;
   right: 0;
   bottom: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #f5f5f5;
-  padding: 24px 32px;
+  background-color: #0B0F1A;
+  padding: 28px 36px;
 }
 
+/* Feed wrapper */
 .feedWrapper {
-  max-width: 960px;
+  max-width: 860px;
   margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
-/* Loading */
+/* =========================
+   LOADING
+   ========================= */
 .loadingPosts {
   text-align: center;
-  color: #666;
-  padding: 64px 0;
+  color: #9CA3AF;
+  padding: 80px 0;
+  font-size: 15px;
 }
 
-/* Community / User Items */
-.communityItem, .userItem {
+/* =========================
+   COMMUNITY / USER ITEMS
+   ========================= */
+.communityItem,
+.userItem {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
 }
 
+.communityItem:hover,
+.userItem:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+/* Community icon */
 .communityIcon {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
-  background-color: #1b007b;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2563EB, #38BDF8);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 700;
 }
 
+/* User icon */
 .userIcon {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #ff5722;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-.communityName, .userName {
+/* Names */
+.communityName,
+.userName {
   font-weight: 600;
-  color: #0d47a1;
+  color: #E5E7EB;
 }
 
-.communityMembers, .userKarma {
+/* Subtext */
+.communityMembers,
+.userKarma {
   font-size: 13px;
-  color: #1565c0;
+  color: #9CA3AF;
 }
