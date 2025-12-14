@@ -3,6 +3,7 @@ import SidebarLeft from "../Components/SidebarLeft";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/home.css";
 
 function Home() {
@@ -10,17 +11,17 @@ function Home() {
   const [currentUser, setCurrentUser] = useState(undefined);
   const [loading, setLoading] = useState(true);
   const [voteCounts, setVoteCounts] = useState({});
-
   const API = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
-  // Auth check
+  // 🔐 Auth check
   useEffect(() => {
     axios.get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
       .catch(() => setCurrentUser(null));
   }, []);
 
-  // Load feed
+  // 🟢 Load feed
   useEffect(() => {
     if (currentUser === undefined) return;
 
@@ -44,7 +45,9 @@ function Home() {
 
         const postsArrays = await Promise.all(
           communities.map(c =>
-            axios.get(`${API}/posts/community/${c._id}`).then(r => r.data).catch(() => [])
+            axios.get(`${API}/posts/community/${c._id}`)
+              .then(r => r.data)
+              .catch(() => [])
           )
         );
 
@@ -68,21 +71,75 @@ function Home() {
     loadFeed();
   }, [currentUser]);
 
-  const handleVote = async (postId, voteData) => {
-    const { upvoteCount, downvoteCount, userVote } = voteData;
+  // 🔥 Upvote/downvote handling
+  const handleVote = (postId, voteData) => {
+    const { upvoteCount, downvoteCount } = voteData;
     setVoteCounts(prev => ({ ...prev, [postId]: { upvoteCount, downvoteCount } }));
   };
 
+  // 🔍 Search function for PrimarySearchAppBar
+ const searchFunction = async (query) => {
+  if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+
+  try {
+    // fetch users
+    const userRes = await axios.get(`${API}/users`);
+    const users = (userRes.data || [])
+      .filter(u => u.userName?.toLowerCase().includes(query.toLowerCase()))
+      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+
+    // fetch communities
+    const commRes = await axios.get(`${API}/communities`);
+    const communities = (commRes.data || [])
+      .filter(c => c.commName?.toLowerCase().includes(query.toLowerCase()))
+      .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+
+    const results = [...users, ...communities];
+
+    const renderItem = (item) => (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+          alt=""
+          style={{ width: 32, height: 32, borderRadius: "50%" }}
+        />
+        <span>{item.label} ({item.type})</span>
+      </div>
+    );
+
+    return { results, renderItem };
+  } catch (err) {
+    console.error("Search error:", err);
+    return { results: [], renderItem: null }; // ✅ fallback
+  }
+};
+
+
   return (
     <div className="homeContainer">
-      <div className="topNavbar"><PrimarySearchAppBar loggedin={!!currentUser} /></div>
-      <div className="leftSidebar"><SidebarLeft loggedin={!!currentUser} /></div>
+      <div className="topNavbar">
+        <PrimarySearchAppBar
+          loggedin={!!currentUser}
+          searchFunction={searchFunction}
+          onResultClick={(item) => {
+            if (item.type === "user") navigate(`/profile/${item.id}`);
+            else if (item.type === "community") navigate(`/community/${item.id}`);
+          }}
+        />
+      </div>
+
+      <div className="leftSidebar">
+        <SidebarLeft loggedin={!!currentUser} />
+      </div>
+
       <div className="mainFeed">
         <div className="feedWrapper">
           {loading || currentUser === undefined ? (
             <div className="loadingPosts">Loading posts...</div>
           ) : posts.length === 0 ? (
-            <div className="loadingPosts">{currentUser ? "Join communities to see posts." : "No public posts found."}</div>
+            <div className="loadingPosts">
+              {currentUser ? "Join communities to see posts." : "No public posts found."}
+            </div>
           ) : (
             posts.map(post => (
               <PostCard

@@ -3,6 +3,7 @@ import SidebarLeft from "../Components/SidebarLeft";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/home.css";
 
 const POPULARITY_THRESHOLD = 5;
@@ -14,8 +15,9 @@ function Popular() {
   const [voteCounts, setVoteCounts] = useState({});
 
   const API = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
-  // Auth check
+  // 🔐 Auth check
   useEffect(() => {
     axios
       .get(`${API}/auth/me`, { withCredentials: true })
@@ -23,7 +25,7 @@ function Popular() {
       .catch(() => setCurrentUser(null));
   }, []);
 
-  // Load popular posts
+  // 🟢 Load popular posts
   useEffect(() => {
     if (currentUser === undefined) return;
 
@@ -76,7 +78,6 @@ function Popular() {
 
         setPosts(popularPosts);
         setVoteCounts(initialVotes);
-
       } catch (err) {
         console.error(err);
         setPosts([]);
@@ -88,7 +89,7 @@ function Popular() {
     loadPopular();
   }, [currentUser]);
 
-  // Handle vote
+  // 🔥 Handle vote
   const handleVote = async (postId, type, prevVote) => {
     if (!currentUser) return;
 
@@ -128,10 +129,57 @@ function Popular() {
     }
   };
 
+  // 🔍 Search function for PrimarySearchAppBar
+  const searchFunction = async (query) => {
+    if (!query || !query.trim()) return { results: [], renderItem: null };
+
+    try {
+      // Users
+      const userRes = await axios.get(`${API}/users`);
+      const users = (userRes.data || [])
+        .filter(u => u.userName?.toLowerCase().includes(query.toLowerCase()))
+        .map(u => ({ type: "user", id: u._id, label: u.userName }));
+
+      // Communities
+      const commRes = await axios.get(`${API}/communities`);
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().includes(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName }));
+
+      const results = [...users, ...communities];
+
+      const renderItem = (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: "50%", backgroundColor: "#4c6ef5",
+            display: "flex", justifyContent: "center", alignItems: "center",
+            fontWeight: "bold", color: "#fff", textTransform: "uppercase"
+          }}>{item.label[0]}</div>
+          <span>{item.label} ({item.type})</span>
+        </div>
+      );
+
+      return { results, renderItem };
+    } catch (err) {
+      console.error("Search error:", err);
+      return { results: [], renderItem: null };
+    }
+  };
+
   return (
     <div className="homeContainer">
-      <div className="topNavbar"><PrimarySearchAppBar loggedin={!!currentUser} /></div>
+      <div className="topNavbar">
+        <PrimarySearchAppBar
+          searchFunction={searchFunction}
+          onResultClick={(item) => {
+            if (item.type === "user") navigate(`/profile/${item.id}`);
+            else if (item.type === "community") navigate(`/community/${item.id}`);
+          }}
+        />
+      </div>
+
       <div className="leftSidebar"><SidebarLeft loggedin={!!currentUser} /></div>
+
       <div className="mainFeed">
         <div className="feedWrapper">
           {loading || currentUser === undefined ? (

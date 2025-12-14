@@ -66,13 +66,25 @@ export default function ActionBar({ postId, upvoteCount, downvoteCount, commentC
 
   return (
     <div className="action-bar">
-      <button className={`btn vote_up ${userVote === "upvote" ? "active" : ""}`} onClick={() => handleVote("upvote")}>
+      <button
+        className="btn vote_up"
+        onClick={() => handleVote("upvote")}
+        style={{
+          color: userVote === "upvote" ? "#1c7ed6" : "inherit" // blue if active
+        }}
+      >
         <ArrowUp size={20} />
       </button>
 
       <p className="vote-count">{score}</p>
 
-      <button className={`btn vote_down ${userVote === "downvote" ? "active" : ""}`} onClick={() => handleVote("downvote")}>
+      <button
+        className="btn vote_down"
+        onClick={() => handleVote("downvote")}
+        style={{
+          color: userVote === "downvote" ? "#1c7ed6" : "inherit" // blue if active
+        }}
+      >
         <ArrowDown size={20} />
       </button>
 
