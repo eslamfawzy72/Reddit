@@ -57,6 +57,15 @@ export default function UserMenu({ darkMode, setDarkMode }) {
         >
           <AccountCircleIcon className="um-icon" /> View Profile
         </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate("/CreatePost");
+            handleClose();
+          }}
+          className="um-menu-item"
+        >
+          <DraftsIcon className="um-icon" /> Create Post
+        </MenuItem>
         <MenuItem onClick={handleClose} className="um-menu-item">
           <DraftsIcon className="um-icon" /> Notifications
         </MenuItem>

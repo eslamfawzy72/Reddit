@@ -57,7 +57,6 @@ export const searchEverything = (query) => {
 };
 
 function Home() {
-  console.log("Rendering Home component");
   const location = useLocation();
   const isLoggedIn = location.state?.isLoggedIn || false;
   const [posts, setPosts] = useState([]);
@@ -72,10 +71,12 @@ function Home() {
     );
   };
   useEffect(() => {
-    axios.get("http://localhost:5000/auth/me")
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
       .catch(() => console.log("Not logged in"));
   }, []);
+
+ 
 
   useEffect(() => {
     if (!currentUser) return;
@@ -148,6 +149,7 @@ function Home() {
                 user_name={post.user?.userName || "Unknown User"}
                 user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
+                title={post.title}
                 images={post.images || []}
                 comments={post.comments}
                 upvoteCount={post.upvoteCount || 0}
@@ -158,6 +160,7 @@ function Home() {
                 categories={post.categories || []}
                 edited={post.edited || false}
                 onVote={handleVoteUpdate}
+                poll={post.poll}
 
               />
             ))

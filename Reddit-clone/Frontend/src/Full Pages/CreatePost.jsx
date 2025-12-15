@@ -9,6 +9,9 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 
 import "../styles/createPost.css";
 
@@ -19,10 +22,7 @@ const redditTags = [
   { title: 'NextJS' }, { title: 'TypeScript' }, { title: 'NodeJS' }, { title: 'CSS' },
 ];
 
-const BLUE = "#0066ff";
-const BLUE_HOVER = "#0055cc";
-
-function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions, mediaFiles, setMediaFiles }) {
+function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions, mediaFiles, setMediaFiles, description, setDescription }) {
   const types = ['Text', 'Media', 'Poll'];
 
   const handleFileChange = (e) => {
@@ -73,6 +73,8 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
           rows={8}
           inputProps={{ maxLength: 1000 }}
           className="text-post-field"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
       )}
 
@@ -173,12 +175,15 @@ function FixedTags() {
   );
 }
 
-function ComboBox() {
+function ComboBox({ value, onChange, options = [] }) {
   return (
     <Autocomplete
       disablePortal
-      options={['adhams', 'Movie Lovers', 'ReactJS', 'Memes', 'Funny', 'Bluedit', 'WebDev']}
+      options={options}
+      getOptionLabel={(option) => option?.commName || option?.title || ''}
       className="community-autocomplete"
+      value={value}
+      onChange={(e, v) => onChange(v)}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -197,6 +202,99 @@ function CreatePost() {
   const [typeChosen, setTypeChosen] = React.useState('Text');
   const [pollOptions, setPollOptions] = React.useState(['', '']);
   const [mediaFiles, setMediaFiles] = React.useState([]);
+  const [title, setTitle] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [community, setCommunity] = React.useState(null);
+  const [communities, setCommunities] = React.useState([]);
+  const [tags, setTags] = React.useState([]);
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const navigate = useNavigate();
+  const auth = useAuth();
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true });
+        setCurrentUser(res.data.user);
+      } catch (err) {
+        setCurrentUser(null);
+      }
+    };
+    fetchUser();
+    // fetch available communities for the dropdown
+    (async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/communities`, { withCredentials: true });
+        setCommunities(res.data || []);
+      } catch (err) {
+        console.error('Failed to load communities', err);
+        setCommunities([]);
+      }
+    })();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!currentUser) {
+      alert('You must be logged in to post');
+      navigate('/Login');
+      return;
+    }
+
+    // Build description: include title + body
+    const fullDescription = title ? (title + '\n\n' + description) : description;
+
+    // convert selected media files to data URLs so backend can store them in `images`
+    const fileToDataUrl = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    let imgs = [];
+    if (mediaFiles && mediaFiles.length > 0) {
+      try {
+        // only include images (not videos) for now
+        const imageFiles = mediaFiles.filter(f => f.type && f.type.startsWith('image'));
+        imgs = await Promise.all(imageFiles.map(f => fileToDataUrl(f)));
+      } catch (err) {
+        console.error('Failed to convert media files', err);
+      }
+    }
+
+    const payload = {
+      userId: currentUser._id,
+      title: title,
+      imgs,
+      upvotedCount: 0,
+      downvotedCount: 0,
+      commentCount: 0,
+      date: new Date(),
+      cmnts: [],
+      commID: community?._id || null,
+      cat: tags.map(t => t.title || t),
+      description: description,
+    };
+
+    if (typeChosen === 'Poll') {
+      const cleanedOptions = pollOptions.filter(o => o && o.trim()).map(o => ({ text: o.trim(), votes: 0 }));
+      if (cleanedOptions.length < 2) return alert('Please provide at least two poll options.');
+      payload.poll = {
+        isPoll: true,
+        question: title || description || 'Poll',
+        options: cleanedOptions,
+      };
+    }
+
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/posts`, payload, { withCredentials: true });
+      // Success → go back to home
+      navigate('/');
+    } catch (err) {
+      console.error('Create post failed', err);
+      alert('Failed to create post: ' + (err.response?.data?.message || err.message));
+    }
+  };
 
   return (
     <React.Fragment>
@@ -205,14 +303,20 @@ function CreatePost() {
       <Box className="create-post-wrapper">
         <Box className="create-post-container">
           <Box className="create-post-header">
-            <Typography className="create-post-title">
-              Create a post
-            </Typography>
+            <Typography className="create-post-title">Create a post</Typography>
           </Box>
 
           <Box className="create-post-body">
-            <ComboBox />
-            <TextField placeholder="Title" variant="outlined" size="small" inputProps={{ maxLength: 300 }} className="title-field" />
+            <ComboBox value={community} onChange={setCommunity} options={communities} />
+            <TextField
+              placeholder="Title"
+              variant="outlined"
+              size="small"
+              inputProps={{ maxLength: 300 }}
+              className="title-field"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
             <PostTypeFilter
               typeChosen={typeChosen}
@@ -221,14 +325,14 @@ function CreatePost() {
               setPollOptions={setPollOptions}
               mediaFiles={mediaFiles}
               setMediaFiles={setMediaFiles}
+              description={description}
+              setDescription={setDescription}
             />
 
             <FixedTags />
 
             <Box className="post-button-container">
-              <Box component="button" className="post-button">
-                Post
-              </Box>
+              <Box component="button" onClick={handleSubmit} className="post-button">Post</Box>
             </Box>
           </Box>
         </Box>

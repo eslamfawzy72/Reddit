@@ -15,6 +15,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 import "../styles/PostCard.css";
+import axios from "axios";
 import ActionBar from "./ActionBar";
 import CommentSection from "../Components/CommentSection";
 
@@ -34,6 +35,7 @@ export default function PostCard({
   id,
   user_name,
   user_avatar,
+  title,
   description,
   images = [],
   comments = [],
@@ -44,10 +46,13 @@ export default function PostCard({
   community_name,
   edited = false,
   onVote,
+  poll: pollProp,
 }) {
   const [expanded, setExpanded] = React.useState(false);
   const [index, setIndex] = React.useState(0);
   const [isHidden, setIsHidden] = React.useState(false);
+  const [poll, setPoll] = React.useState(pollProp || { isPoll: false });
+  const [loadingOption, setLoadingOption] = React.useState(null);
 
   const handleExpandClick = () => setExpanded(!expanded);
 
@@ -104,17 +109,23 @@ export default function PostCard({
       />
 
 
+      {/* TITLE AREA (dedicated) */}
+      {title && (
+        <CardContent className="post-title-area">
+          <Typography className="post-title">{title}</Typography>
+        </CardContent>
+      )}
+
       {/* DESCRIPTION */}
       {description && (
         <CardContent>
           <Typography
+            className="post-description"
             variant="body1"
-            sx={{ color: "#ffffff", lineHeight: 1.6 }}
           >
             {description}
           </Typography>
         </CardContent>
-
       )}
 
       {/* IMAGE SLIDER */}
@@ -149,6 +160,44 @@ export default function PostCard({
 
 
       {/* ACTION BAR */}
+      {/* Poll UI — placed before actions so it lines up with description/title */}
+      {poll?.isPoll && (
+        <CardContent className="poll-cardcontent">
+          <div className="poll-container">
+            <div className="poll-question">{poll.question}</div>
+            <div className="poll-options">
+              {poll.options.map((opt) => (
+                <button
+                  key={opt._id}
+                  className="poll-option-btn"
+                  onClick={async () => {
+                    if (loadingOption) return;
+                    setLoadingOption(opt._id);
+                    try {
+                      const res = await axios.patch(
+                        `${import.meta.env.VITE_API_URL}/posts/${id}`,
+                        { action: 'pollVote', optionId: opt._id },
+                        { withCredentials: true }
+                      );
+                      setPoll(res.data.poll || res.data);
+                    } catch (err) {
+                      console.error('Poll vote failed', err);
+                      alert('Failed to register vote');
+                    } finally {
+                      setLoadingOption(null);
+                    }
+                  }}
+                  disabled={!!loadingOption}
+                >
+                  <span className="poll-btn-text">{opt.text}</span>
+                  <span className="poll-vote-count">{opt.votes || 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      )}
+
       <CardActions disableSpacing>
         <ActionBar
           postId={id}

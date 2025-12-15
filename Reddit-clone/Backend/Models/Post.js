@@ -8,6 +8,7 @@ const postSchema = new Schema({
   communityID: { type: Schema.Types.ObjectId, ref: "Community" },
   categories: [{ type: String }],
   userID: { type: Schema.Types.ObjectId, ref: "User" },
+  title: { type: String },
   description: { type: String },
   images: [{ type: String }],
   edited: { type: Boolean, default: false },
@@ -15,6 +16,19 @@ const postSchema = new Schema({
   downvoteCount: { type: Number, default: 0 },
   commentCount: { type: Number, default: 0 },
   comments: [commentSchema] 
+  ,
+  // Poll support
+  poll: {
+    isPoll: { type: Boolean, default: false },
+    question: { type: String },
+    options: [
+      {
+        text: { type: String },
+        votes: { type: Number, default: 0 }
+      }
+    ],
+    expiresAt: { type: Date }
+  }
 });
 
 export default mongoose.model("Post", postSchema);

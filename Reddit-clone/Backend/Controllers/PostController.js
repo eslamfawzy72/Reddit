@@ -1,6 +1,6 @@
 import Post from "../Models/Post.js";
 import User from "../Models/User.js";
-import axios from "axios"
+import axios from "axios";
 
 export async function getAllPosts(req, res) {
   try {
@@ -15,10 +15,11 @@ export async function getAllPosts(req, res) {
       return res.status(404).json({ message: "No posts found" });
     }
 
-    const formattedPosts = posts.map(post => ({
+    const formattedPosts = posts.map((post) => ({
       _id: post._id,
       postID: post.postID,
       communityID: post.communityID,
+      title: post.title,
       categories: post.categories,
       description: post.description,
       images: post.images,
@@ -27,12 +28,15 @@ export async function getAllPosts(req, res) {
       downvoteCount: post.downvoteCount,
       commentCount: post.commentCount,
       comments: post.comments,
+      poll: post.poll || { isPoll: false },
       date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
+      user: post.userID
+        ? {
+            userName: post.userID.userName,
+            image: post.userID.image,
+            _id: post.userID._id,
+          }
+        : null,
     }));
 
     res.json(formattedPosts);
@@ -41,35 +45,32 @@ export async function getAllPosts(req, res) {
   }
 }
 
-
 export async function getPostByID(req, res) {
   try {
-    const id = req.params.postID
-    const post = await Post.findById(id)
+    const id = req.params.postID;
+    const post = await Post.findById(id);
     if (!post) {
-      res.status(404).json("Post Not Found!")
-      return;
+      return res.status(404).json({ message: "Post Not Found!" });
     }
-    res.json(post)
-  }
-  catch (err) {
-    res.status(500).json({ error: err.message })
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }
+
 export async function getPostByCategory(req, res) {
   try {
     const postCat = req.params.postCategory;
 
     const posts = await Post.find({
-      categories: { $in: [postCat] }
+      categories: { $in: [postCat] },
     });
 
-    if (posts.length === 0) {
+    if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "Posts Not Found!" });
     }
 
     res.status(200).json(posts);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server Error" });
@@ -87,8 +88,23 @@ export async function createPost(req, res) {
       date = new Date(),
       cmnts = [],
       commID,
-      cat
+      cat,
+      title = "",
+      description = "",
+      poll,
     } = req.body;
+
+    // Normalize poll payload: if client sent options or isPoll flag, ensure stored poll has options with vote counts
+    let pollData = { isPoll: false, options: [] };
+    if (poll && (poll.isPoll || (Array.isArray(poll.options) && poll.options.length > 0))) {
+      pollData.isPoll = true;
+      pollData.question = poll.question || title || description || "Poll";
+      pollData.options = (poll.options || []).map((opt) => {
+        if (typeof opt === "string") return { text: opt, votes: 0 };
+        return { text: opt.text || "", votes: Number(opt.votes) || 0 };
+      });
+      if (poll.expiresAt) pollData.expiresAt = poll.expiresAt;
+    }
 
     const newPost = new Post({
       userID: userId,
@@ -99,12 +115,14 @@ export async function createPost(req, res) {
       date: date,
       comments: cmnts,
       communityID: commID,
-      category: cat
+      categories: cat || [],
+      title: title || (description?.split('\n\n')?.[0] || ''),
+      description: description,
+      poll: pollData,
     });
 
     await newPost.save();
     res.status(201).json(newPost);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -217,6 +235,51 @@ export const updatePostByID = async (req, res) => {
       }
     }
 
+    // Poll voting
+    if (action === "pollVote") {
+      const { optionId } = req.body;
+      if (!optionId) {
+        return res.status(400).json({ message: "optionId is required" });
+      }
+
+      // ensure post has poll
+      if (!post.poll || !post.poll.isPoll) {
+        return res.status(400).json({ message: "Post is not a poll" });
+      }
+
+      // find option
+      const option = post.poll.options.id(optionId);
+      if (!option) {
+        return res.status(404).json({ message: "Option not found" });
+      }
+
+      // check user's existing vote for this post
+      const existing = user.pollVotes.find(pv => pv.post.toString() === postID);
+
+      if (!existing) {
+        // add vote
+        option.votes = (option.votes || 0) + 1;
+        user.pollVotes.push({ post: postID, option: option._id });
+      } else if (existing.option.toString() === optionId) {
+        // undo vote
+        option.votes = Math.max((option.votes || 1) - 1, 0);
+        user.pollVotes = user.pollVotes.filter(pv => pv.post.toString() !== postID);
+      } else {
+        // change vote
+        // decrement previous option
+        const prevOption = post.poll.options.id(existing.option);
+        if (prevOption) prevOption.votes = Math.max((prevOption.votes || 1) - 1, 0);
+        // increment new
+        option.votes = (option.votes || 0) + 1;
+        existing.option = option._id;
+      }
+
+      await user.save();
+      await post.save({ validateBeforeSave: false });
+
+      return res.json({ poll: post.poll });
+    }
+
     await user.save();
     await post.save({ validateBeforeSave: false });
 
@@ -323,6 +386,7 @@ export async function getPostsByCommunityID(req, res) {
       downvoteCount: post.downvoteCount,
       commentCount: post.commentCount,
       comments: post.comments,
+      poll: post.poll || { isPoll: false },
       date: post.date,
       user: post.userID ? {
         userName: post.userID.userName,

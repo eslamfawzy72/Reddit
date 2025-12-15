@@ -24,7 +24,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(cookieParser());
-app.use(express.json());
+// Increase JSON body limit to allow base64 image uploads (consider switching to multipart later)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Test route
 app.get("/", (req, res) => {
@@ -82,7 +84,8 @@ app.use("/users", userRoutes);
 app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
-app.use("/Communities", communityRouter);
+// mount communities router at lowercase path
+app.use("/communities", communityRouter);
 //notifications router
 
 

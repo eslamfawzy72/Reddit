@@ -75,3 +75,93 @@
 .next-btn {
   right: 12px;
 }
+
+/* Title & description improvements */
+.post-card .MuiCardContent-root h6,
+.post-card .post-title {
+  margin: 8px 16px 0 16px;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.post-card .post-description {
+  margin: 8px 16px 14px 16px;
+  color: #d1d5db;
+  font-size: 0.975rem;
+  white-space: pre-wrap;
+}
+
+/* Dedicated title area */
+.post-title-area {
+  padding: 10px 16px 6px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.post-title {
+  font-size: 1.125rem;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+/* Poll styles: show options as simple labels (non-interactive)
+   — no vote counts, no user-specific styling */
+.poll-container {
+  width: 100%;
+  padding: 0; /* container padding moved to CardContent */
+  background: transparent;
+}
+.poll-question {
+  color: #e6edf3;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.poll-option-label {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  color: #dbeafe;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+/* interactive poll button style */
+.poll-option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  color: #dbeafe;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.poll-option-btn:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.04);
+}
+.poll-option-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.poll-btn-text { display: inline-block; }
+.poll-vote-count {
+  background: rgba(255,255,255,0.03);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: #e6f0ff;
+  font-size: 0.85rem;
+}
+
+/* CardContent wrapper for poll to match description/title spacing */
+.poll-cardcontent {
+  padding: 8px 16px 12px 16px;
+}
