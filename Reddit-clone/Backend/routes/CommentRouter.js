@@ -21,10 +21,10 @@ router.post("/:postID",protect, addComment);
 router.post("/:postID/:commId/reply",protect, addReply);
 
 // Edit a comment or reply
-router.patch("/:postID/:commId", editComment);
+router.patch("/:postID/:commId",protect, editComment);
 
 // Delete a comment or reply
-router.delete("/:postID/:commId", deleteComment);
+router.delete("/:postID/:commId",protect, deleteComment);
 
 // Get top-level comments by category
 router.get("/:postID/category/:category", getCommentsByCategory);

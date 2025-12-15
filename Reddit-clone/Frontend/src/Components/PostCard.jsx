@@ -83,7 +83,7 @@ export default function PostCard({
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <CommentSection postId={id} comments={comments} />
+          <CommentSection postId={id} comments={comments} currentUser={currentUser} />
         </CardContent>
       </Collapse>
     </Card>
