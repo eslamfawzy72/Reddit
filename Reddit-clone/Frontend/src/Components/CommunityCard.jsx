@@ -2,158 +2,155 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/communityCard.css";
+import { useEffect } from "react";
+// import { isLoggedIn } from "../Context/AuthContext";
+import { useAuth } from "../Context/AuthContext";
 
-export default function CommunityCard({ communities = [] }) {
+export default function CommunityCard({ communities = [], setCommunities }) {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const categories = [
     "All",
-    "Personal Finance",
-    "Crypto",
-    "Economics",
-    "Business News & Discussion",
-    "Deals & Marketplace",
-    "Startups & Entrepreneurship",
-    "Real Estate",
-    "Stocks & Investing",
     "Programming",
     "Web Development",
     "AI & Machine Learning",
     "Cybersecurity",
-    "Cloud Computing",
     "Data Science",
     "Open Source",
-    "PC Gaming",
-    "Console Gaming",
-    "Esports",
-    "Game Development",
-    "Retro Games",
-    "Speedrunning",
-    "Performing Arts",
-    "Architecture",
-    "Design",
+    "Gaming",
     "Art",
-    "Filmmaking",
-    "Digital Art",
     "Photography",
   ];
 
-  const filteredCommunities =
+  const visibleCommunities =
     selectedCategory === "All"
       ? communities
       : communities.filter(
-          (community) =>
-            community.categories &&
-            community.categories.includes(selectedCategory)
+          (c) =>
+            c.category?.toLowerCase() ===
+            selectedCategory.toLowerCase()
         );
 
-  const CommunityCardItem = ({ community }) => {
-    const [joined, setJoined] = useState(community.isJoined);
-    const [isHovered, setIsHovered] = useState(false);
-
-    return (
-      <div
-        className={`card ${isHovered ? "card-hover" : ""}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={() => navigate(`/community`)}
-      >
-        <div className="card-header">
-          <div className="left-section">
-            <div className="avatar" style={{ backgroundColor: community.color }}>
-              {community.emoji}
-            </div>
-            <div className="info-section">
-              <div className="name">{community.name}</div>
-              <div className="members">
-                {community.members} {community.visitors}
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            className={`join-btn ${joined ? "joined" : ""}`}
-            onClick={async (e) => {
-              e.stopPropagation();
-              try {
-                await axios.post(
-                  `${import.meta.env.VITE_API_URL}/communities/${community._id}/join`,
-                  {},
-                  { withCredentials: true }
-                );
-                setJoined(true);
-              } catch (err) {
-                console.error(err.response?.data || err);
-                alert(
-                  err.response?.data?.message || "Failed to join community"
-                );
-              }
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = joined ? "#E3F2FD" : "#1484D6";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = joined ? "#F5F5F5" : "#0079D3";
-            }}
-          >
-            {joined ? "Joined" : "Join"}
-          </button>
-        </div>
-        <div className="description">{community.description}</div>
-      </div>
+  const handleJoinSuccess = (communityId) => {
+    setCommunities((prev) =>
+      prev.map((c) =>
+        c._id === communityId
+          ? { ...c, isJoined: true }
+          : c
+      )
     );
   };
 
   return (
-    <div className="page-container">
-      <div className="content-wrapper">
-        <div className="header">
-          <div className="title">Explore Communities</div>
-          <div className="category-bar">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                className={`category-btn ${
-                  selectedCategory === cat ? "selected" : ""
-                }`}
-                onClick={() => setSelectedCategory(cat)}
-                onMouseEnter={(e) => {
-                  if (selectedCategory !== cat) e.target.classList.add("hover");
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedCategory !== cat)
-                    e.target.classList.remove("hover");
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
+    <section className="community">
+      <header className="community__header">
+        <h1>Explore Communities</h1>
 
-        <div className="section-title">
-          {selectedCategory === "All"
-            ? "Recommended for you"
-            : `${selectedCategory} Communities`}
+        <div className="community__categories">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`category-btn ${
+                selectedCategory.toLowerCase() === cat.toLowerCase()
+                  ? "active"
+                  : ""
+              }`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
+      </header>
 
-        {filteredCommunities.length > 0 ? (
-          <div className="wrapper">
-            {filteredCommunities.map((community) => (
-              <CommunityCardItem
-                key={community.name}
-                community={community}
-              />
-            ))}
-          </div>
+      <h2 className="community__section-title">
+        {selectedCategory === "All"
+          ? "Recommended for you"
+          : `${selectedCategory} Communities`}
+      </h2>
+
+      <div className="community__grid">
+        {visibleCommunities.length ? (
+          visibleCommunities.map((community) => (
+            <CommunityCardItem
+              key={community._id}
+              community={community}
+              navigate={navigate}
+              onJoinSuccess={handleJoinSuccess}
+            />
+          ))
         ) : (
-          <div className="no-results">
-            No communities found for "{selectedCategory}". Try selecting a
-            different category.
-          </div>
+          <p className="community__empty">No communities found.</p>
         )}
       </div>
-    </div>
+    </section>
   );
 }
+
+
+/* =========================
+   Card Item
+========================= */
+
+
+function CommunityCardItem({ community, navigate, onJoinSuccess }) {
+  const joined = Boolean(community.isJoined);
+  const { isLoggedIn } = useAuth();
+
+  const handleJoin = async (e) => {
+    e.stopPropagation();
+    if (joined) return;
+    if(!isLoggedIn){
+      alert("Please log in to join communities.");
+      navigate("/login");
+      return;
+    }
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/communities/${community._id}/join`,
+        {},
+        { withCredentials: true }
+      );
+
+      onJoinSuccess(community._id); // ✅ updates parent state
+    } catch {
+      alert("Failed to join community");
+    }
+  };
+
+  return (
+    <article
+      className="community-card"
+      onClick={() => navigate(`/community/${community._id}`)}
+    >
+      <div className="community-card__header">
+        <div
+          className="community-card__avatar"
+          style={{ backgroundColor: community.color }}
+        >
+          {community.emoji}
+        </div>
+
+        <div className="community-card__info">
+          <h3>{community.name}</h3>
+          <span>{community.memberCount} members</span>
+        </div>
+
+        <button
+          className={`join-btn ${joined ? "joined" : ""}`}
+          onClick={handleJoin}
+          disabled={joined}
+        >
+          {joined ? "Joined" : "Join"}
+        </button>
+      </div>
+
+      <p className="community-card__description">
+        {community.description}
+      </p>
+    </article>
+  );
+}
+
+

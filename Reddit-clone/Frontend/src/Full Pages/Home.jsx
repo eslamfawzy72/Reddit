@@ -1,151 +1,166 @@
 import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
 import SidebarLeft from "../Components/SidebarLeft";
-import { useLocation } from "react-router-dom";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import PostCard from "../Components/PostCard";
 import axios from "axios";
-import "../styles/home.css"; // Import the CSS
-
-// Mock data
-const mockPosts = [ /* keep your mockPosts here */ ];
-const mockCommunities = [ /* keep your mockCommunities here */ ];
-const mockUsers = [ /* keep your mockUsers here */ ];
-
-// Render helpers
-const renderCommunity = (c) => (
-  <div className="communityItem">
-    <div className="communityIcon">{c.icon}</div>
-    <div>
-      <div className="communityName">{c.display}</div>
-      <div className="communityMembers">{c.members} members</div>
-    </div>
-  </div>
-);
-
-const renderUser = (u) => (
-  <div className="userItem">
-    <div className="userIcon">{u.icon}</div>
-    <div>
-      <div className="userName">{u.display}</div>
-      <div className="userKarma">• {u.karma} karma</div>
-    </div>
-  </div>
-);
-
-// Search function
-export const searchEverything = (query) => {
-  if (!query?.trim()) return { results: [], renderItem: null };
-  const q = query.toLowerCase();
-
-  const comms = mockCommunities
-    .filter(c => c.name.includes(q))
-    .map(c => ({ ...c, score: c.name.startsWith(q) ? 100 : 50 }));
-
-  const users = mockUsers
-    .filter(u => u.name.includes(q))
-    .map(u => ({ ...u, score: u.name.startsWith(q) ? 90 : 40 }));
-
-  const results = [...comms, ...users]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-
-  return {
-    results,
-    renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)),
-  };
-};
+import { useNavigate } from "react-router-dom";
+import "../styles/home.css";
 
 function Home() {
-  const location = useLocation();
-  const isLoggedIn = location.state?.isLoggedIn || false;
   const [posts, setPosts] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-   useEffect(() => {
-    axios.get("http://localhost:5000/auth/me")
+  const [currentUser, setCurrentUser] = useState(undefined);
+  const [loading, setLoading] = useState(true);
+  const [voteCounts, setVoteCounts] = useState({});
+  const API = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+
+  // 🔐 Auth check
+  useEffect(() => {
+    axios.get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
-      .catch(() => console.log("Not logged in"));
+      .catch(() => setCurrentUser(null));
   }, []);
 
+  // 🟢 Load feed
   useEffect(() => {
-  if (!currentUser) return;
+    if (currentUser === undefined) return;
 
-  (async () => {
-    try {
-      // 1️⃣ Get the communities the user has joined
-      const commRes = await axios.get(
-        `${import.meta.env.VITE_API_URL}/users/communities`,
-        { withCredentials: true }
-      );
-      const communities = commRes.data;
+    const loadFeed = async () => {
+      setLoading(true);
+      try {
+        let communities = [];
+        if (currentUser) {
+          const commRes = await axios.get(`${API}/users/communities`, { withCredentials: true });
+          communities = commRes.data || [];
+        } else {
+          const commRes = await axios.get(`${API}/communities`);
+          communities = (commRes.data || []).filter(c => c.privacystate === "public");
+        }
 
-      if (!communities || communities.length === 0) {
-        setPosts([]); // no communities → empty feed
-        return;
+        if (!communities.length) {
+          setPosts([]);
+          setLoading(false);
+          return;
+        }
+
+        const postsArrays = await Promise.all(
+          communities.map(c =>
+            axios.get(`${API}/posts/community/${c._id}`)
+              .then(r => r.data)
+              .catch(() => [])
+          )
+        );
+
+        const mergedPosts = postsArrays.flat().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const initialVotes = {};
+        mergedPosts.forEach(p => {
+          initialVotes[p._id] = { upvoteCount: p.upvoteCount || 0, downvoteCount: p.downvoteCount || 0 };
+        });
+
+        setPosts(mergedPosts);
+        setVoteCounts(initialVotes);
+      } catch (err) {
+        console.error(err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // 2️⃣ Fetch posts from all communities in parallel
-      const allPostsPromises = communities.map(c =>
-        axios.get(`${import.meta.env.VITE_API_URL}/posts/community/${c._id}`)
-          .then(r => r.data)
-          .catch(() => []) // ignore errors for individual communities
-      );
+    loadFeed();
+  }, [currentUser]);
 
-      const postsArrays = await Promise.all(allPostsPromises);
+  // 🔥 Upvote/downvote handling
+  const handleVote = (postId, voteData) => {
+    const { upvoteCount, downvoteCount } = voteData;
+    setVoteCounts(prev => ({ ...prev, [postId]: { upvoteCount, downvoteCount } }));
+  };
 
-      // 3️⃣ Flatten and sort by date descending
-      const mergedPosts = postsArrays.flat();
-      mergedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // 🔍 Search function for PrimarySearchAppBar
+ const searchFunction = async (query) => {
+  if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
 
-      // 4️⃣ Update state
-      setPosts(mergedPosts);
+  try {
+    // fetch users
+    const userRes = await axios.get(`${API}/users`);
+    const users = (userRes.data || [])
+      .filter(u => u.userName?.toLowerCase().includes(query.toLowerCase()))
+      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
 
-    } catch (err) {
-      console.error("Error fetching feed:", err);
-    }
-  })();
-}, [currentUser]);
+    // fetch communities
+    const commRes = await axios.get(`${API}/communities`);
+    const communities = (commRes.data || [])
+      .filter(c => c.commName?.toLowerCase().includes(query.toLowerCase()))
+      .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
 
+    const results = [...users, ...communities];
 
-  useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/users`, { withCredentials: true })
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+    const renderItem = (item) => (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+          alt=""
+          style={{ width: 32, height: 32, borderRadius: "50%" }}
+        />
+        <span>{item.label} ({item.type})</span>
+      </div>
+    );
+
+    return { results, renderItem };
+  } catch (err) {
+    console.error("Search error:", err);
+    return { results: [], renderItem: null }; // ✅ fallback
+  }
+};
+
 
   return (
     <div className="homeContainer">
       <div className="topNavbar">
-        <PrimarySearchAppBar loggedin={isLoggedIn} searchFunction={searchEverything} />
+        <PrimarySearchAppBar
+          loggedin={!!currentUser}
+          searchFunction={searchFunction}
+          onResultClick={(item) => {
+            if (item.type === "user") navigate(`/profile/${item.id}`);
+            else if (item.type === "community") navigate(`/community/${item.id}`);
+          }}
+        />
       </div>
 
       <div className="leftSidebar">
-        <SidebarLeft loggedin={isLoggedIn} />
+        <SidebarLeft loggedin={!!currentUser} />
       </div>
 
       <div className="mainFeed">
         <div className="feedWrapper">
-          {posts.length === 0 ? (
+          {loading || currentUser === undefined ? (
             <div className="loadingPosts">Loading posts...</div>
+          ) : posts.length === 0 ? (
+            <div className="loadingPosts">
+              {currentUser ? "Join communities to see posts." : "No public posts found."}
+            </div>
           ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post._id}
-                id={post._id}
-                user_name={post.user?.userName || "Unknown User"}
-                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-                description={post.description}
-                images={post.images || []}
-                comments={post.comments}
-                upvoteCount={post.upvoteCount || 0}
-                downvoteCount={post.downvoteCount || 0}
-                commentCount={post.commentCount || 0}
-                date={post.date}
-                community_name={post.community_name || "b/unknown"}
-                categories={post.categories || []}
-                edited={post.edited || false}
-              />
-            ))
+            posts.map(post => (
+  <PostCard
+    key={post._id}
+    id={post._id}
+    user_name={`u/${post.user?.userName || "Unknown"}`}
+    user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+    description={post.description}
+    images={post.images || []}
+    comments={post.comments}
+    upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+    downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
+    commentCount={post.commentCount || 0}
+    date={post.date}
+    community_name={`b/${post.commName || "unknown"}`}
+    edited={post.edited || false}
+    onVote={handleVote}
+    currentUser={currentUser}
+  />
+))
+
           )}
         </div>
       </div>

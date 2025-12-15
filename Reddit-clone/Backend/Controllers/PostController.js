@@ -4,36 +4,43 @@ import axios from "axios"
 
 export async function getAllPosts(req, res) {
   try {
-    const posts = await Post.find()
-      .populate({
-        path: "userID",          
-        select: "userName image", 
-      })
-      .sort({ date: -1 });       
+   const posts = await Post.find()
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }
 
     const formattedPosts = posts.map(post => ({
-      _id: post._id,
-      postID: post.postID,
-      communityID: post.communityID,
-      categories: post.categories,
-      description: post.description,
-      images: post.images,
-      edited: post.edited,
-      upvoteCount: post.upvoteCount,
-      downvoteCount: post.downvoteCount,
-      commentCount: post.commentCount,
-      comments: post.comments,
-      date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
-    }));
+  _id: post._id,
+  postID: post.postID,
+  communityID: post.communityID?._id,       // keep the ID
+  commName: post.communityID?.commName,     // ✅ add this
+  categories: post.categories,
+  description: post.description,
+  images: post.images,
+  edited: post.edited,
+  upvoteCount: post.upvoteCount,
+  downvoteCount: post.downvoteCount,
+  commentCount: post.commentCount,
+  comments: post.comments,
+  date: post.date,
+  user: post.userID ? {
+    userName: post.userID.userName,
+    image: post.userID.image,
+    _id: post.userID._id
+  } : null
+}));
+
 
     res.json(formattedPosts);
   } catch (err) {
@@ -42,19 +49,19 @@ export async function getAllPosts(req, res) {
 }
 
 
-export async function getPostByID(req,res){
-    try{
-    const id=req.params.postID
-    const post= await Post.findById(id)
-    if(!post){
-        res.status(404).json("Post Not Found!")
-        return;
+export async function getPostByID(req, res) {
+  try {
+    const id = req.params.postID
+    const post = await Post.findById(id)
+    if (!post) {
+      res.status(404).json("Post Not Found!")
+      return;
     }
     res.json(post)
-    }
-    catch(err){
-        res.status(500).json({ error: err.message })
-    }
+  }
+  catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 }
 export async function getPostByCategory(req, res) {
   try {
@@ -141,7 +148,7 @@ export async function deletePostByID(req, res) {
     const post = await Post.findById(id);
     if (!post) {
       return res.status(404).json("Post not found!");
-    } 
+    }
     await Post.deleteOne({ _id: id });
     res.json("Post has been deleted!");
   } catch (err) {
@@ -149,27 +156,91 @@ export async function deletePostByID(req, res) {
   }
 }
 
-export async function updatePostByID(req, res) {
+
+export const updatePostByID = async (req, res) => {
+  console.log("✅ updatePostByID START");
+
   try {
-    const id = req.params.postID;
-    const updatedData = req.body;
+    // ✅ DEFINE postID FIRST
+    const { postID } = req.params;
+    const { action } = req.body;
 
-    const post = await Post.findByIdAndUpdate(
-      id,
-      { $set: updatedData },
-      { new: true, runValidators: false }   // validators disabled->open it later!!!!!!!!!!
-    );
+    console.log("POST ID:", postID);
+    console.log("ACTION:", action);
+    console.log("REQ.USER:", req.user);
 
-    if (!post) {
-      return res.status(404).json({ message: "Post not found!" });
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
-    return res.json(post);
+    const userId = req.user._id;
+
+    const post = await Post.findById(postID);
+    const user = await User.findById(userId);
+
+    if (!post || !user) {
+      return res.status(404).json({ message: "Post or user not found" });
+    }
+
+    // safety
+    post.upvoteCount ??= 0;
+    post.downvoteCount ??= 0;
+
+    const hasUpvoted = user.upvotedPosts.some(
+      id => id.toString() === postID
+    );
+
+    const hasDownvoted = user.downvotedPosts.some(
+      id => id.toString() === postID
+    );
+
+    if (action === "upvote") {
+      if (hasUpvoted) {
+        user.upvotedPosts.pull(postID);
+        post.upvoteCount--;
+      } else {
+        user.upvotedPosts.push(postID);
+        post.upvoteCount++;
+
+        if (hasDownvoted) {
+          user.downvotedPosts.pull(postID);
+          post.downvoteCount--;
+        }
+      }
+    }
+
+    if (action === "downvote") {
+      if (hasDownvoted) {
+        user.downvotedPosts.pull(postID);
+        post.downvoteCount--;
+      } else {
+        user.downvotedPosts.push(postID);
+        post.downvoteCount++;
+
+        if (hasUpvoted) {
+          user.upvotedPosts.pull(postID);
+          post.upvoteCount--;
+        }
+      }
+    }
+
+    await user.save();
+    await post.save({ validateBeforeSave: false });
+
+
+    res.json({
+      upvoteCount: post.upvoteCount,
+      downvoteCount: post.downvoteCount,
+    });
 
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error("🔥 CONTROLLER ERROR:", err);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};
+
+
+
 export async function getSummary(req, res) {
   try {
     const { postID } = req.params;
@@ -235,12 +306,18 @@ export async function getPostsByCommunityID(req, res) {
     const { communityID } = req.params;
 
     // Fetch posts for this community, newest first
-    const posts = await Post.find({ communityID })
-      .populate({
-        path: "userID",
-        select: "userName image", // include only necessary fields
-      })
-      .sort({ date: -1 });
+    const posts = await Post.find()
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found for this community" });
@@ -248,24 +325,26 @@ export async function getPostsByCommunityID(req, res) {
 
     // Format posts
     const formattedPosts = posts.map(post => ({
-      _id: post._id,
-      postID: post.postID,
-      communityID: post.communityID,
-      categories: post.categories,
-      description: post.description,
-      images: post.images,
-      edited: post.edited,
-      upvoteCount: post.upvoteCount,
-      downvoteCount: post.downvoteCount,
-      commentCount: post.commentCount,
-      comments: post.comments,
-      date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
-    }));
+  _id: post._id,
+  postID: post.postID,
+  communityID: post.communityID?._id,       // keep the ID
+  commName: post.communityID?.commName,     // ✅ add this
+  categories: post.categories,
+  description: post.description,
+  images: post.images,
+  edited: post.edited,
+  upvoteCount: post.upvoteCount,
+  downvoteCount: post.downvoteCount,
+  commentCount: post.commentCount,
+  comments: post.comments,
+  date: post.date,
+  user: post.userID ? {
+    userName: post.userID.userName,
+    image: post.userID.image,
+    _id: post.userID._id
+  } : null
+}));
+
 
     return res.status(200).json(formattedPosts);
 

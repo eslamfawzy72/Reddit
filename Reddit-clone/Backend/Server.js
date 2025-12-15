@@ -13,6 +13,8 @@ import chatRoutes from "./routes/ChatRouter.js";
 import messageRoutes from "./routes/MessageRouter.js";
 import communityRouter from "./routes/CommunityRouter.js";
 import authRouter from "./routes/authRouter.js";
+import NotificationRouter from "./routes/NotificationRouter.js";
+
 
 dotenv.config(); // load .env
 
@@ -35,7 +37,7 @@ app.get("/", (req, res) => {
 const server = http.createServer(app); // wrap express app
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5175"],
+    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175"],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -83,9 +85,8 @@ app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
 app.use("/Communities", communityRouter);
+app.use("/notifications", NotificationRouter);
 //notifications router
-
-
 // comment routes(middleware)
 app.use("/comments", commentRouter);
 

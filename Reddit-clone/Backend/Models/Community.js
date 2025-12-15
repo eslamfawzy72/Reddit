@@ -4,6 +4,7 @@ const communitySchema = new mongoose.Schema(
     commName: { type: String, required: true },
     description: String,
     image: String,
+    category: String,
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     created_at: { type: Date, default: Date.now },
     rules: [String],

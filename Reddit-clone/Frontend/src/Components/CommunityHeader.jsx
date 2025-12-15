@@ -1,52 +1,64 @@
 import React from "react";
-import { Box, Button, Avatar, Typography } from "@mui/material";
 import "../styles/communityHeader.css";
+import axios from "axios";
 
 export default function CommunityHeader({
-  name = "Community Name",
-  avatar = "JH",
-  banner = "https://images.unsplash.com/photo-1503264116251-35a269479413",
-  membersCount = 0,
-  onlineCount = 0,
-  onCreatePost = () => {},
-  onJoin = () => {},
+  name,
+  avatar,
+  banner,
+  membersCount,
+  onlineCount,
+  isJoined,
+  communityId,
 }) {
+  const handleJoin = async () => {
+    if (isJoined) return;
+
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/communities/${communityId}/join`,
+        {},
+        { withCredentials: true }
+      );
+      window.location.reload(); // simple & safe for now
+    } catch {
+      alert("Failed to join community");
+    }
+  };
+
   return (
-    <Box className="community-header">
-      {/* Banner Image */}
-      <Box
+    <section className="community-header">
+      <div
         className="community-banner"
         style={{ backgroundImage: `url(${banner})` }}
       />
 
-      {/* Header Content */}
-      <Box className="community-header-content">
-        {/* Left: Avatar + Name */}
-        <Box className="community-left">
-          <Avatar className="community-avatar">{avatar}</Avatar>
+      <div className="community-header-inner">
+        <div className="community-info">
+          <div className="community-avatar">{avatar}</div>
 
-          <Box>
-            <Typography variant="h5" className="community-name">
-              r/{name}
-            </Typography>
-            <Typography variant="body2" className="community-meta">
-              {membersCount.toLocaleString()} members •{" "}
-              {onlineCount.toLocaleString()} online
-            </Typography>
-          </Box>
-        </Box>
+          <div>
+            <h1>b/{name}</h1>
+            <p>
+              {/* {membersCount.toLocaleString()} members •{" "}
+              {onlineCount.toLocaleString()} online */}
+            </p>
+          </div>
+        </div>
 
-        {/* Right: Buttons */}
-        <Box className="community-buttons">
-          <Button className="btn-create-post" onClick={onCreatePost}>
-            Create Post
-          </Button>
-          <Button className="btn-join" onClick={onJoin}>
-            Join
-          </Button>
-          <Button className="btn-options">⋮</Button>
-        </Box>
-      </Box>
-    </Box>
+        <div className="community-actions">
+          <button className="primary-btn">Create Post</button>
+
+          <button
+            className={`secondary-btn ${isJoined ? "joined" : ""}`}
+            onClick={handleJoin}
+          >
+            {isJoined ? "Joined" : "Join"}
+          </button>
+
+          <button className="icon-btn">⋯</button>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -1,90 +1,113 @@
-import React, { useState, useEffect } from "react";
 import "../styles/ActionBar.css";
 import { ArrowUp, ArrowDown, MessageCircle, Share2 } from "lucide-react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 
 export default function ActionBar({
+  postId,
   upvoteCount = 0,
   downvoteCount = 0,
   commentCount = 0,
   onHide,
-  onCommentClick
+  onCommentClick,
+  onVote,
+  currentUser
 }) {
-  // score = upvotes - downvotes
-  const initialScore = upvoteCount - downvoteCount;
+  const [userVote, setUserVote] = useState(null); // null | "upvote" | "downvote"
+  const [score, setScore] = useState(upvoteCount - downvoteCount);
 
-  const [vote, setVote] = useState(null); // "up" | "down" | null
-  const [score, setScore] = useState(initialScore);
+  useEffect(() => {
+    setScore(upvoteCount - downvoteCount);
+  }, [upvoteCount, downvoteCount]);
 
-  const handleUpvote = () => {
-    if (vote === "up") {
-      // remove upvote
-      setVote(null);
-      setScore((s) => s - 1);
-    } else if (vote === "down") {
-      // switch from down → up
-      setVote("up");
-      setScore((s) => s + 2);
-    } else {
-      // add upvote
-      setVote("up");
-      setScore((s) => s + 1);
+  const handleVote = async (type) => {
+    if (!currentUser) return;
+
+    let newScore = score;
+
+    // Optimistic UI
+    if (type === "upvote") {
+      if (userVote === "upvote") {
+        newScore -= 1;
+        setUserVote(null);
+      } else if (userVote === "downvote") {
+        newScore += 2;
+        setUserVote("upvote");
+      } else {
+        newScore += 1;
+        setUserVote("upvote");
+      }
+    } else if (type === "downvote") {
+      if (userVote === "downvote") {
+        newScore += 1;
+        setUserVote(null);
+      } else if (userVote === "upvote") {
+        newScore -= 2;
+        setUserVote("downvote");
+      } else {
+        newScore -= 1;
+        setUserVote("downvote");
+      }
     }
-  };
 
-  const handleDownvote = () => {
-    if (vote === "down") {
-      // remove downvote
-      setVote(null);
-      setScore((s) => s + 1);
-    } else if (vote === "up") {
-      // switch from up → down
-      setVote("down");
-      setScore((s) => s - 2);
-    } else {
-      // add downvote
-      setVote("down");
-      setScore((s) => s - 1);
+    setScore(newScore);
+
+    try {
+      const res = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/posts/${postId}`,
+        { action: type },
+        { withCredentials: true }
+      );
+
+      if (onVote) {
+        onVote({
+          postId,
+          upvoteCount: res.data.upvoteCount,
+          downvoteCount: res.data.downvoteCount,
+          userVote: type
+        });
+      }
+    } catch (err) {
+      console.error("Vote failed", err);
+      // Optional: revert UI
     }
   };
 
   return (
     <div className="action-bar">
-      {/* UPVOTE */}
-      <button className="btn vote_up" onClick={handleUpvote}>
-        <ArrowUp
-          size={20}
-          color={vote === "up" ? "#1976d2" : "gray"}
-          fill={vote === "up" ? "#1976d2" : "none"}
-        />
+      <button
+        className="btn vote_up"
+        onClick={() => handleVote("upvote")}
+        style={{
+          color: userVote === "upvote" ? "#1c7ed6" : "inherit"
+        }}
+      >
+        <ArrowUp size={20} />
       </button>
 
-      {/* SCORE */}
       <p className="vote-count">{score}</p>
 
-      {/* DOWNVOTE */}
-      <button className="btn vote_down" onClick={handleDownvote}>
-        <ArrowDown
-          size={20}
-          color={vote === "down" ? "#1976d2" : "gray"}
-          fill={vote === "down" ? "#1976d2" : "none"}
-        />
+      <button
+        className="btn vote_down"
+        onClick={() => handleVote("downvote")}
+        style={{
+          color: userVote === "downvote" ? "#1c7ed6" : "inherit"
+        }}
+      >
+        <ArrowDown size={20} />
       </button>
 
-      {/* COMMENTS */}
-      <button className="btn">
-        <MessageCircle size={20} 
-        onClick={onCommentClick}/>
+      <button className="btn" onClick={onCommentClick}>
+        <MessageCircle size={18} />
         <span>{commentCount}</span>
       </button>
 
-      {/* SHARE */}
       <button className="btn">
-        <Share2 size={20} />
+        <Share2 size={18} />
         <span>Share</span>
       </button>
 
-      {/* HIDE */}
-      <button className="btn" onClick={onHide}>
+      <button className="btn hide-btn" onClick={onHide}>
         Hide
       </button>
     </div>

@@ -17,61 +17,53 @@ import CommentSection from "./Components/CommentSection.jsx";
 // import Explore from "./Full Pages/Explore.jsx";
 // import CommunityPage from "./Full Pages/CommunityPage.jsx";
 import SidebarLeft from "./Components/SidebarLeft.jsx";
-import Notifications from"./Full Pages/Notifications.jsx"
-import CreateCommunity from"./Full Pages/CreateCommunity.jsx"
+import Notifications from "./Full Pages/Notifications.jsx";
+import CreateCommunity from "./Full Pages/CreateCommunity.jsx";
 import UserMenu from "./Components/UserMenu.jsx";
 import PrimarySearchAppBar from "./Components/PrimarySearchAppBar.jsx";
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Chats from "./Full Pages/Chats.jsx";
 import Explore from "./Full Pages/Explore.jsx";
 import Home from "./Full Pages/Home.jsx";
 import CreatePost from "./Full Pages/CreatePost.jsx";
 import CommunityPage from "./Full Pages/CommunityPage.jsx";
-import UserProfilePage from "./Components/UserProfilePage.jsx"
 import UserPage from "./Full Pages/UserPage.jsx";
 import BlueditAbout from "./Full Pages/BlueditAbout.jsx";
 import SignUp from "./Full Pages/Signup.jsx";
 import Popular from "./Full Pages/Popular.jsx";
 import Login from "./Full Pages/Login.jsx";
+import { useAuth } from "./Context/AuthContext";
+
 function App() {
+  const { authVersion } = useAuth(); // 🔥 trigger remount
+
   return (
     <BrowserRouter>
-    
-
-      {/* TOP BAR*/}
-      {/* <PrimarySearchAppBar loggedin={false} /> */}
-
-      {/*MAIN LAYOUT*/}
       <div style={{ display: "flex" }}>
-        
-        {/* LEFT SIDEBAR */}
-  
-        {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "20px", marginTop: "20px" }}>
           <Routes>
-            <Route path="/" element={<Home loggedin={false}/>} />
+            {/* Add key={authVersion} to force remount on logout */}
+            <Route path="/" element={<Home key={authVersion} />} />
+            <Route path="/Home" element={<Home key={authVersion} />} />
+            <Route path="/Popular" element={<Popular key={authVersion} />} />
+
             <Route path="/StartCommunity" element={<CreateCommunity />} />
-            <Route path="/Explore" element={<Explore  />} />
-            <Route path="/Home" element={<Home/>} />
-            <Route path="/Notifications" element={<Notifications />} />     
-            <Route path="/Chats" element={<Chats />}/>
+            <Route path="/Explore" element={<Explore />} />
+            <Route path="/Notifications" element={<Notifications />} />
+            <Route path="/Chats" element={<Chats />} />
             <Route path="/CreatePost" element={<CreatePost />} />
-             <Route path="/community/:communityID" element={<CommunityPage />} />
+            <Route path="/community/:communityID" element={<CommunityPage />} />
             <Route path="/Community" element={<CommunityPage />} />
-            <Route path="/Profile" element={<UserPage isOwn={false}/>} />
+            <Route path="/Profile" element={<UserPage isOwn={false} />} />
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
             <Route path="/About" element={<BlueditAbout />} />
-            <Route path="/Signup" element={<SignUp/>} />
-            <Route path="/Login" element={<Login/>} />
-            <Route path="/Popular" element={<Popular/>} />
+            <Route path="/Signup" element={<SignUp />} />
+            <Route path="/Login" element={<Login />} />
           </Routes>
         </div>
-
       </div>
-
     </BrowserRouter>
   );
 }
-
 
 export default App;
