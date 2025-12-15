@@ -19,8 +19,8 @@
   left: 0;
   width: 290px;
   height: calc(100vh - 64px);
-  background-color: #020617;
-  border-right: 1px solid #1F2933;
+  /* background-color: #020617;
+  border-right: 1px solid #1F2933; */
   overflow: hidden;
   z-index: 1200;
 }
