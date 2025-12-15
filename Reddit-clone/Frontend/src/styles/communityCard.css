@@ -1,18 +1,27 @@
+/* =========================
+   CONTAINER (inherits feedWrapper)
+========================= */
 .community {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
 }
 
+/* =========================
+   HEADER
+========================= */
 .community__header {
   background: #ffffff;
-  padding: 32px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
 }
 
 .community__header h1 {
   margin-bottom: 16px;
 }
 
+/* =========================
+   CATEGORIES
+========================= */
 .community__categories {
   display: flex;
   gap: 10px;
@@ -27,6 +36,7 @@
   color: #0079d3;
   cursor: pointer;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .category-btn.active {
@@ -34,22 +44,27 @@
   color: #ffffff;
 }
 
+/* =========================
+   SECTION TITLE
+========================= */
 .community__section-title {
-  padding: 24px 32px;
+  margin: 24px 0 16px;
   font-weight: 600;
-}
-
-.community__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
-  padding: 0 32px 32px;
+  color: #111827;
 }
 
 /* =========================
-   Card
+   COMMUNITY LIST (LIKE POSTS)
 ========================= */
+.community__list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 🔥 same spacing as posts */
+}
 
+/* =========================
+   CARD
+========================= */
 .community-card {
   background: #ffffff;
   border: 1px solid #e0e0e0;
@@ -88,14 +103,18 @@
 
 .community-card__info span {
   font-size: 13px;
-  color: #616161;
+  color: #6b7280;
 }
 
 .community-card__description {
   margin-top: 12px;
-  color: #424242;
+  color: #374151;
+  font-size: 14px;
 }
 
+/* =========================
+   JOIN BUTTON
+========================= */
 .join-btn {
   margin-left: auto;
   border-radius: 20px;
@@ -104,22 +123,20 @@
   color: #ffffff;
   border: none;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .join-btn.joined {
-  background: #f5f5f5;
+  background: #e6f2fb;
   color: #0079d3;
   border: 1px solid #0079d3;
 }
 
 /* =========================
-   Responsive
+   EMPTY STATE
 ========================= */
-
-@media (max-width: 600px) {
-  .community__header,
-  .community__section-title,
-  .community__grid {
-    padding: 16px;
-  }
+.community__empty {
+  text-align: center;
+  padding: 48px 0;
+  color: #6b7280;
 }

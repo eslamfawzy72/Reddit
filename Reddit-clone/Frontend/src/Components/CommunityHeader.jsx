@@ -56,7 +56,8 @@ export default function CommunityHeader({
             {isJoined ? "Joined" : "Join"}
           </button>
 
-          <button className="icon-btn">⋯</button>
+           <button className="leave-btn">Leave Community</button>
+
         </div>
       </div>
     </section>

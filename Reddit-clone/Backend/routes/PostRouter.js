@@ -15,7 +15,7 @@ router.post('/', protect, createPost)
 //get post by category
 router.get('/category/:postCategory', getPostByCategory)
 //get posts by comm id
-router.get("/community/:communityID", getPostsByCommunityID);
+router.get("/community/:communityID", protect,getPostsByCommunityID);
 //get post by id
 router.get('/:postID', getPostByID)
 //delete post by id

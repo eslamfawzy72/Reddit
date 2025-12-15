@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
-import SidebarLeft from "../Components/SidebarLeft";
-import SidebarRight from "../Components/SidebarRight";
 import CommunityHeader from "../Components/CommunityHeader";
+import SidebarRight from "../Components/SidebarRight";
+import SideBarLeft from "../Components/SidebarLeft";
 import PostCard from "../Components/PostCard";
 
 import "../styles/communityPage.css";
-import axios from "axios";
 
 function CommunityPage() {
   const { communityID } = useParams();
@@ -18,15 +18,21 @@ function CommunityPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCommunity = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/communities/${communityID}`,
-          { withCredentials: true }
-        );
+        const [communityRes, postsRes] = await Promise.all([
+          axios.get(
+            `${import.meta.env.VITE_API_URL}/communities/${communityID}`,
+            { withCredentials: true }
+          ),
+          axios.get(
+            `${import.meta.env.VITE_API_URL}/posts/community/${communityID}`,
+            { withCredentials: true }
+          ),
+        ]);
 
-        setCommunity(res.data);
-        setPosts(res.data.posts || []);
+        setCommunity(communityRes.data);
+        setPosts(postsRes.data || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -34,35 +40,65 @@ function CommunityPage() {
       }
     };
 
-    fetchCommunity();
+    fetchData();
   }, [communityID]);
 
   if (loading) {
     return <div className="community-loading">Loading community...</div>;
   }
 
- return (
-  <>
-    <div className="navbar">
+  return (
+    <>
       <PrimarySearchAppBar />
-    </div>
 
-    <div className="app-layout">
-      <main className="mainArea">
-        <CommunityHeader name={community.commName} />
+      <div className="community-layout">
+        {/* LEFT SIDEBAR */}
+        <aside className="left-sidebar">
+          <SideBarLeft />
+        </aside>
 
-        <div className="feedArea">
-          {/* Posts */}
-        </div>
-      </main>
+        {/* MAIN CONTENT */}
+        <main className="community-main">
+          <CommunityHeader
+            name={community.commName}
+            communityId={community._id}
+            isJoined={community.isJoined}
+          />
 
-      <aside className="rightSidebar">
-        <SidebarRight community={community} />
-      </aside>
-    </div>
-  </>
-);
+          <div className="community-feed">
+            {posts.length === 0 ? (
+              <div className="loadingPosts">No posts yet</div>
+            ) : (
+              posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  id={post._id}
+                  user_name={`u/${post.user?.userName || "Unknown"}`}
+                  user_avatar={
+                    post.user?.image || "https://i.pravatar.cc/48?img=1"
+                  }
+                  description={post.description}
+                  images={post.images || []}
+                  comments={post.comments}
+                  upvoteCount={post.upvoteCount || 0}
+                  downvoteCount={post.downvoteCount || 0}
+                  commentCount={post.commentCount || 0}
+                  date={post.createdAt}
+                  community_name={`b/${community.commName}`}
+                  edited={post.edited || false}
+                />
+              ))
+            )}
+          </div>
+        </main>
 
+        {/* RIGHT SIDEBAR */}
+        <aside className="right-sidebar">
+          <SidebarRight community={community} />
+        </aside>
+      </div>
+    </>
+  );
 }
 
 export default CommunityPage;

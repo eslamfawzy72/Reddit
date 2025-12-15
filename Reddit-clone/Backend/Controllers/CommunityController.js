@@ -48,23 +48,28 @@ export const getAllCommunities = async (req, res) => {
 // // Get a single community by ID
 export const getCommunityById = async (req, res) => {
   try {
+    const userId = req.user?._id;
+
     const community = await Community.findById(req.params.id)
-      .populate("members", "userName")
-      .populate("moderators", "userName");
-    if (!community) return res.status(404).json({ message: "Community not found" });
-    res.status(200).json(community);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-// Get a single community by ID
-export const getCommunityByName = async (req, res) => {
-  try {
-    const community = await Community.findById(req.params.commName)
-      .populate("members", "username")
-      .populate("moderators", "username");
-    if (!community) return res.status(404).json({ message: "Community not found" });
-    res.status(200).json(community);
+      .populate("members", "userName image")
+      .populate("moderators", "userName image");
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    // ✅ Same logic as getAllCommunities
+    const isJoined = Boolean(
+      userId &&
+      community.members.some(
+        (member) => member._id.toString() === userId.toString()
+      )
+    );
+
+    res.status(200).json({
+      ...community.toObject(),
+      isJoined,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -109,7 +114,6 @@ export const getCommunityByName = async (req, res) => {
 export const joinCommunity = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log("User ID attempting to join:", userId);
 
     const community = await Community.findById(req.params.id);
     if (!community)
@@ -125,17 +129,14 @@ export const joinCommunity = async (req, res) => {
       return res.status(400).json({ message: "Already a member" });
     }
 
-    console.log("Adding user to community members");
     community.members.push(userId);
 
     const user = await User.findById(userId);
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    console.log("Adding community to user's joined communities");
     user.joinedCommunities.push(community._id);
 
-    console.log("Saving changes");
     await Promise.all([
       community.save(),
       user.save()

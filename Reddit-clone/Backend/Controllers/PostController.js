@@ -306,14 +306,15 @@ export async function getPostsByCommunityID(req, res) {
     const { communityID } = req.params;
 
     // Fetch posts for this community, newest first
-    const posts = await Post.find()
+      const posts = await Post.find({ communityID }) 
   .populate({
     path: "userID",
     select: "userName image",
   })
+
   .populate({
     path: "communityID",
-    select: "commName", // ✅ add this
+    select: "commName",
   })
   .sort({ date: -1 });
 
@@ -327,8 +328,8 @@ export async function getPostsByCommunityID(req, res) {
     const formattedPosts = posts.map(post => ({
   _id: post._id,
   postID: post.postID,
-  communityID: post.communityID?._id,       // keep the ID
-  commName: post.communityID?.commName,     // ✅ add this
+  communityID: post.communityID?._id,      
+  commName: post.communityID?.commName,    
   categories: post.categories,
   description: post.description,
   images: post.images,

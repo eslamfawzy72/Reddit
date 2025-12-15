@@ -7,7 +7,7 @@
 }
 
 .community-banner {
-  height: 180px;
+  height: 96px;
   background-size: cover;
   background-position: center;
 }
@@ -85,6 +85,24 @@
   border: 1px solid #ddd;
   background: transparent;
   font-size: 20px;
+}
+.leave-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 20px;
+  font-weight: 600;
+}
+.leave-btn:hover {
+  background: #e04343;
+  cursor: pointer;
+}
+.primary-btn:hover,
+.secondary-btn:hover,
+.icon-btn:hover {
+  cursor: pointer;
+  opacity: 0.9;
 }
 
 /* Responsive */
