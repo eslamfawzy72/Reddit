@@ -1,29 +1,34 @@
 import React, { useState } from "react";
 import { Card, CardHeader, CardMedia, CardContent, CardActions, Collapse, Avatar, IconButton, Typography } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { styled } from "@mui/material/styles";
 
 import ActionBar from "./ActionBar";
 import CommentSection from "./CommentSection";
 import "../styles/PostCard.css";
 
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  marginLeft: "auto",
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  transition: theme.transitions.create("transform", { duration: theme.transitions.duration.shortest }),
-}));
-
-export default function PostCard({ id, user_name, user_avatar, description, images = [], comments = [], upvoteCount = 0, downvoteCount = 0, commentCount = 0, date, community_name, edited = false, onVote, currentUser }) {
+export default function PostCard({
+  id,
+  user_name,
+  user_avatar,
+  description,
+  images = [],
+  comments = [],
+  upvoteCount = 0,
+  downvoteCount = 0,
+  commentCount = 0,
+  date,
+  community_name,
+  edited = false,
+  onVote,
+  currentUser
+}) {
   const [expanded, setExpanded] = useState(false);
   const [index, setIndex] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
 
-  const handleExpandClick = () => setExpanded(!expanded);
+  const handleToggleComments = () => setExpanded(prev => !prev);
+
   const nextImage = () => setIndex((prev) => (prev + 1) % images.length);
   const prevImage = () => setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
@@ -68,17 +73,17 @@ export default function PostCard({ id, user_name, user_avatar, description, imag
           postId={id}
           upvoteCount={upvoteCount}
           downvoteCount={downvoteCount}
-          commentCount={commentCount}
+          commentCount={comments.length}
           onHide={() => setIsHidden(true)}
-          onVote={(voteData) => onVote(id, voteData)}
+          onVote={(voteData) => onVote && onVote(id, voteData)}
           currentUser={currentUser}
+          onCommentClick={handleToggleComments} // toggle comments when clicking comment icon
         />
-        <ExpandMore expand={expanded} onClick={handleExpandClick}><ExpandMoreIcon /></ExpandMore>
       </CardActions>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <CommentSection comments={comments} />
+          <CommentSection postId={id} comments={comments} />
         </CardContent>
       </Collapse>
     </Card>

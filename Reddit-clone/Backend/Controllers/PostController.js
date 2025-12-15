@@ -354,3 +354,22 @@ export async function getPostsByCommunityID(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
+
+// get all comments for a specific post
+export async function getCommentsByPostId(req,res) {
+  try{
+    const postid = req.params.id;
+    const post = await Post.findById(postid);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+    const comments = post.comments.sort((a, b) => new Date(b.date) - new Date(a.date))
+    return res.json(comments);
+    
+  }
+  catch(err){
+     return res.status(500).json({ error: err.message });
+  }
+  
+}

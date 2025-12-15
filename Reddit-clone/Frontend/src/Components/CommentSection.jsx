@@ -1,91 +1,152 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "../styles/commentSection.css";
 
-const Avatar = ({ username }) => (
-  <div className="avatar">
-    <span className="avatar-text">{username[0].toUpperCase()}</span>
-  </div>
-);
+const API = import.meta.env.VITE_API_URL;
 
-const VoteButtons = () => {
-  const [votes, setVotes] = useState(0);
+// Recursive component for a comment and its replies
+const CommentItem = ({ comment, onReply }) => {
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyText, setReplyText] = useState("");
+
+  const submitReply = async () => {
+    if (!replyText.trim()) return;
+
+    await onReply(comment._id, replyText);
+    setReplyText("");
+    setShowReplyBox(false);
+  };
 
   return (
-    <div className="vote-buttons">
-      <button className="vote-btn" onClick={() => setVotes(votes + 1)}>
-        ▲
-      </button>
-      <span className="vote-count">{votes}</span>
-      <button className="vote-btn" onClick={() => setVotes(votes - 1)}>
-        ▼
-      </button>
+    <div className="comment-item">
+      <div className="comment-body">
+        <div className="comment-header">
+          <span className="comment-username">{comment.username}</span>
+          <span className="comment-time">
+            {new Date(comment.date).toLocaleString()}
+          </span>
+        </div>
+
+        <p className="comment-text">{comment.text}</p>
+
+        <div className="action-bar">
+          <button onClick={() => setShowReplyBox(!showReplyBox)}>Reply</button>
+        </div>
+
+        {showReplyBox && (
+          <div className="reply-box"  style={{
+              marginTop: '0.5rem',
+              display: 'flex',
+              gap: '0.5rem',
+              padding: '0.5rem',
+              borderRadius: '8px',
+               border: 'none',
+              backgroundColor: '#f5f5f5'  // Light gray background
+            }}>
+            <input
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Write a reply..."
+               style={{
+                flex: 1,
+                padding: '0.4rem 0.6rem',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                 border: 'none',  // Light gray border instead of black
+                backgroundColor: '#fff',
+                color: '#333',
+                fontSize: '0.9rem'
+              }}
+            />
+            <button onClick={submitReply}>Post</button>
+          </div>
+        )}
+
+        {comment.replies?.length > 0 && (
+          <div className="replies">
+            {comment.replies.map((r) => (
+              <CommentItem key={r._id} comment={r} onReply={onReply} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-const ActionBar = ({ onReply }) => (
-  <div className="action-bar">
-    <button className="action-btn" onClick={onReply}>Reply</button>
-    <button className="action-btn">Share</button>
-    <button className="action-btn">Report</button>
-  </div>
-);
+// Recursive function to update a comment with its new reply
+const addReplyToComments = (comments, commentId, reply) => {
+  return comments.map((c) => {
+    if (c._id === commentId) {
+      return { ...c, replies: [...c.replies, reply] };
+    }
+    if (c.replies?.length > 0) {
+      return { ...c, replies: addReplyToComments(c.replies, commentId, reply) };
+    }
+    return c;
+  });
+};
 
-const CommentItem = ({ comment, onReply }) => (
-  <div className="comment-item">
-    <Avatar username={comment.username} />
+export default function CommentSection({ postId, comments = [] }) {
+  const [allComments, setAllComments] = useState(comments);
+  const [text, setText] = useState("");
 
-    <div className="comment-body">
-      <div className="comment-header">
-        <span className="comment-username">{comment.username}</span>
-        <span className="comment-time">{comment.time}</span>
-      </div>
+  
+  // ADD COMMENT
+  const handleAddComment = async () => {
+    if (!text.trim()) return;
+    try {
+      const res = await axios.post(
+        `${API}/comments/${postId}`,
+        { text },
+        { withCredentials: true }
+      );
 
-      <p className="comment-text">{comment.text}</p>
+      setAllComments((prev) => [...prev, res.data.comment]);
+      setText("");
+    } catch (err) {
+      console.error("Add comment failed", err);
+    }
+  };
 
-      <VoteButtons />
-      <ActionBar onReply={() => onReply(comment.id)} />
+  
+  // ADD REPLY
+  const handleAddReply = async (commentId, replyText) => {
+    if (!replyText.trim()) return;
 
-      {/* Replies */}
-      {comment.replies?.length > 0 && (
-        <div className="replies">
-          {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} onReply={onReply} />
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-);
+    try {
+      const res = await axios.post(
+        `${API}/comments/${postId}/${commentId}/reply`,
+        { text: replyText },
+        { withCredentials: true }
+      );
 
-export default function CommentSection({
-  username,
-  timestamp,
-  postContent,
-  comments,
-  onReply,
-}) {
+      setAllComments((prev) => addReplyToComments(prev, commentId, res.data.reply));
+    } catch (err) {
+      console.error("Add reply failed", err);
+    }
+  };
+
   return (
-    <div className="post-container">
-      {/* Post Header */}
-      <div className="post-header">
-        <Avatar username={username} />
-
-        <div className="post-user-info">
-          <p className="post-username">{username}</p>
-          <p className="post-time">{timestamp}</p>
-        </div>
+    <div className="comments-section">
+      {/* ADD COMMENT */}
+      <div className="add-comment">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Add a comment..."
+        />
+        <button onClick={handleAddComment}>Post</button>
       </div>
 
-      {/* Post Content */}
-      <p className="post-content">{postContent}</p>
-
-      {/* Comments */}
-      <div className="comments-section">
-        {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} onReply={onReply} />
-        ))}
-      </div>
+      {/* COMMENTS */}
+      {allComments.map((comment) => (
+        <CommentItem
+          key={comment._id}
+          comment={comment}
+          onReply={handleAddReply}
+        />
+      ))}
     </div>
   );
 }

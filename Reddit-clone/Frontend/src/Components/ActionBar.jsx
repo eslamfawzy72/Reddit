@@ -3,7 +3,16 @@ import { ArrowUp, ArrowDown, MessageCircle, Share2 } from "lucide-react";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 
-export default function ActionBar({ postId, upvoteCount, downvoteCount, commentCount, onHide, onVote, currentUser }) {
+export default function ActionBar({
+  postId,
+  upvoteCount = 0,
+  downvoteCount = 0,
+  commentCount = 0,
+  onHide,
+  onCommentClick,
+  onVote,
+  currentUser
+}) {
   const [userVote, setUserVote] = useState(null); // null | "upvote" | "downvote"
   const [score, setScore] = useState(upvoteCount - downvoteCount);
 
@@ -70,7 +79,7 @@ export default function ActionBar({ postId, upvoteCount, downvoteCount, commentC
         className="btn vote_up"
         onClick={() => handleVote("upvote")}
         style={{
-          color: userVote === "upvote" ? "#1c7ed6" : "inherit" // blue if active
+          color: userVote === "upvote" ? "#1c7ed6" : "inherit"
         }}
       >
         <ArrowUp size={20} />
@@ -82,13 +91,13 @@ export default function ActionBar({ postId, upvoteCount, downvoteCount, commentC
         className="btn vote_down"
         onClick={() => handleVote("downvote")}
         style={{
-          color: userVote === "downvote" ? "#1c7ed6" : "inherit" // blue if active
+          color: userVote === "downvote" ? "#1c7ed6" : "inherit"
         }}
       >
         <ArrowDown size={20} />
       </button>
 
-      <button className="btn">
+      <button className="btn" onClick={onCommentClick}>
         <MessageCircle size={18} />
         <span>{commentCount}</span>
       </button>
