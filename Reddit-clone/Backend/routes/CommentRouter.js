@@ -7,6 +7,7 @@ import {
   deleteComment,
   getCommentsByCategory
 } from "../Controllers/CommentController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -14,10 +15,10 @@ const router = express.Router();
 router.get("/:postID/:commId", getCommentByID);
 
 // Add a top-level comment to a post
-router.post("/:postID", addComment);
+router.post("/:postID",protect, addComment);
 
 // Add a reply to a specific comment
-router.post("/:postID/:commId/reply", addReply);
+router.post("/:postID/:commId/reply",protect, addReply);
 
 // Edit a comment or reply
 router.patch("/:postID/:commId", editComment);

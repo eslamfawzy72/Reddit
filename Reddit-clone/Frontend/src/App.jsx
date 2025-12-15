@@ -7,7 +7,7 @@
 // import * as React from 'react';
 // import { styled, alpha } from '@mui/material/styles';
 // import PrimarySearchAppBar from "./Components/PrimarySearchAppBar.jsx";
-// import CommentSection from "./Components/CommentSection.jsx";
+import CommentSection from "./Components/CommentSection.jsx";
 
 // import SidebarLeft from "./Components/SidebarLeft.jsx";
 

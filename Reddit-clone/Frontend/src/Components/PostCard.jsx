@@ -49,6 +49,9 @@ export default function PostCard({
   const [isHidden, setIsHidden] = React.useState(false);
 
   const handleExpandClick = () => setExpanded(!expanded);
+  const handleToggleComments = () => {
+  setExpanded(prev => !prev);
+};
 
   const nextImage = () => setIndex((prev) => (prev + 1) % images.length);
   const prevImage = () =>
@@ -107,23 +110,20 @@ export default function PostCard({
 
       {/* ACTION BAR */}
       <CardActions disableSpacing>
-        <ActionBar
-          upvoteCount={upvoteCount}
-          downvoteCount={downvoteCount}
-          commentCount={commentCount}
-          onHide={() => setIsHidden(true)}
-        />
-        <ExpandMore expand={expanded} onClick={handleExpandClick}>
-          <ExpandMoreIcon />
-        </ExpandMore>
-      </CardActions>
+  <ActionBar
+    upvoteCount={upvoteCount}
+    downvoteCount={downvoteCount}
+    commentCount={comments.length}
+    onHide={() => setIsHidden(true)}
+    onCommentClick={handleToggleComments} //  pass handler
+  />
+</CardActions>
 
-      {/* COMMENTS */}
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <CommentSection comments={comments} />
-        </CardContent>
-      </Collapse>
+<Collapse in={expanded} timeout="auto" unmountOnExit>
+  <CardContent>
+    <CommentSection postId={id} comments={comments} />
+  </CardContent>
+</Collapse>
     </Card>
   );
 }

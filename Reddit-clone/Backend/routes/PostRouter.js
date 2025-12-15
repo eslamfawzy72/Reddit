@@ -1,7 +1,7 @@
 import express from "express";
 import { getAllPosts,getPostByID,getPostByCategory
     ,createPost,getUserByID,deletePostByID,
-    getSummary, updatePostByID,getPostsByCommunityID} from "../Controllers/PostController.js";
+    getSummary, updatePostByID,getPostsByCommunityID,getCommentsByPostId} from "../Controllers/PostController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
@@ -24,5 +24,7 @@ router.get('/:postID/user/:userID',getUserByID)
 router.get('/:postID/summary',getSummary)
 //update post will be used in upvote and comment
 router.patch('/:postID',updatePostByID)
+//get all post comments
+router.get("/:postID/comments",getCommentsByPostId)
 
 export default router;

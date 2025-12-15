@@ -7,6 +7,7 @@ export default function ActionBar({
   downvoteCount = 0,
   commentCount = 0,
   onHide,
+  onCommentClick
 }) {
   // score = upvotes - downvotes
   const initialScore = upvoteCount - downvoteCount;
@@ -71,7 +72,8 @@ export default function ActionBar({
 
       {/* COMMENTS */}
       <button className="btn">
-        <MessageCircle size={20} />
+        <MessageCircle size={20} 
+        onClick={onCommentClick}/>
         <span>{commentCount}</span>
       </button>
 
