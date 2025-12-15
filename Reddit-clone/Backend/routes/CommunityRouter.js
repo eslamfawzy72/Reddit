@@ -12,12 +12,12 @@
  } from "../Controllers/CommunityController.js";
 // import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { protect } from "../middleware/authMiddleware.js";
-
+import optionalAuth from "../middleware/optionalAuth.js";
 const router = express.Router();
 
 // // Public routes
- router.get("/",getAllCommunities);
- router.get("/:id", getCommunityById);
+ router.get("/",optionalAuth,getAllCommunities);
+ router.get("/:id", optionalAuth,getCommunityById);
 // router.get("/name/:commName", getCommunityByName);
 
 // // Protected routes

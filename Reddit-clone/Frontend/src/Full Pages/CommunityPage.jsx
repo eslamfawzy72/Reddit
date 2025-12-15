@@ -1,73 +1,68 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box } from "@mui/material";
-import "../styles/communityPage.css"; // Import CSS
 
-import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
-import SidebarLeft from "../Components/SidebarLeft.jsx";
-import SidebarRight from "../Components/SidebarRight.jsx";
-import CommunityHeader from "../Components/communityheader.jsx";
-import PostCard from "../Components/PostCard.jsx"; // ← Make sure you import PostCard
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
+import SidebarLeft from "../Components/SidebarLeft";
+import SidebarRight from "../Components/SidebarRight";
+import CommunityHeader from "../Components/CommunityHeader";
+import PostCard from "../Components/PostCard";
 
-const mockPosts = [
-  // ... (keep all your mockPosts data here)
-];
+import "../styles/communityPage.css";
+import axios from "axios";
 
 function CommunityPage() {
   const { communityID } = useParams();
+
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  return (
-    <>
-      <Box className="background" />
+  useEffect(() => {
+    const fetchCommunity = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/communities/${communityID}`,
+          { withCredentials: true }
+        );
 
-      <Box className="navbar">
-        <PrimarySearchAppBar />
-      </Box>
+        setCommunity(res.data);
+        setPosts(res.data.posts || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      <Box className="leftSidebar">
-        <SidebarLeft />
-      </Box>
+    fetchCommunity();
+  }, [communityID]);
 
-      <Box className="mainArea">
-        <CommunityHeader />
+  if (loading) {
+    return <div className="community-loading">Loading community...</div>;
+  }
 
-        <Box className="feedArea">
-          <Box className="postsArea">
-            {mockPosts.length === 0 ? (
-              <Box className="loadingPosts">Loading posts...</Box>
-            ) : (
-              mockPosts.map((post) => (
-                <Box key={post._id} className="postCardWrapper">
-                  <PostCard
-                    id={post._id}
-                    user_name={post.user_name || "Unknown User"}
-                    user_avatar={post.user_avatar || "https://i.pravatar.cc/48?img=1"}
-                    description={post.description}
-                    images={post.images || []}
-                    comments={post.comments}
-                    upvoteCount={post.upvoteCount || 0}
-                    downvoteCount={post.downvoteCount || 0}
-                    commentCount={post.commentCount || 0}
-                    date={post.date}
-                    community_name={post.community_name || "b/unknown"}
-                    categories={post.categories || []}
-                    edited={post.edited || false}
-                  />
-                </Box>
-              ))
-            )}
-          </Box>
+ return (
+  <>
+    <div className="navbar">
+      <PrimarySearchAppBar />
+    </div>
 
-          <Box className="rightSidebar">
-            <SidebarRight />
-          </Box>
-        </Box>
-      </Box>
-    </>
-  );
+    <div className="app-layout">
+      <main className="mainArea">
+        <CommunityHeader name={community.commName} />
+
+        <div className="feedArea">
+          {/* Posts */}
+        </div>
+      </main>
+
+      <aside className="rightSidebar">
+        <SidebarRight community={community} />
+      </aside>
+    </div>
+  </>
+);
+
 }
 
 export default CommunityPage;
