@@ -3,11 +3,11 @@
 //   createCommunity,
    getAllCommunities,
   getCommunityById,
-   joinCommunity
+   joinCommunity,
 //   updateCommunity,
 //   deleteCommunity,
   
-//   leaveCommunity,
+  leaveCommunity,
 //   getCommunityByName,
  } from "../Controllers/CommunityController.js";
 // import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -27,6 +27,6 @@ const router = express.Router();
 // router.delete("/:id", authMiddleware, deleteCommunity);
 
  router.post("/:id/join",protect , joinCommunity);
-// router.post("/:id/leave", authMiddleware, leaveCommunity);
+ router.post("/:id/leave", protect, leaveCommunity);
 
  export default router;

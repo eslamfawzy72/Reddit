@@ -6,6 +6,7 @@ import {
 } from "../Controllers/PostController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
+import optionalAuth from "../middleware/optionalAuth.js";
 const router = express.Router();
 
 //get all Posts
@@ -15,7 +16,7 @@ router.post('/', protect, createPost)
 //get post by category
 router.get('/category/:postCategory', getPostByCategory)
 //get posts by comm id
-router.get("/community/:communityID", protect,getPostsByCommunityID);
+router.get("/community/:communityID", optionalAuth,getPostsByCommunityID);
 //get post by id
 router.get('/:postID', getPostByID)
 //delete post by id

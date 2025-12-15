@@ -58,7 +58,6 @@ export const getCommunityById = async (req, res) => {
       return res.status(404).json({ message: "Community not found" });
     }
 
-    // ✅ Same logic as getAllCommunities
     const isJoined = Boolean(
       userId &&
       community.members.some(
@@ -154,23 +153,35 @@ export const joinCommunity = async (req, res) => {
 
 
 // // Leave community
-// export const leaveCommunity = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.id);
-//     if (!community) return res.status(404).json({ message: "Community not found" });
-
-//     community.members = community.members.filter(
-//       (memberId) => memberId.toString() !== req.user._id.toString()
-//     );
-
-//     // Also remove from moderators if leaving
-//     community.moderators = community.moderators.filter(
-//       (modId) => modId.toString() !== req.user._id.toString()
-//     );
-
-//     await community.save();
-//     res.status(200).json({ message: "Left the community" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+export const leaveCommunity = async (req, res) => {
+const communityId = req.params.id;
+const userId = req.user._id;
+console.log("User ID leaving community:", userId);
+console.log("Community ID to leave:", communityId);
+  try {
+    const community = await Community.findById(communityId);
+    if (!community) return res.status(404).json({ message: "Community not found" });
+    console.log("Current members before leaving:", community.members);
+    community.members = community.members.filter(
+      (memberId) => memberId.toString() !== userId.toString()
+    );
+    console.log("Members after leaving:", community.members);
+    // Also remove from moderators if leaving
+    community.moderators = community.moderators.filter(
+      (modId) => modId.toString() !== userId.toString()
+    );
+    console.log("Moderators after leaving:", community.moderators);
+    await User.findByIdAndUpdate(userId, {
+      $pull: { joinedCommunities: communityId },
+    }).exec();
+    console.log("User's joined communities updated.");
+    await Promise.all([
+      community.save(),
+     
+    ]);
+    console.log("User updated after user left.");
+    res.status(200).json({ message: "Left the community" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

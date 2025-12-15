@@ -1,7 +1,9 @@
 import React from "react";
 import "../styles/communityHeader.css";
 import axios from "axios";
+import { useAuth } from "../Context/AuthContext";
 
+import { toast } from "react-hot-toast";
 export default function CommunityHeader({
   name,
   avatar,
@@ -11,18 +13,57 @@ export default function CommunityHeader({
   isJoined,
   communityId,
 }) {
-  const handleJoin = async () => {
-    if (isJoined) return;
+    const { isLoggedIn } = useAuth();
+  
+  // const handleJoin = async () => {
+  //   if (isJoined) return;
 
+  //   try {
+  //     await axios.post(
+  //       `${import.meta.env.VITE_API_URL}/communities/${communityId}/join`,
+  //       {},
+  //       { withCredentials: true }
+  //     );
+  //     window.location.reload(); // simple & safe for now
+  //   } catch {
+  //     alert("Failed to join community");
+  //   }
+  // };
+  
+  const handleJoin = async (e) => {
+    e.stopPropagation();
+    if (isJoined) return;
+    if(!isLoggedIn){
+      alert("Please log in to join communities.");
+      navigate("/login");
+      return;
+    }
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}/join`,
         {},
         { withCredentials: true }
       );
-      window.location.reload(); // simple & safe for now
+       window.location.reload(); 
+
+    
     } catch {
       alert("Failed to join community");
+    }
+  };
+const handleLeave = async () => {
+    if (!isJoined) return;
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/Communities/${communityId}/leave`,
+        {},
+        { withCredentials: true }
+      );
+      alert("Left the community");
+      // toast.success("Left the community");
+      window.location.reload(); // simple & safe for now
+    } catch {
+      alert("Failed to leave community");
     }
   };
 
@@ -55,9 +96,9 @@ export default function CommunityHeader({
           >
             {isJoined ? "Joined" : "Join"}
           </button>
-
-           <button className="leave-btn">Leave Community</button>
-
+            {isJoined&&(
+           <button className="leave-btn"    onClick={handleLeave}>Leave Community</button>
+)}
         </div>
       </div>
     </section>

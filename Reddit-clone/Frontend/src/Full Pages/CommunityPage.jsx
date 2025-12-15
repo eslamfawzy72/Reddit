@@ -64,32 +64,41 @@ function CommunityPage() {
             communityId={community._id}
             isJoined={community.isJoined}
           />
+      <div className="community-feed">
+  {(community.privacystate === "public" ||
+    (community.privacystate === "private" && community.isJoined)) ? (
 
-          <div className="community-feed">
-            {posts.length === 0 ? (
-              <div className="loadingPosts">No posts yet</div>
-            ) : (
-              posts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  id={post._id}
-                  user_name={`u/${post.user?.userName || "Unknown"}`}
-                  user_avatar={
-                    post.user?.image || "https://i.pravatar.cc/48?img=1"
-                  }
-                  description={post.description}
-                  images={post.images || []}
-                  comments={post.comments}
-                  upvoteCount={post.upvoteCount || 0}
-                  downvoteCount={post.downvoteCount || 0}
-                  commentCount={post.commentCount || 0}
-                  date={post.createdAt}
-                  community_name={`b/${community.commName}`}
-                  edited={post.edited || false}
-                />
-              ))
-            )}
-          </div>
+    posts.length === 0 ? (
+      <div className="loadingPosts">No posts yet</div>
+    ) : (
+      posts.map((post) => (
+        <PostCard
+          key={post._id}
+          id={post._id}
+          user_name={`u/${post.user?.userName || "Unknown"}`}
+          user_avatar={
+            post.user?.image || "https://i.pravatar.cc/48?img=1"
+          }
+          description={post.description}
+          images={post.images || []}
+          comments={post.comments}
+          upvoteCount={post.upvoteCount || 0}
+          downvoteCount={post.downvoteCount || 0}
+          commentCount={post.commentCount || 0}
+          date={post.createdAt}
+          community_name={`b/${community.commName}`}
+          edited={post.edited || false}
+        />
+      ))
+    )
+
+  ) : (
+    <div className="loadingPosts">
+      This is a private community. Join to see the posts.
+    </div>
+  )}
+</div>
+
         </main>
 
         {/* RIGHT SIDEBAR */}
