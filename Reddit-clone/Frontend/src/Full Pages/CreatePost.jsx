@@ -22,7 +22,7 @@ const redditTags = [
   { title: 'NextJS' }, { title: 'TypeScript' }, { title: 'NodeJS' }, { title: 'CSS' },
 ];
 
-function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions, mediaFiles, setMediaFiles, description, setDescription }) {
+function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions,  pollTitle, setPollTitle,setPollOptions, mediaFiles, setMediaFiles, description, setDescription }) {
   const types = ['Text', 'Media', 'Poll'];
 
   const handleFileChange = (e) => {
@@ -58,25 +58,23 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
             color={typeChosen === type ? 'primary' : 'default'}
             onClick={() => {
               setTypeChosen(type);
-              if (type !== 'Media') setMediaFiles([]);
             }}
             className={`type-chip ${typeChosen === type ? 'active' : ''}`}
           />
         ))}
       </Box>
 
-      {typeChosen === 'Text' && (
-        <TextField
-          placeholder="Text (optional)"
-          variant="outlined"
-          multiline
-          rows={8}
-          inputProps={{ maxLength: 1000 }}
-          className="text-post-field"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      )}
+      {/* Always show description so users can add text together with media or polls. */}
+      <TextField
+        placeholder="Text (optional)"
+        variant="outlined"
+        multiline
+        rows={typeChosen === 'Text' ? 8 : 4}
+        inputProps={{ maxLength: 1000 }}
+        className="text-post-field"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
 
       {typeChosen === 'Media' && (
         <Box className="media-post-container">
@@ -115,6 +113,15 @@ function PostTypeFilter({ typeChosen, setTypeChosen, pollOptions, setPollOptions
 
       {typeChosen === 'Poll' && (
         <Box className="poll-options-container">
+          <TextField
+  placeholder="Poll question"
+  variant="outlined"
+  value={pollTitle}
+  onChange={(e) => setPollTitle(e.target.value)}
+  className="poll-question-field"
+  inputProps={{ maxLength: 200 }}
+/>
+
           {pollOptions.map((option, index) => (
             <TextField
               key={index}
@@ -201,6 +208,7 @@ function ComboBox({ value, onChange, options = [] }) {
 function CreatePost() {
   const [typeChosen, setTypeChosen] = React.useState('Text');
   const [pollOptions, setPollOptions] = React.useState(['', '']);
+  const [pollTitle, setPollTitle] = React.useState('');
   const [mediaFiles, setMediaFiles] = React.useState([]);
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -224,7 +232,7 @@ function CreatePost() {
     // fetch available communities for the dropdown
     (async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/communities`, { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/communities`, { withCredentials: true });
         setCommunities(res.data || []);
       } catch (err) {
         console.error('Failed to load communities', err);
@@ -240,8 +248,7 @@ function CreatePost() {
       return;
     }
 
-    // Build description: include title + body
-    const fullDescription = title ? (title + '\n\n' + description) : description;
+    // Keep title and description separate; send description only
 
     // convert selected media files to data URLs so backend can store them in `images`
     const fileToDataUrl = (file) => new Promise((resolve, reject) => {
@@ -265,7 +272,7 @@ function CreatePost() {
     const payload = {
       userId: currentUser._id,
       title: title,
-      imgs,
+      images: imgs,
       upvotedCount: 0,
       downvotedCount: 0,
       commentCount: 0,
@@ -281,7 +288,7 @@ function CreatePost() {
       if (cleanedOptions.length < 2) return alert('Please provide at least two poll options.');
       payload.poll = {
         isPoll: true,
-        question: title || description || 'Poll',
+        question:  pollTitle || 'Poll',
         options: cleanedOptions,
       };
     }
@@ -322,6 +329,8 @@ function CreatePost() {
               typeChosen={typeChosen}
               setTypeChosen={setTypeChosen}
               pollOptions={pollOptions}
+             setPollTitle={setPollTitle}
+               pollTitle={pollTitle}  
               setPollOptions={setPollOptions}
               mediaFiles={mediaFiles}
               setMediaFiles={setMediaFiles}

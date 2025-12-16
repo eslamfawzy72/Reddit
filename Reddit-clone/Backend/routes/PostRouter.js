@@ -25,7 +25,7 @@ router.post('/', protect, createPost);
 router.get('/category/:postCategory', getPostByCategory);
 
 // Get posts by community ID
-router.get("/community/:communityID", getPostsByCommunityID);
+router.get("/community/:communityID", protect, getPostsByCommunityID);
 
 // Get post by ID
 router.get('/:postID', getPostByID);

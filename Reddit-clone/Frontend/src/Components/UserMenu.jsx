@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Menu, MenuItem, Avatar, IconButton, Typography, Box, Divider } from "@mui/material";
+import {
+  Menu,
+  MenuItem,
+  Avatar,
+  IconButton,
+  Typography,
+  Box,
+  Divider,
+  Switch,
+} from "@mui/material";
+
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import Brightness2Icon from "@mui/icons-material/Brightness2";
+
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../Context/AuthContext";
@@ -10,13 +23,17 @@ import "../styles/userMenu.css";
 export default function UserMenu() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Fetch current user from API (like Chats.jsx)
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
-      .then(res => setCurrentUser(res.data.user))
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/auth/me`, {
+        withCredentials: true,
+      })
+      .then((res) => setCurrentUser(res.data.user))
       .catch(() => setCurrentUser(null));
   }, []);
 
@@ -25,8 +42,12 @@ export default function UserMenu() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, { withCredentials: true });
-      logout(); // 🔥 triggers authVersion increment → rerenders Home/Popular
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      logout();
       handleClose();
       navigate("/Home");
     } catch (err) {
@@ -50,7 +71,6 @@ export default function UserMenu() {
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         className="um-menu"
       >
-        {/* Header with username & email */}
         {currentUser && (
           <Box sx={{ px: 2, py: 1 }}>
             <Typography variant="subtitle1" fontWeight="bold">
@@ -61,6 +81,7 @@ export default function UserMenu() {
             </Typography>
           </Box>
         )}
+
         {currentUser && <Divider sx={{ my: 1 }} />}
 
         <MenuItem
@@ -72,6 +93,7 @@ export default function UserMenu() {
         >
           <AccountCircleIcon className="um-icon" /> View Profile
         </MenuItem>
+
         <MenuItem
           onClick={() => {
             navigate("/CreatePost");
@@ -81,9 +103,11 @@ export default function UserMenu() {
         >
           <DraftsIcon className="um-icon" /> Create Post
         </MenuItem>
+
         <MenuItem onClick={handleClose} className="um-menu-item">
           <DraftsIcon className="um-icon" /> Notifications
         </MenuItem>
+
         <MenuItem className="um-menu-item">
           <Brightness2Icon className="um-icon" /> Dark Mode
           <Switch
@@ -92,6 +116,7 @@ export default function UserMenu() {
             className="um-switch"
           />
         </MenuItem>
+
         <MenuItem onClick={handleLogout} className="um-menu-item">
           <LogoutIcon className="um-icon" /> Log Out
         </MenuItem>

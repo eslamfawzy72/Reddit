@@ -319,8 +319,15 @@ export const updatePostByID = async (req, res) => {
 
       await user.save();
       await post.save({ validateBeforeSave: false });
+return res.json({
+  poll: {
+    ...post.poll.toObject(),
+    userOptionId: user.pollVotes.find(
+      v => v.post.toString() === postID
+    )?.option || null
+  }
+});
 
-      return res.json({ poll: post.poll });
     }
 
     await user.save();

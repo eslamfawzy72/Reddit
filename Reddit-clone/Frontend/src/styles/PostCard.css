@@ -93,8 +93,10 @@
 
 /* Dedicated title area */
 .post-title-area {
-  padding: 10px 16px 6px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding: 12px 16px 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  margin-bottom: 8px;
 }
 .post-title {
   font-size: 1.125rem;
@@ -102,6 +104,20 @@
   font-weight: 700;
   letter-spacing: -0.2px;
 }
+
+/* small visual separator line under the title */
+.post-title-area::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.03);
+}
+
+/* Header sub-elements: community below username */
+.post-subheader { display: flex; flex-direction: column; }
+.post-community { color: #9ca3af; font-size: 13px; margin-top: 2px; }
+.post-meta { color: #6b7280; font-size: 12px; margin-top: 2px; }
 
 /* Poll styles: show options as simple labels (non-interactive)
    — no vote counts, no user-specific styling */
@@ -164,4 +180,12 @@
 /* CardContent wrapper for poll to match description/title spacing */
 .poll-cardcontent {
   padding: 8px 16px 12px 16px;
+}
+
+/* Highlight selected poll option */
+.poll-option-btn.selected {
+  background: rgba(29, 155, 240, 0.15);
+  border-color: rgba(29, 155, 240, 0.6);
+  color: #ffffff;
+  font-weight: bold;
 }

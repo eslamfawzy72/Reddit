@@ -16,16 +16,11 @@ function Home() {
 
   // 🔐 Auth check
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
+    axios.get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
       .catch(() => setCurrentUser(null));
   }, []);
 
- 
-
- 
-
-  // 🟢 Load feed
   useEffect(() => {
     if (currentUser === undefined) return;
 
@@ -49,13 +44,18 @@ function Home() {
 
         const postsArrays = await Promise.all(
           communities.map(c =>
-            axios.get(`${API}/posts/community/${c._id}`)
+            axios.get(`${API}/posts/community/${c._id}`, { withCredentials: true })
               .then(r => r.data)
               .catch(() => [])
           )
         );
-
-        const mergedPosts = postsArrays.flat().sort((a, b) => new Date(b.date) - new Date(a.date));
+const mergedPosts = Array.from(
+  new Map(
+    postsArrays
+      .flat()
+      .map(post => [post._id, post])
+  ).values()
+).sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const initialVotes = {};
         mergedPosts.forEach(p => {
@@ -75,13 +75,6 @@ function Home() {
     loadFeed();
   }, [currentUser]);
 
-  // 🔥 Upvote/downvote handling
-  const handleVote = (postId, voteData) => {
-    const { upvoteCount, downvoteCount } = voteData;
-    setVoteCounts(prev => ({ ...prev, [postId]: { upvoteCount, downvoteCount } }));
-  };
-
-  // 🔍 Search function for PrimarySearchAppBar
  const searchFunction = async (query) => {
   if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
 
@@ -148,18 +141,17 @@ function Home() {
     user_name={`u/${post.user?.userName || "Unknown"}`}
     user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
     description={post.description}
-       title={post.title}
+    title={post.title}
     images={post.images || []}
     comments={post.comments}
     upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
     downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
     commentCount={post.commentCount || 0}
     date={post.date}
-    community_name={`b/${post.commName || "unknown"}`}
+    community_name={`b/${post.community_name || "unknown"}`}
     edited={post.edited || false}
-    onVote={handleVote}
     currentUser={currentUser}
-      poll={post.poll}
+    poll={post.poll}
   />
 ))
 
