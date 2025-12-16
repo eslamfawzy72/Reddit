@@ -164,3 +164,57 @@
 .comment-item .action-bar button:hover {
   background-color: #0056b3; /* darker blue on hover */
 }
+
+/* Container for edit input + buttons */
+.comment-edit-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Edit text input */
+.comment-edit-box input {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  color: #333;
+  background-color: #fff;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.comment-edit-box input:focus {
+  border-color: #007bff; /* Blue border when focused */
+}
+
+/* Save and Cancel buttons */
+.comment-edit-box button {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Save button style */
+.comment-edit-box button.save-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.comment-edit-box button.save-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Cancel button style */
+.comment-edit-box button.cancel-btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.comment-edit-box button.cancel-btn:hover {
+  background-color: #d9d9d9;
+}

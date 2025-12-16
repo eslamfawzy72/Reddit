@@ -11,8 +11,41 @@ import "../styles/explore.css";
 function Explore() {
   const location = useLocation();
   const isLoggedIn = location.state?.isLoggedIn || false;
-
+const API = import.meta.env.VITE_API_URL;
   const [communities, setCommunities] = useState([]);
+ const searchcomms = async (query) => {
+  if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+
+  try {
+    // fetch users
+   
+
+    // fetch communities
+    const commRes = await axios.get(`${API}/communities`);
+    const communities = (commRes.data || [])
+      .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+      .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+
+    const results = [...communities];
+
+    const renderItem = (item) => (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+          alt=""
+          style={{ width: 32, height: 32, borderRadius: "50%" }}
+        />
+        <span>{item.label} ({item.type})</span>
+      </div>
+    );
+
+    return { results, renderItem };
+  } catch (err) {
+    console.error("Search error:", err);
+    return { results: [], renderItem: null }; // ✅ fallback
+  }
+};
+
 
   useEffect(() => {
     axios
@@ -25,7 +58,7 @@ function Explore() {
           description: c.description,
           memberCount: c.memberCount || `${c.members.length}`,
           category: c.category || "General",
-           isJoined: c.isJoined,
+          isJoined: c.isJoined,
           color: "#0079D3",
           emoji: c.commName.charAt(0).toUpperCase(),
         }));
@@ -37,8 +70,15 @@ function Explore() {
 
   return (
     <div className="explore">
-      <header className="explore__navbar">
-        <PrimarySearchAppBar loggedin={isLoggedIn} />
+      {/* Fixed navbar z-index */}
+      <header
+        className="explore__navbar"
+        style={{ position: "sticky", top: 0, zIndex: 2000 }}
+      >
+        <PrimarySearchAppBar
+          loggedin={isLoggedIn}
+          dropdownStyle={{ zIndex: 2100 } } searchFunction={searchcomms} // pass custom z-index to dropdown
+        />
       </header>
 
       <aside className="explore__sidebar">
@@ -46,9 +86,16 @@ function Explore() {
       </aside>
 
       <main className="explore__content">
-        <CommunityCard communities={communities}
-        setCommunities={setCommunities} />
-      </main>
+  <CommunityCard communities={communities} setCommunities={setCommunities}>
+    <div className="communityCard__scroll">
+      {communities.map((c) => (
+        <div key={c._id} className="communityCard__item">
+          <span>{c.displayName}</span>
+        </div>
+      ))}
+    </div>
+  </CommunityCard>
+</main>
     </div>
   );
 }
