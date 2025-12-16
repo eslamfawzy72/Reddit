@@ -1,20 +1,110 @@
  import Community from "../Models/Community.js";
 import User from "../Models/User.js";
 // // Create a new community
-// export const createCommunity = async (req, res) => {
-//   try {
-//     const newCommunity = new Community({
-//       ...req.body,
-//       created_by: req.user._id, // requires auth middleware
-//       moderators: [req.user._id], // creator is the first moderator
-//       members: [req.user._id], // creator joins automatically
-//     });
-//     const savedCommunity = await newCommunity.save();
-//     res.status(201).json(savedCommunity);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+export const createCommunity = async (req, res) => {
+  try {
+    const newCommunity = new Community({
+      ...req.body,
+      created_by: req.user._id,  
+      members: [req.user._id],   
+    });
+    const savedCommunity = await newCommunity.save();
+    res.status(201).json(savedCommunity);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+//promote member to modreator
+export const promoteToModerator = async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    const { userId } = req.body;
+    const requesterId = req.user._id;
+
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const isAdmin =
+      community.created_by.equals(requesterId) ||
+      community.moderators.some(id => id.equals(requesterId));
+
+    if (!isAdmin) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    if (community.moderators.some(id => id.equals(userId))) {
+      return res.status(400).json({ message: "Already a moderator" });
+    }
+
+    community.moderators.push(userId);
+    await community.save();
+
+    return res.status(200).json({
+      message: "User promoted to moderator",
+      userId,
+    });
+
+  } catch (err) {
+    console.error("Promote error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+//demote moderator to member
+
+
+export const demoteModerator = async (req, res) => {
+  const { communityId } = req.params;
+  const { userId } = req.body; // moderator to demote
+  const currentUserId = req.user._id;
+
+  try {
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    //Only admin can demote
+    if (community.created_by.toString() !== currentUserId.toString()) {
+      return res.status(403).json({ message: "Only admin can demote moderators" });
+    }
+
+    
+    if (userId.toString() === currentUserId.toString()) {
+      return res.status(409).json({ message: "Admin cannot demote themselves" });
+    }
+
+   
+    // const isModerator = community.moderators.some(
+    //   (modId) => modId.toString() === userId.toString()
+    // );
+
+    // if (!isModerator) {
+    //   return res.status(400).json({ message: "User is not a moderator" });
+    // }
+
+    
+    community.moderators = community.moderators.filter(
+      (modId) => modId.toString() !== userId.toString()
+    );
+
+    await community.save();
+
+    return res.status(200).json({
+      message: "Moderator demoted successfully",
+      demotedUserId: userId,
+    });
+
+  } catch (err) {
+    console.error("Demote moderator error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
 
 // // Get all communities (with optional search)
 export const getAllCommunities = async (req, res) => {
@@ -48,23 +138,29 @@ export const getAllCommunities = async (req, res) => {
 // // Get a single community by ID
 export const getCommunityById = async (req, res) => {
   try {
+    const userId = req.user?._id;
+
     const community = await Community.findById(req.params.id)
-      .populate("members", "userName")
-      .populate("moderators", "userName");
-    if (!community) return res.status(404).json({ message: "Community not found" });
-    res.status(200).json(community);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-// Get a single community by ID
-export const getCommunityByName = async (req, res) => {
-  try {
-    const community = await Community.findById(req.params.commName)
-      .populate("members", "username")
-      .populate("moderators", "username");
-    if (!community) return res.status(404).json({ message: "Community not found" });
-    res.status(200).json(community);
+      .populate("members", "userName image")
+      .populate("moderators", "userName image")
+      .populate("created_by", "userName image")
+      ;
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const isJoined = Boolean(
+      userId &&
+      community.members.some(
+        (member) => member._id.toString() === userId.toString()
+      )
+    );
+    console.log("Community:", community.commName, "isJoined:", isJoined,"created_by:",community.created_by  );
+    res.status(200).json({
+      ...community.toObject(),
+      isJoined,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -90,26 +186,28 @@ export const getCommunityByName = async (req, res) => {
 
 
 // // Delete community (only moderators)
-// export const deleteCommunity = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.id);
-//     if (!community) return res.status(404).json({ message: "Community not found" });
-
-//     if (!community.moderators.includes(req.user._id))
-//       return res.status(403).json({ message: "Not authorized" });
-
-//     await community.deleteOne();
-//     res.status(200).json({ message: "Community deleted successfully" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+export const deleteCommunity = async (req, res) => {
+  try {
+ 
+    const community = await Community.findById(req.params.id);
+    
+    if (!community) return res.status(404).json({ message: "Community not found" });
+  
+    if (!community.created_by.equals(req.user._id))
+      return res.status(403).json({ message: "Not authorized" });
+    
+    await community.deleteOne();
+  
+    res.status(200).json({ message: "Community deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // // Join community
 export const joinCommunity = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log("User ID attempting to join:", userId);
 
     const community = await Community.findById(req.params.id);
     if (!community)
@@ -125,17 +223,14 @@ export const joinCommunity = async (req, res) => {
       return res.status(400).json({ message: "Already a member" });
     }
 
-    console.log("Adding user to community members");
     community.members.push(userId);
 
     const user = await User.findById(userId);
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    console.log("Adding community to user's joined communities");
     user.joinedCommunities.push(community._id);
 
-    console.log("Saving changes");
     await Promise.all([
       community.save(),
       user.save()
@@ -153,23 +248,79 @@ export const joinCommunity = async (req, res) => {
 
 
 // // Leave community
-// export const leaveCommunity = async (req, res) => {
-//   try {
-//     const community = await Community.findById(req.params.id);
-//     if (!community) return res.status(404).json({ message: "Community not found" });
+export const leaveCommunity = async (req, res) => {
+  const communityId = req.params.id;
+  const userId = req.user._id;
 
-//     community.members = community.members.filter(
-//       (memberId) => memberId.toString() !== req.user._id.toString()
-//     );
+  try {
+    const community = await Community.findById(communityId);
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
 
-//     // Also remove from moderators if leaving
-//     community.moderators = community.moderators.filter(
-//       (modId) => modId.toString() !== req.user._id.toString()
-//     );
+    const isCreator = community.created_by.equals(userId);
 
-//     await community.save();
-//     res.status(200).json({ message: "Left the community" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+    // If creator is the only member → prevent leaving (or delete)
+    if (isCreator && community.members.length === 1) {
+      return res.status(400).json({
+        message: "You cannot leave a community you own as the only member",
+      });
+    }
+
+ 
+     //  REMOVE USER FROM MEMBERS
+    
+    community.members = community.members.filter(
+      (id) => !id.equals(userId)
+    );
+
+    
+       //REMOVE USER FROM MODERATORS
+ 
+    community.moderators = community.moderators.filter(
+      (id) => !id.equals(userId)
+    );
+
+    /* ----------------------------
+       HANDLE CREATOR LEAVING
+    ---------------------------- */
+    if (isCreator) {
+      let newCreator = null;
+
+      // Pick another moderator
+      if (community.moderators.length > 0) {
+        newCreator = community.moderators[0];
+      }
+      // Else pick a member
+      else if (community.members.length > 0) {
+        newCreator = community.members[0];
+        community.moderators.push(newCreator); // promote to moderator
+      }
+
+      if (!newCreator) {
+        return res.status(400).json({
+          message: "No eligible user to transfer ownership",
+        });
+      }
+
+      community.created_by = newCreator;
+    }
+
+    /* ----------------------------
+       UPDATE USER DOC
+    ---------------------------- */
+    await User.findByIdAndUpdate(userId, {
+      $pull: { joinedCommunities: communityId },
+    });
+
+    await community.save();
+
+    res.status(200).json({
+      message: "Left the community successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+

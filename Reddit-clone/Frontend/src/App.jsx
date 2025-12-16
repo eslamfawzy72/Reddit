@@ -16,6 +16,7 @@ import CommentSection from "./Components/CommentSection.jsx";
 // import CommunityCard from "./Components/CommunityCard.jsx";
 // import Explore from "./Full Pages/Explore.jsx";
 // import CommunityPage from "./Full Pages/CommunityPage.jsx";
+// import "App.css";
 import SidebarLeft from "./Components/SidebarLeft.jsx";
 import Notifications from "./Full Pages/Notifications.jsx";
 import CreateCommunity from "./Full Pages/CreateCommunity.jsx";
@@ -41,12 +42,12 @@ function App() {
     <BrowserRouter>
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1, padding: "20px", marginTop: "20px" }}>
+          
           <Routes>
             {/* Add key={authVersion} to force remount on logout */}
             <Route path="/" element={<Home key={authVersion} />} />
             <Route path="/Home" element={<Home key={authVersion} />} />
             <Route path="/Popular" element={<Popular key={authVersion} />} />
-
             <Route path="/StartCommunity" element={<CreateCommunity />} />
             <Route path="/Explore" element={<Explore />} />
             <Route path="/Notifications" element={<Notifications />} />

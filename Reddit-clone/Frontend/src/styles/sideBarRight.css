@@ -1,3 +1,6 @@
+/* =========================
+   SIDEBAR CONTAINER
+========================= */
 .sidebar-right {
   width: 320px;
   background: #1a1a1b;
@@ -8,7 +11,9 @@
   overflow: hidden;
 }
 
-/* ---------- Community Info ---------- */
+/* =========================
+   COMMUNITY INFO
+========================= */
 .subreddit-info {
   padding: 16px;
   border-bottom: 1px solid #343536;
@@ -52,7 +57,9 @@
   color: #818384;
 }
 
-/* ---------- Rules ---------- */
+/* =========================
+   RULES
+========================= */
 .rules-section {
   padding: 16px;
   border-bottom: 1px solid #343536;
@@ -72,6 +79,10 @@
   cursor: pointer;
 }
 
+.rule-item:last-child {
+  border-bottom: none;
+}
+
 .rule-header {
   display: flex;
   justify-content: space-between;
@@ -83,7 +94,22 @@
   color: #818384;
 }
 
-/* ---------- Moderators ---------- */
+/* =========================
+   ADMIN INFO
+========================= */
+.admin-info {
+  padding: 16px;
+  border-bottom: 1px solid #343536;
+  font-size: 14px;
+}
+
+.admin-info strong {
+  color: #ffffff;
+}
+
+/* =========================
+   MODERATORS
+========================= */
 .moderator-list {
   padding: 16px;
 }
@@ -96,11 +122,53 @@
   text-transform: uppercase;
 }
 
-.moderator-item {
+/* Moderator row */
+.mod-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
   font-size: 14px;
-  margin-bottom: 6px;
 }
 
+/* =========================
+   MOD ACTION BUTTONS
+========================= */
+.mod-action {
+  background: #0079d3;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.mod-action:hover {
+  background: #1484d6;
+}
+
+.mod-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Danger (Demote) */
+.mod-action.danger {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.mod-action.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* =========================
+   ADD MODERATOR BUTTON
+========================= */
 .message-mods-btn {
   margin-top: 12px;
   width: 100%;
@@ -111,13 +179,63 @@
   padding: 8px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .message-mods-btn:hover {
   background: #1484d6;
 }
 
-/* ---------- Responsive ---------- */
+/* =========================
+   MODERATOR PICKER
+========================= */
+.mod-picker {
+  margin-top: 12px;
+  background: #0b0f1a;
+  border: 1px solid #343536;
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Member row */
+.mod-pick-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #d7dadc;
+  transition: background 0.15s ease;
+}
+
+.mod-pick-item:hover {
+  background: rgba(0, 121, 211, 0.12);
+}
+
+.mod-picker .empty {
+  padding: 12px;
+  font-size: 13px;
+  color: #818384;
+  text-align: center;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+.mod-picker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mod-picker::-webkit-scrollbar-thumb {
+  background: #343536;
+  border-radius: 4px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 @media (max-width: 1024px) {
   .sidebar-right {
     display: none;

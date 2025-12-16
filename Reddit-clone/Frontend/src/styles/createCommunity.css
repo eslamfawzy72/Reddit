@@ -1,104 +1,275 @@
-.background {
-  position: fixed;
-  inset: 0;
-  background-color: #0A0A0A;
-  z-index: -1;
-}
+/* =========================
+   PAGE WRAPPER
+========================= */
+/* =========================
+   PAGE WRAPPER
+========================= */
+.create-community-page {
+  min-height: 100vh;
+  background: #0a0a0a;
 
-.container {
+  /* 🔥 SHIFT CONTENT AFTER SIDEBAR */
+  margin-left: 290px;
+
+  padding-top: 96px;
+  padding-inline: 36px;
+
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
-  padding: 48px 0;
 }
 
-.card {
+/* =========================
+   CARD
+========================= */
+.create-community-card {
   width: 100%;
-  max-width: 900px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-  overflow: hidden;
-  background-color: #FFFFFF;
+  max-width: 720px;
+  background: #020617;
+  border: 1px solid #1f2933;
+  border-radius: 16px;
+  padding: 32px;
+  color: #e5e7eb;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
 }
 
-.card-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #EDEFF1;
-  background: linear-gradient(180deg, #1a1a1b, #030303);
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .create-community-page {
+    margin-left: 0;
+    padding-inline: 16px;
+  }
 }
 
-.title {
-  font-weight: 600;
-  color: #EDEFF1;
-  font-size: 20px;
+
+.create-community-card h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .subtitle {
-  color: #AEB4B8;
   font-size: 14px;
-  margin-top: 4px;
+  color: #9ca3af;
+  margin-bottom: 28px;
 }
 
-.card-body {
-  padding: 24px;
-  background-color: #030303;
-}
-
-.preview {
-  width: 100%;
-  max-width: 460px;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #1a1a1b;
-  border: 1px solid #343536;
-  margin-bottom: 24px;
+/* =========================
+   FORM
+========================= */
+.form-group {
+  margin-bottom: 22px;
   position: relative;
 }
 
-.no-banner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #666;
+.form-group label {
+  display: block;
   font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #e5e7eb;
 }
 
-.avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 4px solid #030303;
+.form-group small {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Inputs */
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: #0b0f1a;
+  border: 1px solid #1f2933;
+  border-radius: 10px;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+}
+
+/* Prefix b/ */
+.prefix {
+  position: absolute;
+  top: 36px;
+  left: 14px;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.form-group input[name="commName"] {
+  padding-left: 36px;
+}
+
+/* =========================
+   PRIVACY RADIOS
+========================= */
+.radio-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  font-weight: 700;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-group label {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 12px;
+  background: #0b0f1a;
+  border: 1px solid #1f2933;
+  border-radius: 12px;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.radio-group label:hover {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.radio-group input {
+  margin-top: 4px;
+}
+
+.radio-group strong {
+  text-transform: capitalize;
+}
+
+.radio-group span {
+  display: block;
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* =========================
+   RULES
+========================= */
+.rule-input {
+  display: flex;
+  gap: 10px;
+}
+
+.rule-input input {
+  flex: 1;
+}
+
+.rule-input button {
+  background: #2563eb;
+  border: none;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  position: absolute;
-  top: -40px;
-  left: 24px;
-  background-color: #0066ff;
-  background-size: cover;
-  background-position: center;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.comm-name {
-  font-weight: 700;
-  color: #EDEFF1;
-  font-size: 20px;
-  margin-top: 48px;
+.rule-input button:hover {
+  background: #1d4ed8;
 }
 
-.comm-info {
-  color: #818384;
+.rules-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 12px;
+}
+
+.rules-list li {
+  background: #0b0f1a;
+  border: 1px solid #1f2933;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.comm-desc {
-  color: #D7DADC;
-  line-height: 1.6;
+.rules-list li span {
+  cursor: pointer;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* =========================
+   ERRORS
+========================= */
+.form-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #1f2933;
+  color: #e5e7eb;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.create-btn {
+  background: #2563eb;
+  border: none;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.create-btn:hover {
+  background: #1d4ed8;
+}
+
+.create-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .create-community-card {
+    padding: 24px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 }

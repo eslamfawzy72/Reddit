@@ -418,16 +418,17 @@ export async function getPostsByCommunityID(req, res) {
     path: "userID",
     select: "userName image",
   })
+
   .populate({
     path: "communityID",
-    select: "commName", // ✅ add this
+    select: "commName",
   })
   .sort({ date: -1 });
 
 
 
     if (!posts || posts.length === 0) {
-      return res.status(404).json({ message: "No posts found for this community" });
+        return res.status(200).json([]);
     }
 const userPollVotes = req.user?.pollVotes || [];
 

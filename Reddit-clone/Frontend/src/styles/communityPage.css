@@ -1,50 +1,72 @@
-/* ---------------- NAVBAR ---------------- */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
-  z-index: 1000;
-}
-
-/* ---------------- LAYOUT ---------------- */
-.app-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px; /* 🔥 sidebar forced to the right */
+/* ---------- PAGE WRAPPER ---------- */
+.community-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: 24px;
 
-  width: 100%;
-  padding-top: 80px; /* navbar offset */
-  padding-inline: 24px;
+  padding-top: 6px;       /* navbar */
+  padding-right: 24px;
+
+  /* 🔥 THIS IS THE FIX */
+  margin-left: 290px;      /* same as left-sidebar width */
 }
 
-/* ---------------- MAIN ---------------- */
-.mainArea {
+/* ---------- LEFT SIDEBAR ---------- */
+.left-sidebar{
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 290px;
+  height: calc(100vh - 64px);
+  /* background-color: #020617;
+  border-right: 1px solid #1F2933; */
+  overflow: hidden;
+  z-index: 1200;
+}
+
+/* ---------- MAIN CONTENT ---------- */
+.community-main {
+  width: 100%;
+  max-width: 820px;
   min-width: 0;
 }
 
-/* Center feed like Reddit */
-.feedArea {
-  max-width: 820px;
-  margin-left: auto;
-  margin-right: auto;
+/* ---------- FEED ---------- */
+.community-feed {
+  margin-top: 16px;
+
+  display: flex;
+  flex-direction: column;
+
+  /* 🔥 GAP BETWEEN POSTS */
+  gap: 28px;
 }
 
-/* ---------------- RIGHT SIDEBAR ---------------- */
-.rightSidebar {
+/* ---------- RIGHT SIDEBAR ---------- */
+.right-sidebar {
+  width: 320px;
+  flex-shrink: 0;
   position: sticky;
-  top: 80px;
-  align-self: start; /* 🔥 VERY IMPORTANT */
+  top: 96px;
 }
 
-/* ---------------- RESPONSIVE ---------------- */
-@media (max-width: 1200px) {
-  .app-layout {
-    grid-template-columns: 1fr;
+/* ---------- LOADING ---------- */
+.community-loading {
+  padding-top: 120px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px) {
+  .left-sidebar {
+    display: none;
   }
 
-  .rightSidebar {
-    display: none;
+  .community-layout {
+    margin-left: 0; /* 🔥 reset */
+    justify-content: center;
   }
 }

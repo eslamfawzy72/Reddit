@@ -1,111 +1,227 @@
-import * as React from 'react';
-import { useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
-import { styled } from '@mui/material/styles';
-import { Box, Button } from '@mui/material';
-import Chip from '@mui/material/Chip';
-import TextField from '@mui/material/TextField';
-import "../styles/createCommunity.css"; // <-- Import CSS
-
-const BLUE = "#0066ff";        
-const BLUE_HOVER = "#0055cc";
-
-const mockTopics = [
-  { category: "Anime & Cosplay", topics: ["Anime & Manga", "Cosplay", "Otaku Culture", "Japanese Media"] },
-  { category: "Art", topics: ["Performing Arts", "Architecture", "Design", "Art", "Filmmaking", "Digital Art", "Photography"] },
-  { category: "Business & Finance", topics: ["Personal Finance", "Crypto", "Economics", "Business News & Discussion", "Deals & Marketplace", "Startups & Entrepreneurship", "Real Estate", "Stocks & Investing"] },
-  { category: "Technology", topics: ["Programming", "Web Development", "AI & Machine Learning", "Cybersecurity", "Cloud Computing", "Data Science", "Open Source"] },
-  { category: "Gaming", topics: ["PC Gaming", "Console Gaming", "Esports", "Game Development", "Retro Games", "Speedrunning"] }
-];
-
-// Styled components
-const Search = styled('div')(() => ({
-  position: 'relative',
-  borderRadius: '999px',
-  border: '1px solid #343536',
-  backgroundColor: '#1a1a1b',
-  marginTop: '24px',
-  width: '100%',
-}));
-
-const SearchIconWrapper = styled('div')(() => ({
-  padding: '0 16px',
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#818384',
-}));
-
-const StyledInputBase = styled(InputBase)(() => ({
-  color: '#fff',
-  width: '100%',
-  paddingLeft: '48px',
-  paddingTop: '12px',
-  paddingBottom: '12px',
-  fontSize: '14px',
-}));
-
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "../styles/createCommunity.css";
+import { useLocation } from "react-router-dom";
+import PrimarySearchAppBar from "../components/PrimarySearchAppBar";
+import SidebarLeft from "../Components/SidebarLeft";
+import { useAuth } from "../Context/AuthContext";
 function CreateCommunity() {
-  return <SimpleContainer />;
-}
+    const location = useLocation();
+  const navigate = useNavigate();
+  
+     const isLoggedIn = location.state?.isLoggedIn || false;
 
-export default CreateCommunity;
+  const [form, setForm] = useState({
+    commName: "",
+    description: "",
+    category: "General",
+    privacystate: "public",
+    image: "",
+    rules: [],
+  });
 
-// --- Main Container ---
-function SimpleContainer() {
-  const [topics, setTopics] = useState([]);
-  const [privacy, setPrivacy] = useState("Public");
-  const [page, setPage] = useState(1);
-  const [commname, setname] = useState("");
-  const [commdesc, setdesc] = useState("");
-  const [bannerFile, setBannerFile] = useState(null);
-  const [avatarFile, setAvatarFile] = useState(null);
+  const [ruleInput, setRuleInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const addRule = () => {
+    if (!ruleInput.trim()) return;
+    setForm((prev) => ({
+      ...prev,
+      rules: [...prev.rules, ruleInput.trim()],
+    }));
+    setRuleInput("");
+  };
+
+  const removeRule = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      rules: prev.rules.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!form.commName.trim()) {
+      setError("Community name is required");
+      return;
+    }
+
+    if (form.commName.length < 3 || form.commName.length > 21) {
+      setError("Community name must be 3–21 characters");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/communities`,
+        form,
+        { withCredentials: true }
+      );
+
+      navigate(`/community/${res.data._id}`);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create community");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <CssBaseline />
-      <Box className="background" />
-      {page === 1 && <SelectTopics setTopics={setTopics} topics={topics} setPage={setPage} />}
-      {page === 2 && <SelectPrivacy setPage={setPage} page={page} privacy={privacy} setPrivacy={setPrivacy} />}
-      {page === 3 && <Commdetails setdesc={setdesc} commname={commname} setname={setname} commdesc={commdesc} setPage={setPage} page={page} />}
-      {page === 4 && <CommunityAppearance commname={commname} commdesc={commdesc} privacy={privacy} topics={topics} setPage={setPage} bannerFile={bannerFile} setBannerFile={setBannerFile} avatarFile={avatarFile} setAvatarFile={setAvatarFile} />}
-      {page === 5 && alert("Community Created!")}
+      <header className="explore__navbar">
+        <PrimarySearchAppBar />
+      </header>
+
+    
+      <aside className="explore__sidebar">
+            <SidebarLeft loggedin={isLoggedIn} />
+      </aside>  
+    
+    <div className="create-community-page">
+      <div className="create-community-card">
+        <h1>Create a community</h1>
+        <p className="subtitle">
+          A community is a place for people to share and discuss.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          {/* NAME */}
+          <div className="form-group">
+            <label>Community name</label>
+            <span className="prefix">b/</span>
+            <input
+              name="commName"
+              value={form.commName}
+              onChange={handleChange}
+              placeholder="communityname"
+              maxLength={21}
+            />
+            <small>Cannot be changed later</small>
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="form-group">
+            <label>Description</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="What is this community about?"
+            />
+          </div>
+
+          {/* IMAGE */}
+          <div className="form-group">
+            <label>Community image (optional)</label>
+            <input
+              name="image"
+              value={form.image}
+              onChange={handleChange}
+              placeholder="https://image-url.com/logo.png"
+            />
+          </div>
+
+          {/* CATEGORY */}
+          <div className="form-group">
+            <label>Category</label>
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+            >
+              <option>General</option>
+              <option>Programming</option>
+              <option>Web Development</option>
+              <option>AI & Machine Learning</option>
+              <option>Cybersecurity</option>
+              <option>Gaming</option>
+              <option>Art</option>
+            </select>
+          </div>
+
+          {/* PRIVACY */}
+          <div className="form-group">
+            <label>Privacy</label>
+
+            <div className="radio-group">
+              {["public",  "private"].map((type) => (
+                <label key={type}>
+                  <input
+                    type="radio"
+                    name="privacystate"
+                    value={type}
+                    checked={form.privacystate === type}
+                    onChange={handleChange}
+                  />
+                  <div>
+                    <strong>{type}</strong>
+                    <span>
+                      {type === "public" && "Anyone can view & post"}
+                      {type === "private" && "Only approved members can view"}
+                    </span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* RULES */}
+          <div className="form-group">
+            <label>Community rules</label>
+
+            <div className="rule-input">
+              <input
+                value={ruleInput}
+                onChange={(e) => setRuleInput(e.target.value)}
+                placeholder="Add a rule"
+              />
+              <button type="button" onClick={addRule}>
+                Add
+              </button>
+            </div>
+
+            <ul className="rules-list">
+              {form.rules.map((rule, i) => (
+                <li key={i}>
+                  {rule}
+                  <span onClick={() => removeRule(i)}>✕</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {error && <div className="form-error">{error}</div>}
+
+          {/* ACTIONS */}
+          <div className="form-actions">
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={() => navigate(-1)}
+            >
+              Cancel
+            </button>
+
+            <button type="submit" className="create-btn" disabled={loading}>
+              {loading ? "Creating…" : "Create Community"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
     </>
   );
 }
 
-// --- Community Appearance ---
-function CommunityAppearance(props) {
-  const bannerUrl = props.bannerFile ? URL.createObjectURL(props.bannerFile) : null;
-  const avatarUrl = props.avatarFile ? URL.createObjectURL(props.avatarFile) : null;
-
-  return (
-    <Box className="container">
-      <Box className="card">
-        <Box className="card-header">
-          <Typography variant="h6" className="title">Community Appearance</Typography>
-          <Typography className="subtitle">Add a banner and icon to make your community stand out</Typography>
-        </Box>
-        <Box className="card-body">
-          <Box className="preview" style={{ backgroundImage: bannerUrl ? `url(${bannerUrl})` : 'none' }}>
-            {!bannerUrl && <Typography className="no-banner">No banner yet</Typography>}
-            <Box className="avatar" style={{ backgroundImage: avatarUrl ? `url(${avatarUrl})` : 'none' }}>
-              {!avatarUrl && (props.commname?.[0]?.toUpperCase() || 'C')}
-            </Box>
-          </Box>
-          <Typography className="comm-name">r/{props.commname || 'your_community'}</Typography>
-          <Typography className="comm-info">{props.privacy} • {props.topics?.length || 0} topics</Typography>
-          <Typography className="comm-desc">{props.commdesc || 'No description added.'}</Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
-}
-
-// --- Other components remain unchanged (SelectTopics, SelectPrivacy, Commdetails) ---
+export default CreateCommunity;

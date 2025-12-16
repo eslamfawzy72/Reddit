@@ -161,54 +161,53 @@ export async function addReply(req, res) {
 // Edit a comment or reply
 export async function editComment(req, res) {
   try {
-    const { text, category } = req.body;
-    const postID = req.params.postID;
-    const commId = req.params.commId; // can be comment or reply
-    const parentCommId = req.params.parentCommId; // only for reply
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ message: "Text is required" });
 
-    if (!text && !category)
-      return res.status(400).json({ message: "Nothing to update" });
+    const { postID, commId } = req.params;
+    const userID = req.user.id; // authenticated user
 
-    // CASE 1: Top-level comment
-    if (!parentCommId) {
-      const setObj = { "comments.$.edited": true };
-      if (text) setObj["comments.$.text"] = text;
-      if (category) setObj["comments.$.category"] = category;
+    const post = await Post.findById(postID);
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
-      const result = await Post.updateOne(
-        { _id: postID, "comments._id": commId },
-        { $set: setObj }
-      );
+    // Find comment/reply recursively
+    const comment = findCommentRecursive(post.comments, commId);
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
 
-      if (result.matchedCount === 0)
-        return res.status(404).json({ message: "Comment not found" });
+    // Authorization check
+    if (comment.userID.toString() !== userID)
+      return res.status(403).json({ message: "Not authorized" });
 
-      return res.status(200).json({ message: "Top-level comment updated" });
-    }
+    // Update text, edited, and date
+    comment.text = text;
+    comment.edited = true;
+    comment.date = new Date();
 
-    // CASE 2: Reply (nested)
-    const setReplyObj = { "comments.$[c].replies.$[r].edited": true };
-    if (text) setReplyObj["comments.$[c].replies.$[r].text"] = text;
-    if (category) setReplyObj["comments.$[c].replies.$[r].category"] = category;
-
-    const result = await Post.updateOne(
-      { _id: postID },
-      { $set: setReplyObj },
-      {
-        arrayFilters: [
-          { "c._id": parentCommId },
-          { "r._id": commId }
-        ]
-      }
-    );
-
-    if (result.matchedCount === 0)
-      return res.status(404).json({ message: "Reply not found" });
-
-    return res.status(200).json({ message: "Reply updated" });
+    await post.save();
+    return res.status(200).json({ message: "Comment updated" });
   } catch (err) {
     return res.status(500).json({ err: err.message });
   }
+}
+
+function removeCommentRecursive(comments, commId, userID) {
+  for (let i = 0; i < comments.length; i++) {
+    const c = comments[i];
+    if (!c._id) continue;
+
+    if (c._id.equals(commId)) {
+      // Authorization check
+      if (c.userID.toString() !== userID) return false;
+      comments.splice(i, 1);
+      return true;
+    }
+
+    if (c.replies && c.replies.length > 0) {
+      const deleted = removeCommentRecursive(c.replies, commId, userID);
+      if (deleted) return true;
+    }
+  }
+  return false;
 }
 
 
@@ -216,39 +215,23 @@ export async function editComment(req, res) {
 export async function deleteComment(req, res) {
   try {
     const { postID, commId } = req.params;
+    const userID = req.user.id;
 
-    // Try top-level comment
-    const topLevelDelete = await Post.updateOne(
-      { _id: postID },
-      { $pull: { comments: { _id: commId } } }
-    );
+    const post = await Post.findById(postID);
+    if (!post) return res.status(404).json({ message: "Post not found" });
 
-    if (topLevelDelete.modifiedCount > 0)
-      return res.status(200).json({ message: "Top-level comment deleted", deletedId: commId });
+    const deleted = removeCommentRecursive(post.comments, commId, userID);
 
-    // Nested reply one level deep
-    const nestedDelete = await Post.updateOne(
-      { _id: postID },
-      { $pull: { "comments.$[].replies": { _id: commId } } }
-    );
+    if (!deleted)
+      return res.status(403).json({ message: "Not authorized or comment not found" });
 
-    if (nestedDelete.modifiedCount > 0)
-      return res.status(200).json({ message: "Nested reply deleted", deletedId: commId });
-
-    // Deep nested reply (replies inside replies)
-    const deepDelete = await Post.updateOne(
-      { _id: postID },
-      { $pull: { "comments.$[].replies.$[].replies": { _id: commId } } }
-    );
-
-    if (deepDelete.modifiedCount > 0)
-      return res.status(200).json({ message: "Deep nested reply deleted", deletedId: commId });
-
-    return res.status(404).json({ message: "Comment not found" });
+    await post.save();
+    return res.status(200).json({ message: "Comment deleted", deletedId: commId });
   } catch (err) {
     return res.status(500).json({ err: err.message });
   }
 }
+
 
 
 // Get comments by category (top-level only)

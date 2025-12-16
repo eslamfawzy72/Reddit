@@ -82,13 +82,13 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.log("MongoDB connection error:", err));
 
 // Routes 
+
 app.use("/auth", authRouter);
 app.use("/users", userRoutes);
 app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
-// mount communities router at lowercase path
-app.use("/Communities", communityRouter);
+app.use("/communities", communityRouter);
 app.use("/notifications", NotificationRouter);
 //notifications router
 // comment routes(middleware)

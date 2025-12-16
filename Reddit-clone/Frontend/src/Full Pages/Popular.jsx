@@ -137,13 +137,13 @@ function Popular() {
       // Users
       const userRes = await axios.get(`${API}/users`);
       const users = (userRes.data || [])
-        .filter(u => u.userName?.toLowerCase().includes(query.toLowerCase()))
+        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
         .map(u => ({ type: "user", id: u._id, label: u.userName }));
 
       // Communities
       const commRes = await axios.get(`${API}/communities`);
       const communities = (commRes.data || [])
-        .filter(c => c.commName?.toLowerCase().includes(query.toLowerCase()))
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
         .map(c => ({ type: "community", id: c._id, label: c.commName }));
 
       const results = [...users, ...communities];

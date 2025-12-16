@@ -12,6 +12,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import { useLocation } from "react-router-dom";
+
 
 import "../styles/createPost.css";
 
@@ -206,42 +208,63 @@ function ComboBox({ value, onChange, options = [] }) {
 }
 
 function CreatePost() {
+    const location = useLocation();
+  const communityFromProps = location.state?.community || null;
   const [typeChosen, setTypeChosen] = React.useState('Text');
   const [pollOptions, setPollOptions] = React.useState(['', '']);
   const [pollTitle, setPollTitle] = React.useState('');
   const [mediaFiles, setMediaFiles] = React.useState([]);
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
-  const [community, setCommunity] = React.useState(null);
+const [community, setCommunity] = React.useState(communityFromProps);
   const [communities, setCommunities] = React.useState([]);
   const [tags, setTags] = React.useState([]);
   const [currentUser, setCurrentUser] = React.useState(null);
   const navigate = useNavigate();
   const auth = useAuth();
+React.useEffect(() => {
+  if (communityFromProps) {
+    setCommunity(communityFromProps);
+  }
+}, [communityFromProps]);
 
-  React.useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true });
-        setCurrentUser(res.data.user);
-      } catch (err) {
-        setCurrentUser(null);
-      }
-    };
-    fetchUser();
-    // fetch available communities for the dropdown
+React.useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/auth/me`,
+        { withCredentials: true }
+      );
+      setCurrentUser(res.data.user);
+    } catch (err) {
+      setCurrentUser(null);
+    }
+  };
+
+  fetchUser();
+
+  if (!communityFromProps) {
     (async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/communities`, { withCredentials: true });
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/communities`,
+          { withCredentials: true }
+        );
         setCommunities(res.data || []);
       } catch (err) {
-        console.error('Failed to load communities', err);
-        setCommunities([]);
+        console.error("Failed to load communities", err);
       }
     })();
-  }, []);
+  }
+}, [communityFromProps]);
+
 
   const handleSubmit = async () => {
+     if (!community) {
+    alert("Please select a community");
+    return;
+  }
+
     if (!currentUser) {
       alert('You must be logged in to post');
       navigate('/Login');
@@ -278,7 +301,7 @@ function CreatePost() {
       commentCount: 0,
       date: new Date(),
       cmnts: [],
-      commID: community?._id || null,
+      commID: community._id,
       cat: tags.map(t => t.title || t),
       description: description,
     };
@@ -314,7 +337,23 @@ function CreatePost() {
           </Box>
 
           <Box className="create-post-body">
-            <ComboBox value={community} onChange={setCommunity} options={communities} />
+            {!communityFromProps ? (
+  <ComboBox
+    value={community}
+    onChange={setCommunity}
+    options={communities}
+  />
+) : (
+  <TextField
+    label="Community"
+    value={communityFromProps.commName}
+    disabled
+    size="small"
+    className="community-field"
+  />
+)}
+
+            
             <TextField
               placeholder="Title"
               variant="outlined"

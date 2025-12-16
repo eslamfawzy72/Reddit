@@ -70,7 +70,7 @@ export default function CommunityCard({ communities = [], setCommunities }) {
           : `${selectedCategory} Communities`}
       </h2>
 
-      <div className="community__grid">
+<div className="community__list">
         {visibleCommunities.length ? (
           visibleCommunities.map((community) => (
             <CommunityCardItem
@@ -113,7 +113,7 @@ function CommunityCardItem({ community, navigate, onJoinSuccess }) {
         { withCredentials: true }
       );
 
-      onJoinSuccess(community._id); // ✅ updates parent state
+      onJoinSuccess(community._id);
     } catch {
       alert("Failed to join community");
     }
