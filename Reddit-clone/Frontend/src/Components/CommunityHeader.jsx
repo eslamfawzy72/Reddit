@@ -1,20 +1,30 @@
 import React from "react";
 import "../styles/communityHeader.css";
 import axios from "axios";
+import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
+import { useEffect } from "react";
 
+const API=import.meta.env.VITE_API_URL;
 import { toast } from "react-hot-toast";
 export default function CommunityHeader({
   name,
   avatar,
   banner,
+  admin,
   membersCount,
   onlineCount,
   isJoined,
   communityId,
 }) {
     const { isLoggedIn } = useAuth();
-  
+    const[currentAdmin,setCurrentAdmin]=useState(null);
+      useEffect(() => {
+    axios.get(`${API}/auth/me`, { withCredentials: true })
+      
+      .then(res => setCurrentAdmin(res.data.user._id))
+      .catch(() => setCurrentAdmin(null));
+  }, []);
   // const handleJoin = async () => {
   //   if (isJoined) return;
 
@@ -29,7 +39,22 @@ export default function CommunityHeader({
   //     alert("Failed to join community");
   //   }
   // };
-  
+  const handleDelete=async ()=>{
+    try{
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/communities/${communityId}`,
+        { withCredentials: true }
+      );
+      alert("Community deleted successfully");
+      window.location.href="/";
+    }catch{
+      alert("Failed to delete community");
+    }
+  };
+
+
+
+
   const handleJoin = async (e) => {
     e.stopPropagation();
     if (isJoined) return;
@@ -99,6 +124,9 @@ const handleLeave = async () => {
             {isJoined&&(
            <button className="leave-btn"    onClick={handleLeave}>Leave Community</button>
 )}
+            {currentAdmin && currentAdmin === admin._id && (
+           <button className="delete-btn"    onClick={handleDelete}>Delete Community</button>
+ )} 
         </div>
       </div>
     </section>

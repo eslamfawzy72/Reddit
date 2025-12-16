@@ -16,6 +16,7 @@ import CommentSection from "./Components/CommentSection.jsx";
 // import CommunityCard from "./Components/CommunityCard.jsx";
 // import Explore from "./Full Pages/Explore.jsx";
 // import CommunityPage from "./Full Pages/CommunityPage.jsx";
+// import "App.css";
 import SidebarLeft from "./Components/SidebarLeft.jsx";
 import Notifications from "./Full Pages/Notifications.jsx";
 import CreateCommunity from "./Full Pages/CreateCommunity.jsx";

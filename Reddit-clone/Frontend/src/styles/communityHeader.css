@@ -98,6 +98,18 @@
   background: #e04343;
   cursor: pointer;
 }
+.delete-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 30px;
+  font-weight: 600;
+}
+.delete-btn:hover {
+  background: #b30000;
+  cursor: pointer;
+}
 .primary-btn:hover,
 .secondary-btn:hover,
 .icon-btn:hover {

@@ -44,6 +44,7 @@
   margin-bottom: 6px;
 }
 
+
 .sidebar-nav-item {
   cursor: pointer;
   padding: 8px 10px;
@@ -55,6 +56,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.sidebar-nav-item:hover {
+  background: #c7d7ff;
 }
 
 .sidebar-badge {

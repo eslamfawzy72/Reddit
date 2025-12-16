@@ -85,7 +85,7 @@ app.use("/users", userRoutes);
 app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
-app.use("/Communities", communityRouter);
+app.use("/communities", communityRouter);
 app.use("/notifications", NotificationRouter);
 //notifications router
 // comment routes(middleware)
