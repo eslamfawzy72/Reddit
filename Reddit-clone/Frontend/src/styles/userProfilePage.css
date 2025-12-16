@@ -1,245 +1,533 @@
-/* src/pages/UserProfilePage.css */
+/* ===============================
+   ENHANCED GLOBAL STYLES - MODERN DARK MODE
+================================ */
 .profile-page {
-  background-color: #0A0A0A;
+  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  color: #e2e8f0;
   min-height: 100vh;
-  color: #EDEFF1;
-  padding-bottom: 50px;
-  font-family: Arial, sans-serif;
+  padding: 32px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.profile-header {
+/* Glassmorphism Base */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+}
+
+/* ===============================
+   REDDIT-STYLE BANNER
+================================ */
+.profile-banner-container {
+  margin-bottom: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.profile-banner {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  position: relative;
+}
+
+.profile-info-container {
+  padding: 0 32px 24px 32px;
   display: flex;
   align-items: flex-end;
-  gap: 20px;
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: 24px;
+  position: relative;
 }
 
-.profile-avatar {
-  width: 120px;
-  height: 120px;
+.profile-avatar-wrapper {
+  margin-top: -48px;
+  position: relative;
+  z-index: 10;
+}
+
+.profile-avatar-large {
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
+  font-size: 40px;
+  font-weight: 900;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 48px;
-  font-weight: bold;
-  border: 6px solid #0A0A0A;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  justify-content: center;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
 }
 
-.profile-name h1 {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 0;
-  color: #EDEFF1;
+.profile-name-section {
+  flex: 1;
+  padding-top: 8px;
 }
-.profile-name p {
-  margin: 4px 0 0;
-  color: #818384;
-  font-size: 16px;
+
+.profile-display-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.profile-username {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
 .edit-profile-btn {
-  padding: 12px 20px;
-  background-color: #1a1a1b;
-  border: 1px solid #343536;
-  color: #EDEFF1;
-  border-radius: 999px;
+  padding: 10px 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   font-weight: 600;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-}
-
-.profile-bio {
-  margin: 0 0 20px 140px;
-  font-size: 15px;
-  line-height: 1.5;
-  max-width: 600px;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 32px;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.profile-tabs {
-  display: flex;
-  flex-direction: column;
-}
-
-.tabs-header {
-  display: flex;
-  background-color: #1a1a1b;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid #343536;
-  border-bottom: none;
-}
-.tab-btn {
-  padding: 14px 24px;
-  background: none;
-  border: none;
-  color: #818384;
-  font-weight: 500;
-  cursor: pointer;
-  font-size: 15px;
-  border-bottom: 3px solid transparent;
-}
-.tab-btn.active {
-  color: #0066ff;
-  font-weight: 700;
-  border-bottom: 3px solid #0066ff;
-}
-
-.tab-content {
-  background-color: #1a1a1b;
-  border: 1px solid #343536;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  padding: 20px;
-}
-
-.loading-posts {
-  text-align: center;
-  color: #666;
-  padding: 60px 0;
-}
-
-.no-comments {
-  text-align: center;
-  padding: 60px 0;
-  color: #818384;
-}
-
-.profile-sidebar {
-  position: sticky;
-  top: 90px;
-}
-
-/* Sidebar */
-.sidebar-card {
-  background-color: #1a1a1b;
-  border: 1px solid #343536;
-  border-radius: 12px;
-  padding: 16px;
-  font-size: 14px;
-  color: #EDEFF1;
-}
-
-.sidebar-user-info {
-  margin-bottom: 16px;
-}
-.sidebar-username {
-  font-weight: 700;
-  font-size: 16px;
+  transition: all 0.3s ease;
   margin-bottom: 8px;
 }
-.sidebar-stats {
-  display: flex;
-  gap: 16px;
-}
-.sidebar-number {
-  font-size: 20px;
-  font-weight: 800;
-}
-.sidebar-label {
-  color: #818384;
-  font-size: 12px;
+
+.edit-profile-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.sidebar-divider {
-  border: 0.5px solid #343536;
-  margin: 16px 0;
+/* ===============================
+   GRID - Prevent sidebar stretching
+================================ */
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
+  align-items: start;
 }
 
-.sidebar-stats-list {
+/* ===============================
+   SIDEBAR - Fixed size & sticky
+================================ */
+.sidebar-container {
+  height: fit-content;
+  position: sticky;
+  top: 32px;
+  align-self: start;
+}
+
+.sidebar-card {
+  border-radius: 20px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  font-size: 13px;
-}
-.sidebar-stat {
-  display: flex;
-  justify-content: space-between;
 }
 
-/* Follow button */
-.follow-btn {
-  margin-top: 16px;
-  background-color: #0079D3;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: 0.2s;
-}
-.follow-btn.following {
-  background-color: #F1F5F9;
-  color: #475569;
+.sidebar-username {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20px;
 }
 
-/* Modal */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(15,23,42,0.85);
+/* Stats Grid - 2x2 Layout like Reddit */
+.sidebar-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-transform: capitalize;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  backdrop-filter: blur(8px);
+  gap: 4px;
 }
 
-.modal-card {
-  background-color: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-  color: #0F172A;
-  padding: 32px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
-}
-.modal-close {
-  background: none;
+/* Sidebar Divider */
+.sidebar-divider {
   border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 20px 0;
 }
-.modal-form .modal-section {
-  margin-bottom: 32px;
+
+/* Info Section */
+.sidebar-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.modal-form h3 {
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
   font-size: 14px;
-  font-weight: 600;
-  color: #64748B;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 16px;
+}
+
+.info-label {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ===============================
+   TABS
+================================ */
+.tabs-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  text-align: center;
+  padding: 14px 0;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* ===============================
+   TAB CONTENT
+================================ */
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  font-size: 18px;
+  color: #64748b;
+  border-radius: 16px;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-card {
+  border-radius: 20px;
+  width: 480px;
+  max-width: 95%;
+  padding: 32px;
+  animation: slideUp 0.4s ease;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Loading State */
+.loading-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 24px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-container {
+    position: static;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-info-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px 20px 20px;
+  }
+
+  .profile-avatar-wrapper {
+    margin-top: -48px;
+  }
+
+  .profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+  }
+
+  .profile-banner {
+    height: 120px;
+  }
+
+  .profile-display-name {
+    font-size: 24px;
+  }
+
+  .edit-profile-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-page {
+    padding: 16px;
+  }
+
+  .sidebar-card {
+    padding: 20px;
+  }
+
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+}
+/* ===============================
+   ENHANCED EDIT PROFILE MODAL
+================================ */
+.modal-card {
+  border-radius: 24px;
+  width: 480px;
+  max-width: 95%;
+  padding: 40px 32px;
+  background: rgba(20, 20, 40, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+  animation: slideUp 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-header h2 {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  color: #aaa;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+.modal-header button:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Floating Input Labels */
+.modal-card input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px 16px 16px 16px;
+  font-size: 15px;
+  color: #fff;
+  transition: all 0.3s ease;
+  outline: none;
+  position: relative;
+}
+
+.modal-card input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Error Highlight */
+.modal-card input.error {
+  border-color: #f87171;
+}
+
+.modal-card p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f87171;
+}
+
+/* Save Button */
+.save-btn {
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+.save-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.5);
+}
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(59,130,246,0.4);
+}
+
+/* Success / Error Messages */
+.modal-card .success-message {
+  background: rgba(34,197,94,0.2);
+  border: 1px solid rgba(34,197,94,0.4);
+  color: #22c55e;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-card .error-message {
+  background: rgba(248,113,113,0.2);
+  border: 1px solid rgba(248,113,113,0.4);
+  color: #f87171;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Optional: Icon on Input */
+.modal-card input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+/* Banner + avatar for other users */
+.profile-banner.other-user {
+  background-color: #7c3aed; /* purple */
+}
+
+.profile-avatar-large.other-user-avatar {
+  background-color: #7c3aed;
+  color: white;
+}
+
+.edit-profile-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.edit-profile-btn.bg-purple-600 {
+  background-color: #7c3aed;
+  color: white;
+}
+.edit-profile-btn.bg-white {
+  background-color: white;
+  color: #7c3aed;
+}
+.edit-profile-btn {
+  transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+  transform: scale(1.05);
 }

@@ -65,7 +65,19 @@ export default function PrimarySearchAppBar({
   }, [query, searchFunction]);
 
   const handleItemClick = (item) => {
+    // Navigate based on type
+    if (item.type === "user") {
+      navigate(`/Profile/${item.id}`);
+    } else if (item.type === "community") {
+      navigate(`/community/${item.id}`);
+    } else if (item.type === "full-search") {
+      navigate(`/search?query=${encodeURIComponent(item.query)}`);
+    }
+
+    // Call external handler if provided
     onResultClick?.(item);
+
+    // Reset search bar
     setQuery("");
     setOpen(false);
   };

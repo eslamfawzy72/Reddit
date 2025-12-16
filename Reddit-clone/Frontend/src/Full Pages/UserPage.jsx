@@ -1,12 +1,13 @@
-import React from "react";
+
 import { Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import axios from "axios"
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
 import SidebarLeft from "../Components/SidebarLeft.jsx";
 import UserProfilePage from "../Components/UserProfilePage.jsx";
 import "../styles/userPage.css"; // Import CSS
 
-const mockCommunities = [ /* keep your mockCommunities here */ ];
-const mockUsers = [ /* keep your mockUsers here */ ];
+import { useParams } from "react-router-dom";
 
 // Render helpers
 const renderCommunity = (c) => (
@@ -53,22 +54,37 @@ export const searchEverything = (query) => {
 };
 
 function UserPage(props) {
+  const [currentUser, setCurrentUser] = useState(undefined);
+  const API = import.meta.env.VITE_API_URL;
+   const { username } = useParams();
+
+  // 🔐 Auth check (same logic as Home)
+  useEffect(() => {
+    axios
+      .get(`${API}/auth/me`, { withCredentials: true })
+      .then(res => setCurrentUser(res.data.user))
+      .catch(() => setCurrentUser(null));
+  }, []);
   return (
     <>
       <div className="pageBackground" />
 
       <div className="topNavbar">
-        <PrimarySearchAppBar loggedin={true} searchFunction={searchEverything} />
+        <PrimarySearchAppBar
+  loggedin={!!currentUser}
+  searchFunction={searchEverything}
+/>
+
       </div>
 
       <div className="leftSidebar">
-        <SidebarLeft />
+        <SidebarLeft loggedin={!!currentUser} />
       </div>
 
       <div className="mainArea">
-        <UserProfilePage isOwn={props.isOwn} />
-        {/* Feed + Right Sidebar could go here */}
-      </div>
+      <UserProfilePage isOwn={props.isOwn} username={username} />
+      {/* Feed + Right Sidebar could go here */}
+    </div>
     </>
   );
 }
