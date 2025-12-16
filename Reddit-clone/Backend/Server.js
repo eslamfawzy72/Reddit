@@ -13,6 +13,8 @@ import chatRoutes from "./routes/ChatRouter.js";
 import messageRoutes from "./routes/MessageRouter.js";
 import communityRouter from "./routes/CommunityRouter.js";
 import authRouter from "./routes/authRouter.js";
+import NotificationRouter from "./routes/NotificationRouter.js";
+
 
 dotenv.config(); // load .env
 
@@ -25,8 +27,9 @@ app.use(cors({
 }));
 app.use(cookieParser());
 // Increase JSON body limit to allow base64 image uploads (consider switching to multipart later)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Increase JSON body limit to allow larger base64 image uploads
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Test route
 app.get("/", (req, res) => {
@@ -37,7 +40,7 @@ app.get("/", (req, res) => {
 const server = http.createServer(app); // wrap express app
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5175"],
+    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175"],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -85,10 +88,9 @@ app.use("/posts", PostRouter);
 app.use("/chat", chatRoutes);
 app.use("/messages", messageRoutes);
 // mount communities router at lowercase path
-app.use("/communities", communityRouter);
+app.use("/Communities", communityRouter);
+app.use("/notifications", NotificationRouter);
 //notifications router
-
-
 // comment routes(middleware)
 app.use("/comments", commentRouter);
 

@@ -4,21 +4,28 @@ import axios from "axios";
 
 export async function getAllPosts(req, res) {
   try {
-    const posts = await Post.find()
-      .populate({
-        path: "userID",
-        select: "userName image",
-      })
-      .sort({ date: -1 });
+   const posts = await Post.find()
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }
+const userPollVotes = req.user?.pollVotes || [];
 
     const formattedPosts = posts.map((post) => ({
       _id: post._id,
       postID: post.postID,
       communityID: post.communityID,
+      community_name: post.communityID ? post.communityID.commName : null,
       title: post.title,
       categories: post.categories,
       description: post.description,
@@ -28,7 +35,16 @@ export async function getAllPosts(req, res) {
       downvoteCount: post.downvoteCount,
       commentCount: post.commentCount,
       comments: post.comments,
-      poll: post.poll || { isPoll: false },
+      poll: post.poll?.isPoll
+  ? {
+      ...post.poll.toObject(),
+      userOptionId: userPollVotes.find(
+        v => v.post.toString() === post._id.toString()
+      )?.option || null
+    }
+  : { isPoll: false },
+
+
       date: post.date,
       user: post.userID
         ? {
@@ -82,6 +98,7 @@ export async function createPost(req, res) {
     const {
       userId,
       imgs = [],
+      images = [],
       upvotedCount = 0,
       downvotedCount = 0,
       commentCount = 0,
@@ -94,11 +111,36 @@ export async function createPost(req, res) {
       poll,
     } = req.body;
 
+    // Accept either `images` or legacy `imgs` from client; prefer `images` if provided
+    const incomingImgs = (Array.isArray(images) && images.length > 0) ? images : (Array.isArray(imgs) ? imgs : []);
+
+    // Log incoming media for diagnosis
+    try {
+      const count = incomingImgs.length;
+      console.log(`createPost: received images count = ${count}`);
+      if (count > 0 && typeof incomingImgs[0] === 'string') {
+        console.log(`createPost: first image length = ${incomingImgs[0].length} chars, prefix=${incomingImgs[0].slice(0,40)}`);
+      }
+    } catch (logErr) {
+      console.warn('createPost: failed to log images info', logErr);
+    }
+    console.log("REQ BODY KEYS:", Object.keys(req.body));
+    console.log("IMGS TYPE:", typeof imgs);
+    console.log("IMGS IS ARRAY:", Array.isArray(imgs));
+    console.log("IMGS LENGTH:", imgs?.length);
+
+    if (Array.isArray(imgs) && imgs.length > 0) {
+      console.log("FIRST IMAGE PREFIX:", imgs[0].slice(0, 50));
+    }
+
+    // Log incoming media info for diagnosis
+
+
     // Normalize poll payload: if client sent options or isPoll flag, ensure stored poll has options with vote counts
     let pollData = { isPoll: false, options: [] };
     if (poll && (poll.isPoll || (Array.isArray(poll.options) && poll.options.length > 0))) {
       pollData.isPoll = true;
-      pollData.question = poll.question || title || description || "Poll";
+      pollData.question = poll.question ||"Poll";
       pollData.options = (poll.options || []).map((opt) => {
         if (typeof opt === "string") return { text: opt, votes: 0 };
         return { text: opt.text || "", votes: Number(opt.votes) || 0 };
@@ -107,8 +149,8 @@ export async function createPost(req, res) {
     }
 
     const newPost = new Post({
-      userID: userId,
-      images: imgs,
+      userID: (req.user && req.user._id) ? req.user._id : userId,
+      images: incomingImgs,
       upvoteCount: upvotedCount,
       downvoteCount: downvotedCount,
       commentCount: commentCount,
@@ -116,8 +158,9 @@ export async function createPost(req, res) {
       comments: cmnts,
       communityID: commID,
       categories: cat || [],
-      title: title || (description?.split('\n\n')?.[0] || ''),
-      description: description,
+    title: title?.trim() || "",
+     description: description?.trim() || "",
+
       poll: pollData,
     });
 
@@ -362,22 +405,32 @@ export async function getPostsByCommunityID(req, res) {
     const { communityID } = req.params;
 
     // Fetch posts for this community, newest first
-    const posts = await Post.find({ communityID })
-      .populate({
-        path: "userID",
-        select: "userName image", // include only necessary fields
-      })
-      .sort({ date: -1 });
+    const posts = await Post.find()
+  .find({ communityID })
+  .populate({
+    path: "userID",
+    select: "userName image",
+  })
+  .populate({
+    path: "communityID",
+    select: "commName", // ✅ add this
+  })
+  .sort({ date: -1 });
+
+
 
     if (!posts || posts.length === 0) {
       return res.status(404).json({ message: "No posts found for this community" });
     }
+const userPollVotes = req.user?.pollVotes || [];
 
     // Format posts
     const formattedPosts = posts.map(post => ({
       _id: post._id,
       postID: post.postID,
       communityID: post.communityID,
+      title:post.title,
+      community_name: post.communityID ? post.communityID.commName : null,
       categories: post.categories,
       description: post.description,
       images: post.images,
@@ -386,7 +439,15 @@ export async function getPostsByCommunityID(req, res) {
       downvoteCount: post.downvoteCount,
       commentCount: post.commentCount,
       comments: post.comments,
-      poll: post.poll || { isPoll: false },
+poll: post.poll?.isPoll
+  ? {
+      ...post.poll.toObject(),
+      userOptionId: userPollVotes.find(
+        v => v.post.toString() === post._id.toString()
+      )?.option || null
+    }
+  : { isPoll: false },
+
       date: post.date,
       user: post.userID ? {
         userName: post.userID.userName,
@@ -401,4 +462,23 @@ export async function getPostsByCommunityID(req, res) {
     console.error(err);
     return res.status(500).json({ error: err.message });
   }
+}
+
+// get all comments for a specific post
+export async function getCommentsByPostId(req,res) {
+  try{
+    const postid = req.params.id;
+    const post = await Post.findById(postid);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+    const comments = post.comments.sort((a, b) => new Date(b.date) - new Date(a.date))
+    return res.json(comments);
+    
+  }
+  catch(err){
+     return res.status(500).json({ error: err.message });
+  }
+  
 }

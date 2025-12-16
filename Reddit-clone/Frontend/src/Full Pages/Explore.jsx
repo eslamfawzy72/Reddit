@@ -1,38 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
-import "../styles/explore.css"; // Import CSS
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
-import PrimarySearchAppBar from "../Components/PrimarySearchAppBar.jsx";
-import SidebarLeft from "../Components/SidebarLeft.jsx";
-import CommunityCard from "../Components/CommunityCard.jsx";
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
+import SidebarLeft from "../Components/SidebarLeft";
+import CommunityCard from "../Components/CommunityCard";
 
-// Search helpers (mock data assumed elsewhere)
-export const searchEverything = (query) => {
-  if (!query?.trim()) return { results: [], renderItem: null };
-  const q = query.toLowerCase();
-  const comms = mockCommunities
-    .filter(c => c.commName.toLowerCase().includes(q))
-    .map(c => ({ ...c, score: c.commName.toLowerCase().startsWith(q) ? 100 : 50 }));
-  const users = mockUsers
-    .filter(u => u.name.includes(q))
-    .map(u => ({ ...u, score: u.name.startsWith(q) ? 90 : 40 }));
-  const results = [...comms, ...users].sort((a, b) => b.score - a.score).slice(0, 8);
-  return { results, renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)) };
-};
-
-export const searchcomm = (query) => {
-  if (!query?.trim()) return { results: [], renderItem: null };
-  const q = query.toLowerCase();
-  const comms = mockCommunities
-    .filter(c => c.commName.toLowerCase().includes(q))
-    .map(c => ({ ...c, score: c.commName.toLowerCase().startsWith(q) ? 100 : 50 }));
-  const results = comms.sort((a, b) => b.score - a.score).slice(0, 8);
-  return { results, renderItem: (item) => renderCommunity(item) };
-};
+import "../styles/explore.css";
 
 function Explore() {
-  const navigate = useNavigate();
   const location = useLocation();
   const isLoggedIn = location.state?.isLoggedIn || false;
 
@@ -48,38 +24,32 @@ function Explore() {
           displayName: c.displayName || `b/${c.commName}`,
           description: c.description,
           memberCount: c.memberCount || `${c.members.length}`,
-          categories: ["Programming"], // TEMP fallback
+          category: c.category || "General",
+           isJoined: c.isJoined,
           color: "#0079D3",
           emoji: c.commName.charAt(0).toUpperCase(),
         }));
+
         setCommunities(mapped);
       })
-      .catch(console.log);
+      .catch(console.error);
   }, []);
 
   return (
-    <Box className="explore-background">
-      {/* Fixed top bar */}
-      <Box className="explore-navbar">
-        <PrimarySearchAppBar
-          loggedin={isLoggedIn}
-          searchFunction={searchcomm}
-          onResultClick={(item) => console.log("Clicked:", item)}
-        />
-      </Box>
+    <div className="explore">
+      <header className="explore__navbar">
+        <PrimarySearchAppBar loggedin={isLoggedIn} />
+      </header>
 
-      {/* Sidebar - fixed position */}
-      <Box className="explore-sidebar">
+      <aside className="explore__sidebar">
         <SidebarLeft loggedin={isLoggedIn} />
-      </Box>
+      </aside>
 
-      {/* Main content area */}
-      <Box className="explore-main">
-        <Box>
-          <CommunityCard communities={communities} />
-        </Box>
-      </Box>
-    </Box>
+      <main className="explore__content">
+        <CommunityCard communities={communities}
+        setCommunities={setCommunities} />
+      </main>
+    </div>
   );
 }
 

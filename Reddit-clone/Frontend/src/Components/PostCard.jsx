@@ -1,35 +1,12 @@
-import * as React from "react";
-import { styled } from "@mui/material/styles";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Collapse from "@mui/material/Collapse";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import { red } from "@mui/material/colors";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import React, { useState } from "react";
+import { Card, CardHeader, CardMedia, CardContent, CardActions, Collapse, Avatar, IconButton, Typography } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-import "../styles/PostCard.css";
 import axios from "axios";
 import ActionBar from "./ActionBar";
-import CommentSection from "../Components/CommentSection";
-
-// Expand animation
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  marginLeft: "auto",
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+import CommentSection from "./CommentSection";
+import "../styles/PostCard.css";
 
 export default function PostCard({
   id,
@@ -54,58 +31,27 @@ export default function PostCard({
   const [poll, setPoll] = React.useState(pollProp || { isPoll: false });
   const [loadingOption, setLoadingOption] = React.useState(null);
 
-  const handleExpandClick = () => setExpanded(!expanded);
+  const handleToggleComments = () => setExpanded(prev => !prev);
 
   const nextImage = () => setIndex((prev) => (prev + 1) % images.length);
-  const prevImage = () =>
-    setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const prevImage = () => setIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
   if (isHidden) {
     return (
       <div className="hidden-post">
         <Typography fontWeight="bold">Post hidden</Typography>
-        <button className="undo-btn" onClick={() => setIsHidden(false)}>
-          Undo
-        </button>
+        <button className="undo-btn" onClick={() => setIsHidden(false)}>Undo</button>
       </div>
     );
   }
 
   return (
-    <Card
-      className="post-card"
-      sx={{
-        backgroundColor: "#0b0f17",                 // black card
-        borderRadius: "20px",                       // rounded
-        border: "1px solid rgba(29,155,240,0.15)",  // blue border
-        color: "#ffffff",                           // default text color
-        overflow: "hidden"
-      }}
-    >
-      {/* AI CHECK BUTTON */}
-      <div className="ai-check-button">
-        <button>Check for AI</button>
-      </div>
-
+    <Card className="post-card" sx={{ backgroundColor: "#0b0f17", borderRadius: "20px", border: "1px solid rgba(29,155,240,0.15)", color: "#fff", overflow: "hidden" }}>
       <CardHeader
-        sx={{
-          "& .MuiCardHeader-title": {
-            color: "#ffffff",
-            fontWeight: 600,
-            fontSize: "15px"
-          },
-          "& .MuiCardHeader-subheader": {
-            color: "#9ca3af",
-            fontSize: "13px"
-          }
-        }}
-        avatar={
-          <Avatar sx={{ bgcolor: "#1d9bf0" }}>
-            <img src={user_avatar} alt="" style={{ width: "100%" }} />
-          </Avatar>
-        }
+        avatar={<Avatar sx={{ bgcolor: "#1d9bf0" }}><img src={user_avatar} alt="" style={{ width: "100%" }} /></Avatar>}
         title={user_name}
         subheader={`${community_name} • ${date}${edited ? " • edited" : ""}`}
+        sx={{ "& .MuiCardHeader-title": { color: "#fff", fontWeight: 600, fontSize: "15px" }, "& .MuiCardHeader-subheader": { color: "#9ca3af", fontSize: "13px" } }}
       />
 
 
@@ -128,29 +74,13 @@ export default function PostCard({
         </CardContent>
       )}
 
-      {/* IMAGE SLIDER */}
-      {/* IMAGE SLIDER */}
       {images.length > 0 && (
         <div className="image-slider">
-          <CardMedia
-            component="img"
-            image={images[index]}
-            className="post-image"
-          />
-
+          <CardMedia component="img" image={images[index]} className="post-image" />
           {images.length > 1 && (
             <>
-              <IconButton className="nav-arrow prev-btn" onClick={prevImage}>
-
-                <ArrowBackIosNewIcon sx={{ color: "#fff", fontSize: 22 }} />
-
-              </IconButton>
-
-              <IconButton className="nav-arrow next-btn" onClick={nextImage}>
-                <ArrowForwardIosIcon sx={{ color: "#fff", fontSize: 22 }} />
-
-
-              </IconButton>
+              <IconButton className="nav-arrow prev-btn" onClick={prevImage}><ArrowBackIosNewIcon sx={{ color: "#fff", fontSize: 22 }} /></IconButton>
+              <IconButton className="nav-arrow next-btn" onClick={nextImage}><ArrowForwardIosIcon sx={{ color: "#fff", fontSize: 22 }} /></IconButton>
             </>
           )}
         </div>
@@ -203,19 +133,17 @@ export default function PostCard({
           postId={id}
           upvoteCount={upvoteCount}
           downvoteCount={downvoteCount}
-          commentCount={commentCount}
+          commentCount={comments.length}
           onHide={() => setIsHidden(true)}
-          onVote={onVote}
+          onVote={(voteData) => onVote && onVote(id, voteData)}
+          currentUser={currentUser}
+          onCommentClick={handleToggleComments} // toggle comments when clicking comment icon
         />
-        <ExpandMore expand={expanded} onClick={handleExpandClick}>
-          <ExpandMoreIcon />
-        </ExpandMore>
       </CardActions>
 
-      {/* COMMENTS */}
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <CommentSection comments={comments} />
+          <CommentSection postId={id} comments={comments} />
         </CardContent>
       </Collapse>
     </Card>

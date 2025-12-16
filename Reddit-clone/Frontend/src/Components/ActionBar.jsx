@@ -1,49 +1,103 @@
 import "../styles/ActionBar.css";
 import { ArrowUp, ArrowDown, MessageCircle, Share2 } from "lucide-react";
 import axios from "axios";
+import React, { useState, useEffect } from "react";
 
 export default function ActionBar({
   postId,
-  upvoteCount,
-  downvoteCount,
-  commentCount,
+  upvoteCount = 0,
+  downvoteCount = 0,
+  commentCount = 0,
   onHide,
+  onCommentClick,
   onVote,
+  currentUser
 }) {
-  const score = upvoteCount - downvoteCount;
+  const [userVote, setUserVote] = useState(null); // null | "upvote" | "downvote"
+  const [score, setScore] = useState(upvoteCount - downvoteCount);
 
-  const vote = async (action) => {
+  useEffect(() => {
+    setScore(upvoteCount - downvoteCount);
+  }, [upvoteCount, downvoteCount]);
+
+  const handleVote = async (type) => {
+    if (!currentUser) return;
+
+    let newScore = score;
+
+    // Optimistic UI
+    if (type === "upvote") {
+      if (userVote === "upvote") {
+        newScore -= 1;
+        setUserVote(null);
+      } else if (userVote === "downvote") {
+        newScore += 2;
+        setUserVote("upvote");
+      } else {
+        newScore += 1;
+        setUserVote("upvote");
+      }
+    } else if (type === "downvote") {
+      if (userVote === "downvote") {
+        newScore += 1;
+        setUserVote(null);
+      } else if (userVote === "upvote") {
+        newScore -= 2;
+        setUserVote("downvote");
+      } else {
+        newScore -= 1;
+        setUserVote("downvote");
+      }
+    }
+
+    setScore(newScore);
+
     try {
       const res = await axios.patch(
         `${import.meta.env.VITE_API_URL}/posts/${postId}`,
-        { action },
+        { action: type },
         { withCredentials: true }
       );
 
-      onVote({
-        postId,
-        upvoteCount: res.data.upvoteCount,
-        downvoteCount: res.data.downvoteCount,
-      });
-
+      if (onVote) {
+        onVote({
+          postId,
+          upvoteCount: res.data.upvoteCount,
+          downvoteCount: res.data.downvoteCount,
+          userVote: type
+        });
+      }
     } catch (err) {
       console.error("Vote failed", err);
+      // Optional: revert UI
     }
   };
 
   return (
     <div className="action-bar">
-      <button className="btn vote_up" onClick={() => vote("upvote")}>
+      <button
+        className="btn vote_up"
+        onClick={() => handleVote("upvote")}
+        style={{
+          color: userVote === "upvote" ? "#1c7ed6" : "inherit"
+        }}
+      >
         <ArrowUp size={20} />
       </button>
 
       <p className="vote-count">{score}</p>
 
-      <button className="btn vote_down" onClick={() => vote("downvote")}>
+      <button
+        className="btn vote_down"
+        onClick={() => handleVote("downvote")}
+        style={{
+          color: userVote === "downvote" ? "#1c7ed6" : "inherit"
+        }}
+      >
         <ArrowDown size={20} />
       </button>
 
-      <button className="btn">
+      <button className="btn" onClick={onCommentClick}>
         <MessageCircle size={18} />
         <span>{commentCount}</span>
       </button>

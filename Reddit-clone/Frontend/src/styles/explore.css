@@ -1,45 +1,72 @@
-.explore-background {
-  background-color: #ffffff;
+/* =========================
+   Layout
+========================= */
+
+.explore {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas:
+    "navbar navbar"
+    "sidebar content";
   min-height: 100vh;
+  background: #f5f5f5;
 }
 
-.explore-navbar {
-  position: fixed;
+.explore__navbar {
+  grid-area: navbar;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.explore-sidebar {
-  position: fixed;
+.explore__sidebar {
+  grid-area: sidebar;
+  position: sticky;
   top: 64px;
-  left: 0;
-  bottom: 0;
-  z-index: 100;
+  height: calc(100vh - 64px);
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
 }
 
-.explore-main {
-  position: fixed;
-  top: 64px;
-  left: 260px;
-  right: 0;
-  bottom: 0;
-  overflow: auto;
-  padding: 16px 24px;
-  scrollbar-width: thin;
+.explore__content {
+  grid-area: content;
+  overflow-y: auto;
+  padding: 24px;
 }
 
-.explore-main::-webkit-scrollbar {
+/* =========================
+   Scrollbar
+========================= */
+
+.explore__content::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
-.explore-main::-webkit-scrollbar-thumb {
-  background: #888;
+.explore__content::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
   border-radius: 4px;
 }
 
-.explore-main > * {
-  min-width: fit-content;
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+  .explore {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "navbar"
+      "content";
+  }
+
+  .explore__sidebar {
+    display: none;
+  }
+
+  .explore__content {
+    padding: 16px;
+  }
 }

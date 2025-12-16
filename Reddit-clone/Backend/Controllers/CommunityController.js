@@ -1,5 +1,5 @@
  import Community from "../Models/Community.js";
-
+import User from "../Models/User.js";
 // // Create a new community
 // export const createCommunity = async (req, res) => {
 //   try {
@@ -20,16 +20,18 @@
 export const getAllCommunities = async (req, res) => {
   try {
     const userId = req.user?._id; 
-
+    console.log("Fetching communities for user ID:", userId);
     const communities = await Community.find();
 
     const communitiesWithJoinState = communities.map((community) => {
-      const isJoined =
-        userId &&
-        community.members.some(
-          (memberId) => memberId.toString() === userId.toString()
-        );
+ const isJoined = Boolean(
+  userId &&
+  community.members.some(
+    (memberId) => memberId.toString() === userId.toString()
+  )
+);
 
+        console.log("Community:", community.commName, "isJoined:", isJoined);
       return {
         ...community.toObject(),
         isJoined,
@@ -47,8 +49,8 @@ export const getAllCommunities = async (req, res) => {
 export const getCommunityById = async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)
-      .populate("members", "username")
-      .populate("moderators", "username");
+      .populate("members", "userName")
+      .populate("moderators", "userName");
     if (!community) return res.status(404).json({ message: "Community not found" });
     res.status(200).json(community);
   } catch (err) {
@@ -106,19 +108,49 @@ export const getCommunityByName = async (req, res) => {
 // // Join community
 export const joinCommunity = async (req, res) => {
   try {
+    const userId = req.user._id;
+    console.log("User ID attempting to join:", userId);
+
     const community = await Community.findById(req.params.id);
-    if (!community) return res.status(404).json({ message: "Community not found" });
+    if (!community)
+      return res.status(404).json({ message: "Community not found" });
 
-    if (community.members.includes(req.user._id))
+    console.log("Current members:", community.members);
+
+    const alreadyMember = community.members.some(
+      (memberId) => memberId.equals(userId)
+    );
+
+    if (alreadyMember) {
       return res.status(400).json({ message: "Already a member" });
+    }
 
-    community.members.push(req.user._id);
-    await community.save();
-    res.status(200).json({ message: "Joined the community" });
+    console.log("Adding user to community members");
+    community.members.push(userId);
+
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    console.log("Adding community to user's joined communities");
+    user.joinedCommunities.push(community._id);
+
+    console.log("Saving changes");
+    await Promise.all([
+      community.save(),
+      user.save()
+    ]);
+
+    res.status(200).json({
+      message: "Joined the community",
+      isJoined: true
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // // Leave community
 // export const leaveCommunity = async (req, res) => {
