@@ -9,6 +9,12 @@ export const createCommunity = async (req, res) => {
       members: [req.user._id],   
     });
     const savedCommunity = await newCommunity.save();
+    const user = await User.findById(req.user._id);
+    if(!user){
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.joinedCommunities.push(savedCommunity._id);
+    await user.save();
     res.status(201).json(savedCommunity);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,25 +23,34 @@ export const createCommunity = async (req, res) => {
 //promote member to modreator
 export const promoteToModerator = async (req, res) => {
   try {
-    const { communityId } = req.params;
+    const  communityId  = req.params.communityId;
     const { userId } = req.body;
-    const requesterId = req.user._id;
+    const adminId = req.user._id;
 
     const community = await Community.findById(communityId);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
 
-    const isAdmin =
-      community.created_by.equals(requesterId) ||
-      community.moderators.some(id => id.equals(requesterId));
-
-    if (!isAdmin) {
-      return res.status(403).json({ message: "Not authorized" });
+    //ONLY ADMIN CAN PROMOTE
+    if (!community.created_by.equals(adminId)) {
+      return res.status(403).json({ message: "Only admin can promote moderators" });
     }
 
+    // Admin cannot be promoted
+    if (community.created_by.equals(userId)) {
+      return res.status(400).json({ message: "Admin cannot be a moderator" });
+    }
+
+    // Must be a member
+    const isMember = community.members.some(id => id.equals(userId));
+    if (!isMember) {
+      return res.status(400).json({ message: "User is not a community member" });
+    }
+
+    // Already moderator
     if (community.moderators.some(id => id.equals(userId))) {
-      return res.status(400).json({ message: "Already a moderator" });
+      return res.status(400).json({ message: "User is already a moderator" });
     }
 
     community.moderators.push(userId);
@@ -54,27 +69,49 @@ export const promoteToModerator = async (req, res) => {
 
 //demote moderator to member
 
-
 export const demoteModerator = async (req, res) => {
-  const { communityId } = req.params;
-  const { userId } = req.body; // moderator to demote
-  const currentUserId = req.user._id;
-
   try {
+    const  communityId  = req.params.communityId;
+    const { userId } = req.body;
+    const adminId = req.user._id;
+
     const community = await Community.findById(communityId);
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
 
-    //Only admin can demote
-    if (community.created_by.toString() !== currentUserId.toString()) {
+    // ONLY ADMIN CAN DEMOTE
+    if (!community.created_by.equals(adminId)) {
       return res.status(403).json({ message: "Only admin can demote moderators" });
     }
 
-    
-    if (userId.toString() === currentUserId.toString()) {
-      return res.status(409).json({ message: "Admin cannot demote themselves" });
+    //  Admin cannot demote themselves
+    if (community.created_by.equals(userId)) {
+      return res.status(409).json({ message: "Admin cannot be demoted" });
     }
+
+    //  Must be moderator
+    const isModerator = community.moderators.some(id => id.equals(userId));
+    if (!isModerator) {
+      return res.status(400).json({ message: "User is not a moderator" });
+    }
+
+    community.moderators = community.moderators.filter(
+      id => !id.equals(userId)
+    );
+
+    await community.save();
+
+    return res.status(200).json({
+      message: "Moderator demoted successfully",
+      userId,
+    });
+
+  } catch (err) {
+    console.error("Demote error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
 
    
     // const isModerator = community.moderators.some(
@@ -86,22 +123,22 @@ export const demoteModerator = async (req, res) => {
     // }
 
     
-    community.moderators = community.moderators.filter(
-      (modId) => modId.toString() !== userId.toString()
-    );
+//     community.moderators = community.moderators.filter(
+//       (modId) => modId.toString() !== userId.toString()
+//     );
 
-    await community.save();
+//     await community.save();
 
-    return res.status(200).json({
-      message: "Moderator demoted successfully",
-      demotedUserId: userId,
-    });
+//     return res.status(200).json({
+//       message: "Moderator demoted successfully",
+//       demotedUserId: userId,
+//     });
 
-  } catch (err) {
-    console.error("Demote moderator error:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
+//   } catch (err) {
+//     console.error("Demote moderator error:", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 
 
 

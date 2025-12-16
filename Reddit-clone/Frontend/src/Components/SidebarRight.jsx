@@ -16,25 +16,27 @@ const RuleItem = ({ number, title }) => {
   );
 };
 
-/* ---------- Moderators + Members Management ---------- */
+/* ---------- Moderators + Members ---------- */
 const ModeratorList = ({
-  moderators = [],
-  members = [],
+  moderators,
+  members,
   communityId,
+  adminId,
   canManage,
   setCommunity,
 }) => {
   const [showMembers, setShowMembers] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
 
-  const moderatorIds = moderators.map((m) => m._id);
+  const moderatorIds = moderators.map(m => m._id);
 
-  const nonModerators = members.filter(
-    (m) => !moderatorIds.includes(m._id)
+  // 🔥 Only real members (exclude admin + existing moderators)
+  const promotableMembers = members.filter(
+    m => m._id !== adminId && !moderatorIds.includes(m._id)
   );
 
   /* -------- PROMOTE -------- */
-  const promoteToMod = async (user) => {
+  const promote = async (user) => {
     try {
       setLoadingId(user._id);
 
@@ -44,21 +46,20 @@ const ModeratorList = ({
         { withCredentials: true }
       );
 
-      setCommunity((prev) => ({
+      setCommunity(prev => ({
         ...prev,
         moderators: [...prev.moderators, user],
       }));
+      window.location.reload();
     } catch (err) {
-  if (err.response?.status >= 400) {
-    alert(err.response.data.message);
-  }
-} finally {
+      alert(err.response?.data?.message || "Promotion failed");
+    } finally {
       setLoadingId(null);
     }
   };
 
   /* -------- DEMOTE -------- */
-  const demoteModerator = async (user) => {
+  const demote = async (user) => {
     try {
       setLoadingId(user._id);
 
@@ -68,15 +69,13 @@ const ModeratorList = ({
         { withCredentials: true }
       );
 
-      setCommunity((prev) => ({
+      setCommunity(prev => ({
         ...prev,
-        moderators: prev.moderators.filter((m) => m._id !== user._id),
+        moderators: prev.moderators.filter(m => m._id !== user._id),
       }));
     } catch (err) {
- 
-    alert(err.response.data.message);
-  
-} finally {
+      alert(err.response?.data?.message || "Demotion failed");
+    } finally {
       setLoadingId(null);
     }
   };
@@ -85,14 +84,14 @@ const ModeratorList = ({
     <div className="moderator-list">
       <div className="moderator-title">Moderators</div>
 
-      {moderators.map((mod) => (
+      {moderators.map(mod => (
         <div key={mod._id} className="moderator-item mod-row">
           <span>u/{mod.userName}</span>
 
           {canManage && (
             <button
               className="mod-action danger"
-              onClick={() => { demoteModerator(mod); window.location.reload(); }}
+              onClick={() => demote(mod)}
               disabled={loadingId === mod._id}
             >
               {loadingId === mod._id ? "…" : "Demote"}
@@ -112,20 +111,16 @@ const ModeratorList = ({
 
           {showMembers && (
             <div className="mod-picker">
-              {nonModerators.length === 0 ? (
+              {promotableMembers.length === 0 ? (
                 <div className="empty">No members available</div>
               ) : (
-                nonModerators.map((member) => (
+                promotableMembers.map(member => (
                   <div key={member._id} className="mod-pick-item">
                     <span>u/{member.userName}</span>
 
                     <button
                       className="mod-action"
-                      onClick={() => {promoteToMod(member)
-                        window.location.reload();
-                      }
-
-                      }
+                      onClick={() => promote(member)}
                       disabled={loadingId === member._id}
                     >
                       {loadingId === member._id ? "…" : "Promote"}
@@ -148,7 +143,7 @@ const SidebarRight = ({ community, setCommunity }) => {
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
-      .then((res) => setCurrentUserId(res.data.user._id))
+      .then(res => setCurrentUserId(res.data.user._id))
       .catch(() => setCurrentUserId(null));
   }, []);
 
@@ -158,6 +153,7 @@ const SidebarRight = ({ community, setCommunity }) => {
     _id,
     commName,
     description,
+    category,
     created_at,
     privacystate,
     members = [],
@@ -166,11 +162,10 @@ const SidebarRight = ({ community, setCommunity }) => {
     created_by,
   } = community;
 
-  const creatorId =
+  const adminId =
     typeof created_by === "object" ? created_by._id : created_by;
 
-  const canManage =
-    creatorId === currentUserId 
+  const canManage = adminId === currentUserId;
 
   return (
     <aside className="sidebar-right">
@@ -178,6 +173,7 @@ const SidebarRight = ({ community, setCommunity }) => {
       <section className="subreddit-info">
         <h3>b/{commName}</h3>
         <p>{description}</p>
+        <p>Category: {category}</p>
 
         <div className="subreddit-meta">
           <span>📅</span>
@@ -221,8 +217,7 @@ const SidebarRight = ({ community, setCommunity }) => {
 
       {/* Admin */}
       <div className="admin-info">
-        <strong>Admin:</strong>{" "}
-        u/{created_by?.userName || "Unknown"}
+        <strong>Admin:</strong> u/{created_by?.userName || "Unknown"}
       </div>
 
       {/* Moderators */}
@@ -230,6 +225,7 @@ const SidebarRight = ({ community, setCommunity }) => {
         moderators={moderators}
         members={members}
         communityId={_id}
+        adminId={adminId}
         canManage={canManage}
         setCommunity={setCommunity}
       />

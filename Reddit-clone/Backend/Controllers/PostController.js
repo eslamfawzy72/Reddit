@@ -1,6 +1,43 @@
+import 'dotenv/config';
 import Post from "../Models/Post.js";
 import User from "../Models/User.js";
 import axios from "axios";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// 2.5-flash-lite is the 'Goldilocks' model for 2025 Free Tier users
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+export async function getSummary(req, res) {
+  try {
+    const { postID } = req.params;
+    const post = await Post.findById(postID);
+
+    if (!post || !post.description || post.description.length < 50) {
+      return res.status(200).json({ summary: "Content too short to summarize." });
+    }
+
+    const prompt = `Summarize this in one short sentence: ${post.description}`;
+    const result = await model.generateContent(prompt);
+    const summary = result.response.text();
+
+    return res.status(200).json({ summary });
+
+  } catch (err) {
+    if (err.status === 429) {
+      console.error("QUOTA EXCEEDED: You are hitting the 2025 Free Tier limits.");
+      return res.status(429).json({ 
+        error: "AI is currently resting. Please try again in 30 seconds.",
+        retryAfter: "30s" 
+      });
+    }
+    
+    console.error("Gemini Error:", err.message);
+    return res.status(500).json({ error: "Summary generation failed." });
+  }
+}
+
+
 
 export async function getAllPosts(req, res) {
   try {
@@ -11,7 +48,7 @@ export async function getAllPosts(req, res) {
   })
   .populate({
     path: "communityID",
-    select: "commName", // ✅ add this
+    select: "commName",
   })
   .sort({ date: -1 });
 
@@ -346,65 +383,6 @@ return res.json({
 };
 
 
-
-export async function getSummary(req, res) {
-  try {
-    const { postID } = req.params;
-    const post = await Post.findById(postID);
-
-    if (!post) {
-      return res.status(404).json({ message: "Post not found!" });
-    }
-
-    let summary = "";
-
-    if (post.description && post.description.length > 100) {
-      try {
-        const response = await axios.post(
-          `${process.env.GEMINI_API_URL}/v1beta2/models/gemini-1.5:generateMessage`,
-          {
-            input: {
-              messages: [
-                {
-                  author: "user",
-                  content: [
-                    {
-                      type: "text",
-                      text: `Summarize this post in one short sentence: ${post.description}`,
-                    },
-                  ],
-                },
-              ],
-            },
-            temperature: 0.5,
-            maxOutputTokens: 50,
-          },
-          {
-            headers: {
-              "Authorization": `Bearer ${process.env.GEMINI_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log("Gemini response:", JSON.stringify(response.data, null, 2));
-
-        summary =
-          response.data?.candidates?.[0]?.content?.[0]?.text?.trim() || "no summary";
-
-      } catch (apiError) {
-        console.error("Gemini API Error:", apiError.response?.data || apiError.message);
-        summary = "no summary";
-      }
-    }
-
-    return res.status(200).json({ summary });
-
-  } catch (err) {
-    console.error("Server Error:", err.message);
-    return res.status(500).json({ error: err.message });
-  }
-}
 
 // Get all posts for a specific community
 export async function getPostsByCommunityID(req, res) {
