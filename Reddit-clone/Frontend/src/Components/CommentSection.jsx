@@ -46,6 +46,8 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
     setEditing(false);
   };
 
+  const isOwner = currentUser?._id === comment.userID;
+
   return (
     <div className="comment-item">
       <div className="comment-body">
@@ -57,23 +59,28 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
           </span>
         </div>
 
-      {editing ? (
-  <div className="comment-edit-box">
-    <input
-      value={editText}
-      onChange={(e) => setEditText(e.target.value)}
-    />
-    <button className="save-btn" onClick={submitEdit}>Save</button>
-    <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
-  </div>
+        {editing ? (
+          <div className="comment-edit-box">
+            <input
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+            />
+            <button className="save-btn" onClick={submitEdit}>Save</button>
+            <button className="cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+          </div>
         ) : (
           <p className="comment-text">{comment.text}</p>
         )}
 
         <div className="action-bar">
-          <button onClick={() => setShowReplyBox(!showReplyBox)}>Reply</button>
+          <button
+            disabled={!currentUser}
+            onClick={() => setShowReplyBox(!showReplyBox)}
+          >
+            Reply
+          </button>
 
-          {currentUser._id === comment.userID && !editing && (
+          {isOwner && !editing && (
             <>
               <button onClick={() => setEditing(true)}>Edit</button>
               <button onClick={() => onDelete(comment._id)}>Delete</button>
@@ -81,31 +88,12 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
           )}
         </div>
 
-        {showReplyBox && (
-          <div
-            className="reply-box"
-            style={{
-              marginTop: "0.5rem",
-              display: "flex",
-              gap: "0.5rem",
-              padding: "0.5rem",
-              borderRadius: "8px",
-              backgroundColor: "#f5f5f5",
-            }}
-          >
+        {showReplyBox && currentUser && (
+          <div className="reply-box">
             <input
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Write a reply..."
-              style={{
-                flex: 1,
-                padding: "0.4rem 0.6rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                backgroundColor: "#fff",
-                color: "#333",
-                fontSize: "0.9rem",
-              }}
             />
             <button onClick={submitReply}>Post</button>
           </div>
@@ -131,19 +119,22 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
 };
 
 // Main CommentSection component
-export default function CommentSection({ postId, comments = [], currentUser, onCommentsUpdate }) {
+export default function CommentSection({
+  postId,
+  comments = [],
+  currentUser,
+  onCommentsUpdate,
+}) {
   const [allComments, setAllComments] = useState(comments);
   const [text, setText] = useState("");
 
-  // Helper to update state and notify parent
   const updateComments = (newComments) => {
     setAllComments(newComments);
-    if (onCommentsUpdate) onCommentsUpdate(newComments); // notify parent
+    onCommentsUpdate?.(newComments);
   };
 
-  // Add Comment
   const handleAddComment = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !currentUser) return;
     try {
       const res = await axios.post(
         `${API}/comments/${postId}`,
@@ -157,9 +148,8 @@ export default function CommentSection({ postId, comments = [], currentUser, onC
     }
   };
 
-  // Add Reply
   const handleAddReply = async (commentId, replyText) => {
-    if (!replyText.trim()) return;
+    if (!replyText.trim() || !currentUser) return;
     try {
       const res = await axios.post(
         `${API}/comments/${postId}/${commentId}/reply`,
@@ -172,7 +162,6 @@ export default function CommentSection({ postId, comments = [], currentUser, onC
     }
   };
 
-  // Edit Comment/Reply
   const handleEdit = async (commId, newText) => {
     try {
       await axios.patch(
@@ -181,25 +170,25 @@ export default function CommentSection({ postId, comments = [], currentUser, onC
         { withCredentials: true }
       );
 
-      const updateCommentText = (comments) =>
-        comments.map((c) => {
-          if (c._id === commId)
-            return { ...c, text: newText, edited: true, date: new Date() };
-          if (c.replies?.length > 0)
-            return { ...c, replies: updateCommentText(c.replies) };
-          return c;
-        });
+      const updateText = (comments) =>
+        comments.map((c) =>
+          c._id === commId
+            ? { ...c, text: newText, edited: true, date: new Date() }
+            : { ...c, replies: updateText(c.replies || []) }
+        );
 
-      updateComments(updateCommentText(allComments));
+      updateComments(updateText(allComments));
     } catch (err) {
       console.error("Edit comment failed", err);
     }
   };
 
-  // Delete Comment/Reply
   const handleDelete = async (commId) => {
     try {
-      await axios.delete(`${API}/comments/${postId}/${commId}`, { withCredentials: true });
+      await axios.delete(
+        `${API}/comments/${postId}/${commId}`,
+        { withCredentials: true }
+      );
       updateComments(removeCommentRecursive(allComments, commId));
     } catch (err) {
       console.error("Delete comment failed", err);
@@ -213,8 +202,11 @@ export default function CommentSection({ postId, comments = [], currentUser, onC
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Add a comment..."
+          disabled={!currentUser}
         />
-        <button onClick={handleAddComment}>Post</button>
+        <button onClick={handleAddComment} disabled={!currentUser}>
+          Post
+        </button>
       </div>
 
       {allComments.map((comment) => (
@@ -230,4 +222,3 @@ export default function CommentSection({ postId, comments = [], currentUser, onC
     </div>
   );
 }
-
