@@ -2,7 +2,7 @@
 .signup-background {
   position: fixed;
   inset: 0;
-  background-color: #0A0A0A;
+  background-color: #020617;
   z-index: -1;
 }
 
@@ -18,10 +18,11 @@
 .signup-page1-card {
   width: 100%;
   max-width: 480px;
-  background-color: #1a1a1b;
+  background-color: #0f172a;
   border-radius: 16px;
+  border: 1px solid #1F2933;
   padding: 40px 32px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -51,7 +52,7 @@
 /* Inputs */
 .signup-input .MuiOutlinedInput-root {
   border-radius: 12px;
-  background-color: #272729;
+  background-color: #0b0f1a;
   color: #fff;
 }
 
@@ -64,22 +65,22 @@
 }
 
 .signup-input .MuiOutlinedInput-notchedOutline {
-  border-color: #343536;
+  border-color: #1F2933;
 }
 
 /* Button */
 .signup-continue-btn {
-  background-color: #0066ff;
+  background-color: #4c6ef5;
   border-radius: 999px;
   padding: 14px 0;
   font-weight: 600;
   text-transform: none;
-  box-shadow: 0 8px 20px rgba(0,102,255,0.4);
+  box-shadow: 0 8px 20px rgba(76, 110, 245, 0.4);
   transition: all 0.2s;
 }
 
 .signup-continue-btn:hover {
-  background-color: #0055cc;
+  background-color: #3b5bdb;
   transform: translateY(-2px);
 }
 
@@ -95,9 +96,10 @@
 .signup-page2-card {
   width: 100%;
   max-width: 900px;
-  background-color: #1a1a1b;
+  background-color: #0f172a;
+  border: 1px solid #1F2933;
   border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -105,8 +107,8 @@
 
 .signup-page2-header {
   padding: 24px;
-  border-bottom: 1px solid #343536;
-  background: linear-gradient(180deg, #1a1a1b, #030303);
+  border-bottom: 1px solid #1F2933;
+  background: #020617;
 }
 
 .signup-page2-title {
@@ -132,8 +134,8 @@
 .signup-search {
   position: relative;
   border-radius: 999px;
-  border: 1px solid #343536;
-  background-color: #272729;
+  border: 1px solid #1F2933 !important;
+  background-color: #0b0f1a !important;
   width: 100%;
   display: flex;
   align-items: center;
@@ -141,14 +143,28 @@
 }
 
 .signup-search-icon {
-  color: #818384;
+  color: #818384 !important;
 }
 
 .signup-search-input {
-  color: #fff;
+  color: #fff !important;
   width: 100%;
   padding: 12px 12px;
   font-size: 14px;
+}
+
+.signup-search-input::placeholder {
+  color: #818384 !important;
+  opacity: 1;
+}
+
+.signup-search .MuiInputBase-input {
+  color: #d7dadc !important;
+}
+
+.signup-search .MuiInputBase-input::placeholder {
+  color: #818384 !important;
+  opacity: 1;
 }
 
 /* Topics */
@@ -169,27 +185,38 @@
 }
 
 .signup-topic-chip {
-  background-color: #272729;
-  color: #EDEFF1;
+  background-color: #1e293b !important;
+  color: #d7dadc !important;
   font-weight: 500;
+  border: 1px solid #3b4557 !important;
   transition: all 0.2s;
+  cursor: pointer;
+}
+
+.signup-topic-chip .MuiChip-label {
+  color: #d7dadc !important;
 }
 
 .signup-topic-chip:hover {
-  background-color: #343536;
+  background-color: #2d3a4a !important;
+  border-color: #4c6ef5 !important;
   transform: scale(1.05);
 }
 
 .signup-topic-chip.selected {
-  background-color: #0066ff;
-  color: #fff;
-  border: 2px solid #0066ff;
+  background-color: #4c6ef5 !important;
+  color: #fff !important;
+  border: 1px solid #4c6ef5 !important;
   font-weight: 600;
-  box-shadow: 0 0 12px rgba(0,102,255,0.5);
+  box-shadow: 0 0 12px rgba(76, 110, 245, 0.5);
+}
+
+.signup-topic-chip.selected .MuiChip-label {
+  color: #fff !important;
 }
 
 .signup-topic-chip.selected:hover {
-  background-color: #0055cc;
+  background-color: #3b5bdb !important;
 }
 
 /* Actions */
@@ -202,26 +229,30 @@
 
 .signup-back-btn {
   border-radius: 999px;
-  border: 1px solid #343536;
-  color: #fff;
+  border: 1px solid #1F2933;
+  color: #d7dadc;
   padding: 10px 32px;
+  background: transparent;
   transition: all 0.2s;
 }
 
 .signup-back-btn:hover {
-  border-color: #0066ff;
+  border-color: #4c6ef5;
+  color: #4c6ef5;
 }
 
 .signup-create-btn {
-  background-color: #0066ff;
+  background-color: #4c6ef5;
   border-radius: 999px;
   padding: 12px 40px;
   font-weight: 600;
-  box-shadow: 0 8px 20px rgba(0,102,255,0.4);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 20px rgba(76, 110, 245, 0.4);
   transition: all 0.2s;
 }
 
 .signup-create-btn:hover {
-  background-color: #0055cc;
+  background-color: #3b5bdb;
   transform: scale(1.05);
 }

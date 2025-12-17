@@ -40,24 +40,27 @@ export default function SidebarLeft(props) {
             ))}
           </ul>
 
-           
-            <div className="sidebar-button-container">
-              <button
-                className="sidebar-button start-community"
-                onClick={() =>{ 
-                  if(!isLoggedIn){
-                    alert("please login to create community");
-                    navigate("/Login");
-                    return;
-                  }
-                  navigate("/StartCommunity")
+          <div className="sidebar-button-container">
+            <button
+              className="sidebar-button start-community"
+              onClick={() => {
+                if (!isLoggedIn) {
+                  alert("please login to create community");
+                  navigate("/Login");
+                  return;
                 }
+                if (props.onOpenCreateCommunity) {
+                  props.onOpenCreateCommunity();
+                } else {
+                  console.error("onOpenCreateCommunity callback not provided");
                 }
-              >
-                Start a Community
-              </button>
-            </div>
-          
+              }
+              }
+            >
+              Start a Community
+            </button>
+          </div>
+
 
           <div className="sidebar-button-container">
             <button

@@ -28,6 +28,7 @@ export default function PrimarySearchAppBar({
   fullSearchLabel = "Search for",
   darkMode,
   setDarkMode,
+  onOpenCreatePost,
 }) {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
@@ -65,19 +66,7 @@ export default function PrimarySearchAppBar({
   }, [query, searchFunction]);
 
   const handleItemClick = (item) => {
-    // Navigate based on type
-    if (item.type === "user") {
-      navigate(`/Profile/${item.id}`);
-    } else if (item.type === "community") {
-      navigate(`/community/${item.id}`);
-    } else if (item.type === "full-search") {
-      navigate(`/search?query=${encodeURIComponent(item.query)}`);
-    }
-
-    // Call external handler if provided
     onResultClick?.(item);
-
-    // Reset search bar
     setQuery("");
     setOpen(false);
   };
@@ -90,9 +79,9 @@ export default function PrimarySearchAppBar({
         position="fixed"
         elevation={0}
         sx={{
-          backgroundColor: "rgba(15, 25, 45, 0.85)",
+          backgroundColor: "#020617",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          borderBottom: "1px solid #1F2933",
         }}
       >
         <Toolbar sx={{ minHeight: 64 }}>
@@ -255,7 +244,7 @@ export default function PrimarySearchAppBar({
                   <NotificationsIcon />
                 </IconButton>
                 <Button
-                  onClick={() => navigate("/CreatePost")}
+                  onClick={() => onOpenCreatePost ? onOpenCreatePost() : navigate("/CreatePost")}
                   startIcon={<AddIcon />}
                   variant="contained"
                   sx={{

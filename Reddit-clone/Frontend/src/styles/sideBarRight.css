@@ -3,9 +3,9 @@
 ========================= */
 .sidebar-right {
   width: 320px;
-  background: #1a1a1b;
+  background: #020617;
   border-radius: 12px;
-  border: 1px solid #343536;
+  border: 1px solid #1F2933;
   font-family: "Inter", system-ui, sans-serif;
   color: #d7dadc;
   overflow: hidden;
@@ -16,7 +16,7 @@
 ========================= */
 .subreddit-info {
   padding: 16px;
-  border-bottom: 1px solid #343536;
+  border-bottom: 1px solid #1F2933;
 }
 
 .subreddit-info h3 {
@@ -62,7 +62,7 @@
 ========================= */
 .rules-section {
   padding: 16px;
-  border-bottom: 1px solid #343536;
+  border-bottom: 1px solid #1F2933;
 }
 
 .rules-title {
@@ -75,7 +75,7 @@
 
 .rule-item {
   padding: 10px 0;
-  border-bottom: 1px solid #343536;
+  border-bottom: 1px solid #1F2933;
   cursor: pointer;
 }
 

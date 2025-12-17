@@ -1,18 +1,18 @@
 /* =========================
    PAGE WRAPPER
 ========================= */
-/* =========================
-   PAGE WRAPPER
-========================= */
 .create-community-page {
+
   min-height: 100vh;
-  background: #0a0a0a;
+  background: #020617;
+  width: 100%;
 
   /* 🔥 SHIFT CONTENT AFTER SIDEBAR */
   margin-left: 290px;
 
   padding-top: 96px;
   padding-inline: 36px;
+  padding-bottom: 40px;
 
   display: flex;
   justify-content: center;
@@ -101,7 +101,7 @@
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: #2563eb;
+  border-color: #4c6ef5;
 }
 
 /* Prefix b/ */
@@ -139,8 +139,8 @@
 }
 
 .radio-group label:hover {
-  border-color: #2563eb;
-  background: rgba(37, 99, 235, 0.08);
+  border-color: #4c6ef5;
+  background: rgba(76, 110, 245, 0.08);
 }
 
 .radio-group input {
@@ -171,7 +171,7 @@
 }
 
 .rule-input button {
-  background: #2563eb;
+  background: #4c6ef5;
   border: none;
   color: #fff;
   border-radius: 10px;
@@ -181,7 +181,7 @@
 }
 
 .rule-input button:hover {
-  background: #1d4ed8;
+  background: #3b5bdb;
 }
 
 .rules-list {
@@ -244,7 +244,7 @@
 }
 
 .create-btn {
-  background: #2563eb;
+  background: #4c6ef5;
   border: none;
   color: #fff;
   padding: 10px 24px;
@@ -254,7 +254,7 @@
 }
 
 .create-btn:hover {
-  background: #1d4ed8;
+  background: #3b5bdb;
 }
 
 .create-btn:disabled {

@@ -8,7 +8,7 @@ import "../styles/home.css";
 
 const POPULARITY_THRESHOLD = 5;
 
-function Popular() {
+function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ function Popular() {
         const allCommRes = await axios.get(`${API}/communities`);
         const publicNotJoined = (allCommRes.data || []).filter(
           c => c.privacystate === "public" &&
-               !joinedCommunities.some(j => j._id === c._id)
+            !joinedCommunities.some(j => j._id === c._id)
         );
 
         const publicPostsArrays = await Promise.all(
@@ -175,10 +175,13 @@ function Popular() {
             if (item.type === "user") navigate(`/profile/${item.id}`);
             else if (item.type === "community") navigate(`/community/${item.id}`);
           }}
+          onOpenCreatePost={onOpenCreatePost}
         />
       </div>
 
-      <div className="leftSidebar"><SidebarLeft loggedin={!!currentUser} /></div>
+      <div className="leftSidebar">
+        <SidebarLeft loggedin={!!currentUser} onOpenCreateCommunity={onOpenCreateCommunity} onOpenCreatePost={onOpenCreatePost} />
+      </div>
 
       <div className="mainFeed">
         <div className="feedWrapper">
@@ -188,24 +191,24 @@ function Popular() {
             <div className="loadingPosts">No popular posts available.</div>
           ) : (
             posts.map(post => (
-  <PostCard
-    key={post._id}
-    id={post._id}
-    user_name={`u/${post.user?.userName || "Unknown"}`}
-    user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-    description={post.description}
-    images={post.images || []}
-    comments={post.comments}
-    upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
-    downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
-    commentCount={post.commentCount || 0}
-    date={post.date}
-    community_name={`b/${post.commName || "unknown"}`}
-    edited={post.edited || false}
-    onVote={handleVote}
-    currentUser={currentUser}
-  />
-))
+              <PostCard
+                key={post._id}
+                id={post._id}
+                user_name={`u/${post.user?.userName || "Unknown"}`}
+                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+                description={post.description}
+                images={post.images || []}
+                comments={post.comments}
+                upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+                downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
+                commentCount={post.commentCount || 0}
+                date={post.date}
+                community_name={`b/${post.commName || "unknown"}`}
+                edited={post.edited || false}
+                onVote={handleVote}
+                currentUser={currentUser}
+              />
+            ))
 
           )}
         </div>

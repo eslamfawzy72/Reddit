@@ -114,7 +114,7 @@
 
 /* ---------------- BODY ---------------- */
 .comment-text {
-  color: #1b5597ff;
+  color: #d7dadc;
   line-height: 1.5;
   margin-bottom: 12px;
   font-size: 14px;
@@ -135,7 +135,7 @@
 
 .reply-btn {
   font-size: 13px;
-  color: #64748b;
+  color: #818384;
   background: none;
   border: none;
   font-weight: 600;
@@ -145,7 +145,8 @@
 }
 
 .reply-btn:hover {
-  background-color: #f1f5f9;
+  background-color: #1e293b;
+  color: #4c6ef5;
 }
 
 /* ---------------- REPLY BOX ---------------- */

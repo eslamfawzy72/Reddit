@@ -1,0 +1,304 @@
+/* =========================
+   MODAL OVERLAY
+========================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+/* =========================
+   MODAL CONTENT
+========================= */
+.modal-content {
+    background: #020617;
+    border: 1px solid #1f2933;
+    border-radius: 16px;
+    padding: 32px;
+    color: #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* =========================
+   MODAL CLOSE BUTTON
+========================= */
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+.modal-content h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    margin-top: 0;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 28px;
+}
+
+/* =========================
+   FORM
+========================= */
+.form-group {
+    margin-bottom: 22px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #e5e7eb;
+}
+
+.form-group small {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Inputs */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    background: #0b0f1a;
+    border: 1px solid #1f2933;
+    border-radius: 10px;
+    color: #e5e7eb;
+    font-size: 14px;
+    outline: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #4c6ef5;
+}
+
+/* Prefix b/ */
+.prefix {
+    position: absolute;
+    top: 36px;
+    left: 14px;
+    font-weight: 600;
+    color: #9ca3af;
+}
+
+.form-group input[name="commName"] {
+    padding-left: 36px;
+}
+
+/* =========================
+   PRIVACY RADIOS
+========================= */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.radio-group label {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 12px;
+    background: #0b0f1a;
+    border: 1px solid #1f2933;
+    border-radius: 12px;
+    transition: border 0.2s ease, background 0.2s ease;
+}
+
+.radio-group label:hover {
+    border-color: #4c6ef5;
+    background: rgba(76, 110, 245, 0.08);
+}
+
+.radio-group input {
+    margin-top: 4px;
+}
+
+.radio-group strong {
+    text-transform: capitalize;
+}
+
+.radio-group span {
+    display: block;
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+/* =========================
+   RULES
+========================= */
+.rule-input {
+    display: flex;
+    gap: 10px;
+}
+
+.rule-input input {
+    flex: 1;
+}
+
+.rule-input button {
+    background: #4c6ef5;
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rule-input button:hover {
+    background: #3b5bdb;
+}
+
+.rules-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 12px;
+}
+
+.rules-list li {
+    background: #0b0f1a;
+    border: 1px solid #1f2933;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.rules-list li span {
+    cursor: pointer;
+    color: #ef4444;
+    font-weight: 700;
+}
+
+/* =========================
+   ERRORS
+========================= */
+.form-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.cancel-btn {
+    background: transparent;
+    border: 1px solid #1f2933;
+    color: #e5e7eb;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.create-btn {
+    background: #4c6ef5;
+    border: none;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.create-btn:hover {
+    background: #3b5bdb;
+}
+
+.create-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #4c6ef5;
+    border-radius: 4px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 24px;
+        max-width: 100%;
+    }
+}

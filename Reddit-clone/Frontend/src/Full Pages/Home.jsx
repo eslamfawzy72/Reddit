@@ -6,7 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/home.css";
 
-function Home() {
+function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [loading, setLoading] = useState(true);
@@ -49,13 +49,13 @@ function Home() {
               .catch(() => [])
           )
         );
-const mergedPosts = Array.from(
-  new Map(
-    postsArrays
-      .flat()
-      .map(post => [post._id, post])
-  ).values()
-).sort((a, b) => new Date(b.date) - new Date(a.date));
+        const mergedPosts = Array.from(
+          new Map(
+            postsArrays
+              .flat()
+              .map(post => [post._id, post])
+          ).values()
+        ).sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const initialVotes = {};
         mergedPosts.forEach(p => {
@@ -75,41 +75,41 @@ const mergedPosts = Array.from(
     loadFeed();
   }, [currentUser]);
 
- const searchFunction = async (query) => {
-  if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+  const searchFunction = async (query) => {
+    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
 
-  try {
-    // fetch users
-    const userRes = await axios.get(`${API}/users`);
-    const users = (userRes.data || [])
-      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
-      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+    try {
+      // fetch users
+      const userRes = await axios.get(`${API}/users`);
+      const users = (userRes.data || [])
+        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
 
-    // fetch communities
-    const commRes = await axios.get(`${API}/communities`);
-    const communities = (commRes.data || [])
-      .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
-      .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+      // fetch communities
+      const commRes = await axios.get(`${API}/communities`);
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
 
-    const results = [...users, ...communities];
+      const results = [...users, ...communities];
 
-    const renderItem = (item) => (
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <img
-          src={item.avatar || item.image || "https://i.pravatar.cc/32"}
-          alt=""
-          style={{ width: 32, height: 32, borderRadius: "50%" }}
-        />
-        <span>{item.label} ({item.type})</span>
-      </div>
-    );
+      const renderItem = (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img
+            src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+            alt=""
+            style={{ width: 32, height: 32, borderRadius: "50%" }}
+          />
+          <span>{item.label} ({item.type})</span>
+        </div>
+      );
 
-    return { results, renderItem };
-  } catch (err) {
-    console.error("Search error:", err);
-    return { results: [], renderItem: null }; // ✅ fallback
-  }
-};
+      return { results, renderItem };
+    } catch (err) {
+      console.error("Search error:", err);
+      return { results: [], renderItem: null }; // ✅ fallback
+    }
+  };
 
 
   return (
@@ -122,11 +122,16 @@ const mergedPosts = Array.from(
             if (item.type === "user") navigate(`/profile/${item.id}`);
             else if (item.type === "community") navigate(`/community/${item.id}`);
           }}
+          onOpenCreatePost={onOpenCreatePost}
         />
       </div>
 
       <div className="leftSidebar">
-        <SidebarLeft loggedin={!!currentUser} />
+        <SidebarLeft
+          loggedin={!!currentUser}
+          onOpenCreateCommunity={onOpenCreateCommunity}
+          onOpenCreatePost={onOpenCreatePost}
+        />
       </div>
 
       <div className="mainFeed">
@@ -135,25 +140,25 @@ const mergedPosts = Array.from(
             <div className="loadingPosts">Loading posts...</div>
           ) : (
             posts.map(post => (
-  <PostCard
-    key={post._id}
-    id={post._id}
-    user_name={`u/${post.user?.userName || "Unknown"}`}
-    user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-    description={post.description}
-    title={post.title}
-    images={post.images || []}
-    comments={post.comments}
-    upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
-    downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
-    commentCount={post.commentCount || 0}
-    date={post.date}
-    community_name={`b/${post.community_name || "unknown"}`}
-    edited={post.edited || false}
-    currentUser={currentUser}
-    poll={post.poll}
-  />
-))
+              <PostCard
+                key={post._id}
+                id={post._id}
+                user_name={`u/${post.user?.userName || "Unknown"}`}
+                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+                description={post.description}
+                title={post.title}
+                images={post.images || []}
+                comments={post.comments}
+                upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+                downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
+                commentCount={post.commentCount || 0}
+                date={post.date}
+                community_name={`b/${post.community_name || "unknown"}`}
+                edited={post.edited || false}
+                currentUser={currentUser}
+                poll={post.poll}
+              />
+            ))
 
           )}
         </div>

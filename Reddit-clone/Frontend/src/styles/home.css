@@ -69,10 +69,13 @@
    LOADING
    ========================= */
 .loadingPosts {
+  background: #0f172a;
+  border: 1px solid #1F2933;
+  border-radius: 12px;
+  padding: 80px 24px;
   text-align: center;
-  color: #9CA3AF;
-  padding: 80px 0;
-  font-size: 15px;
+  color: #818384;
+  font-size: 16px;
 }
 
 /* =========================

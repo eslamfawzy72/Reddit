@@ -1,161 +1,191 @@
-/* ===============================
-   POST CARD BASE
-================================ */
 .post-card {
-  background: #0b0f17 !important;
+  background: #0b0f17;
   border-radius: 20px;
   border: 1px solid rgba(29, 155, 240, 0.25);
+
   display: flex;
   flex-direction: column;
+
   overflow: hidden;
   position: relative;
-  color: #e5e7eb;
 }
 
 .post-card:hover {
   border-color: rgba(29, 155, 240, 0.6);
-  box-shadow:
-    0 0 0 1px rgba(29, 155, 240, 0.2),
+  box-shadow: 0 0 0 1px rgba(29, 155, 240, 0.2),
     0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* ===============================
-   HEADER FIXES
-================================ */
-.post-card .MuiCardHeader-root {
-  background: transparent;
+.MuiCardActions-root {
+  background: #0b0f17;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  position: relative;
+  z-index: 5;
 }
 
-.post-card .MuiCardHeader-title {
-  color: #ffffff !important;
-  font-weight: 600;
+.image-slider {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  margin-top: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  z-index: 1;
 }
 
-.post-card .MuiCardHeader-subheader {
-  color: #9ca3af !important;
+
+
+.post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
 }
 
-/* ===============================
-   TITLE
-================================ */
-.post-title-area {
-  padding: 12px 16px 10px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.015),
-    transparent
-  );
+/* arrows */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+
+  width: 44px;
+  height: 44px;
+  padding: 0 !important;
+  /* 🔥 REQUIRED */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(6px);
+  border-radius: 50%;
 }
 
-.post-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #ffffff !important;
-  letter-spacing: -0.2px;
+
+.prev-btn {
+  left: 12px;
 }
 
-/* ===============================
-   DESCRIPTION (FIXED)
-================================ */
-.post-card .MuiCardContent-root {
-  background: transparent !important;
+.next-btn {
+  right: 12px;
 }
 
-.post-description {
-  color: #d1d5db !important;
-  font-size: 0.98rem;
-  line-height: 1.65;
+/* Title & description improvements */
+.post-card .MuiCardContent-root h6,
+.post-card .post-title {
+  margin: 8px 16px 0 16px;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.post-card .post-description {
+  margin: 8px 16px 14px 16px;
+  color: #d1d5db;
+  font-size: 0.975rem;
   white-space: pre-wrap;
 }
 
-/* ===============================
-   ACTION BAR
-================================ */
-.MuiCardActions-root {
-  background: #0b0f17 !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+/* Dedicated title area */
+.post-title-area {
+  padding: 12px 16px 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  margin-bottom: 8px;
 }
-
-/* ===============================
-   AI SUMMARY
-================================ */
-.ai-summary-box {
-  background: rgba(29, 155, 240, 0.08);
-  border-left: 3px solid #1d9bf0;
-  border-radius: 10px;
-  margin-top: 12px;
-  padding: 10px 14px;
-}
-
-.ai-summary-text {
-  font-size: 14px;
-  color: #e5e7eb !important;
-  line-height: 1.6;
-}
-
-/* ===============================
-   AI BUTTON (RESTORED STYLE)
-================================ */
-.post-card button.MuiButton-outlined {
-  border-color: rgba(29, 155, 240, 0.4) !important;
-  color: #e5e7eb !important;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.post-card button.MuiButton-outlined:hover {
-  background: rgba(29, 155, 240, 0.15) !important;
-  border-color: #1d9bf0 !important;
-}
-
-/* ===============================
-   HIDDEN POST
-================================ */
-.hidden-post {
-  padding: 24px;
-  background: #020617;
-  border-radius: 14px;
-  color: #9ca3af;
-  text-align: center;
-}
-/* =========================
-   DELETE TOAST
-========================= */
-.delete-toast {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 20;
-
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  color: #fecaca;
-
-  padding: 8px 14px;
-  border-radius: 999px;
-
+.post-title {
+  font-size: 1.125rem;
+  color: #ffffff;
   font-weight: 700;
-  font-size: 14px;
-
-  animation: toastFade 3s ease forwards;
+  letter-spacing: -0.2px;
 }
 
-/* fade + slight scale */
-@keyframes toastFade {
-  0% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.95);
-  }
-  10% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.95);
-  }
+/* small visual separator line under the title */
+.post-title-area::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.03);
 }
 
+/* Header sub-elements: community below username */
+.post-subheader { display: flex; flex-direction: column; }
+.post-community { color: #9ca3af; font-size: 13px; margin-top: 2px; }
+.post-meta { color: #6b7280; font-size: 12px; margin-top: 2px; }
+
+/* Poll styles: show options as simple labels (non-interactive)
+   — no vote counts, no user-specific styling */
+.poll-container {
+  width: 100%;
+  padding: 0; /* container padding moved to CardContent */
+  background: transparent;
+}
+.poll-question {
+  color: #e6edf3;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.poll-option-label {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  color: #dbeafe;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+/* interactive poll button style */
+.poll-option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  color: #dbeafe;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.poll-option-btn:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.04);
+}
+.poll-option-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.poll-btn-text { display: inline-block; }
+.poll-vote-count {
+  background: rgba(255,255,255,0.03);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: #e6f0ff;
+  font-size: 0.85rem;
+}
+
+/* CardContent wrapper for poll to match description/title spacing */
+.poll-cardcontent {
+  padding: 8px 16px 12px 16px;
+}
+
+/* Highlight selected poll option */
+.poll-option-btn.selected {
+  background: rgba(29, 155, 240, 0.15);
+  border-color: rgba(29, 155, 240, 0.6);
+  color: #ffffff;
+  font-weight: bold;
+}

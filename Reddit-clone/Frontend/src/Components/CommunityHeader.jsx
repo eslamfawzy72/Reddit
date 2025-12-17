@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-const API=import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL;
 export default function CommunityHeader({
   name,
   avatar,
@@ -16,13 +16,14 @@ export default function CommunityHeader({
   onlineCount,
   isJoined,
   communityId,
+  onOpenCreatePost,
 }) {
-    const { isLoggedIn } = useAuth();
-    const navigate=useNavigate();
-    const[currentAdmin,setCurrentAdmin]=useState(null);
-      useEffect(() => {
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const [currentAdmin, setCurrentAdmin] = useState(null);
+  useEffect(() => {
     axios.get(`${API}/auth/me`, { withCredentials: true })
-      
+
       .then(res => setCurrentAdmin(res.data.user._id))
       .catch(() => setCurrentAdmin(null));
   }, []);
@@ -40,15 +41,15 @@ export default function CommunityHeader({
   //     alert("Failed to join community");
   //   }
   // };
-  const handleDelete=async ()=>{
-    try{
+  const handleDelete = async () => {
+    try {
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}`,
         { withCredentials: true }
       );
       alert("Community deleted successfully");
-      window.location.href="/";
-    }catch{
+      window.location.href = "/";
+    } catch {
       alert("Failed to delete community");
     }
   };
@@ -59,7 +60,7 @@ export default function CommunityHeader({
   const handleJoin = async (e) => {
     e.stopPropagation();
     if (isJoined) return;
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       alert("Please log in to join communities.");
       navigate("/login");
       return;
@@ -70,14 +71,14 @@ export default function CommunityHeader({
         {},
         { withCredentials: true }
       );
-       window.location.reload(); 
+      window.location.reload();
 
-    
+
     } catch {
       alert("Failed to join community");
     }
   };
-const handleLeave = async () => {
+  const handleLeave = async () => {
     if (!isJoined) return;
     try {
       await axios.post(
@@ -115,20 +116,18 @@ const handleLeave = async () => {
 
         <div className="community-actions">
           <button
-  className="primary-btn"
-  onClick={() => {
-    navigate("/CreatePost", {
-      state: {
-        community: {
-          _id: communityId,
-          commName: name,
-        }
-      }
-    });
-  }}
->
-  Create Post
-</button>
+            className="primary-btn"
+            onClick={() => {
+              if (onOpenCreatePost) {
+                onOpenCreatePost({
+                  _id: communityId,
+                  commName: name,
+                });
+              }
+            }}
+          >
+            Create Post
+          </button>
 
 
           <button
@@ -137,12 +136,12 @@ const handleLeave = async () => {
           >
             {isJoined ? "Joined" : "Join"}
           </button>
-            {isJoined&&(
-           <button className="leave-btn"    onClick={handleLeave}>Leave Community</button>
-)}
-            {currentAdmin && currentAdmin === admin._id && (
-           <button className="delete-btn"    onClick={handleDelete}>Delete Community</button>
- )} 
+          {isJoined && (
+            <button className="leave-btn" onClick={handleLeave}>Leave Community</button>
+          )}
+          {currentAdmin && currentAdmin === admin._id && (
+            <button className="delete-btn" onClick={handleDelete}>Delete Community</button>
+          )}
         </div>
       </div>
     </section>
