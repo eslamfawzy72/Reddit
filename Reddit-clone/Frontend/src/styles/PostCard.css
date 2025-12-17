@@ -118,3 +118,44 @@
   color: #9ca3af;
   text-align: center;
 }
+/* =========================
+   DELETE TOAST
+========================= */
+.delete-toast {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 20;
+
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-weight: 700;
+  font-size: 14px;
+
+  animation: toastFade 3s ease forwards;
+}
+
+/* fade + slight scale */
+@keyframes toastFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.95);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.95);
+  }
+}
+

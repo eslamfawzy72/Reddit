@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "../styles/sideBarRight.css";
 
-/* ---------- Collapsible Rule ---------- */
+/* ---------- Rules ---------- */
 const RuleItem = ({ number, title }) => {
   const [open, setOpen] = useState(false);
-
   return (
     <div className="rule-item" onClick={() => setOpen(!open)}>
       <div className="rule-header">
@@ -16,7 +15,7 @@ const RuleItem = ({ number, title }) => {
   );
 };
 
-/* ---------- Moderators + Members ---------- */
+/* ---------- MODERATOR LIST ---------- */
 const ModeratorList = ({
   moderators,
   members,
@@ -24,22 +23,28 @@ const ModeratorList = ({
   adminId,
   canManage,
   setCommunity,
+  showToast,
 }) => {
   const [showMembers, setShowMembers] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
 
-  const moderatorIds = moderators.map(m => m._id);
-
-  // 🔥 Only real members (exclude admin + existing moderators)
-  const promotableMembers = members.filter(
-    m => m._id !== adminId && !moderatorIds.includes(m._id)
+  const moderatorIds = useMemo(
+    () => moderators.map(m => m._id),
+    [moderators]
   );
 
-  /* -------- PROMOTE -------- */
+  const promotableMembers = useMemo(
+    () =>
+      members.filter(
+        m => m._id !== adminId && !moderatorIds.includes(m._id)
+      ),
+    [members, moderatorIds, adminId]
+  );
+
+  /* ---------- PROMOTE ---------- */
   const promote = async (user) => {
     try {
       setLoadingId(user._id);
-
       await axios.post(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}/promote`,
         { userId: user._id },
@@ -49,20 +54,19 @@ const ModeratorList = ({
       setCommunity(prev => ({
         ...prev,
         moderators: [...prev.moderators, user],
+        members: prev.members.filter(m => m._id !== user._id),
       }));
-      window.location.reload();
-    } catch (err) {
-      alert(err.response?.data?.message || "Promotion failed");
+
+      showToast(`u/${user.userName} promoted to moderator`);
     } finally {
       setLoadingId(null);
     }
   };
 
-  /* -------- DEMOTE -------- */
+  /* ---------- DEMOTE ---------- */
   const demote = async (user) => {
     try {
       setLoadingId(user._id);
-
       await axios.post(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}/demote`,
         { userId: user._id },
@@ -72,9 +76,10 @@ const ModeratorList = ({
       setCommunity(prev => ({
         ...prev,
         moderators: prev.moderators.filter(m => m._id !== user._id),
+        members: [...prev.members, user],
       }));
-    } catch (err) {
-      alert(err.response?.data?.message || "Demotion failed");
+
+      showToast(`u/${user.userName} demoted to member`);
     } finally {
       setLoadingId(null);
     }
@@ -87,7 +92,6 @@ const ModeratorList = ({
       {moderators.map(mod => (
         <div key={mod._id} className="moderator-item mod-row">
           <span>u/{mod.userName}</span>
-
           {canManage && (
             <button
               className="mod-action danger"
@@ -117,7 +121,6 @@ const ModeratorList = ({
                 promotableMembers.map(member => (
                   <div key={member._id} className="mod-pick-item">
                     <span>u/{member.userName}</span>
-
                     <button
                       className="mod-action"
                       onClick={() => promote(member)}
@@ -136,8 +139,8 @@ const ModeratorList = ({
   );
 };
 
-/* ---------- MAIN SIDEBAR ---------- */
-const SidebarRight = ({ community, setCommunity }) => {
+/* ---------- MAIN ---------- */
+const SidebarRight = ({ community, setCommunity, showToast }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
@@ -147,13 +150,12 @@ const SidebarRight = ({ community, setCommunity }) => {
       .catch(() => setCurrentUserId(null));
   }, []);
 
-  if (!community) return <div className="sidebar-right">Loading...</div>;
+  if (!community) return null;
 
   const {
     _id,
     commName,
     description,
-    category,
     created_at,
     privacystate,
     members = [],
@@ -165,15 +167,13 @@ const SidebarRight = ({ community, setCommunity }) => {
   const adminId =
     typeof created_by === "object" ? created_by._id : created_by;
 
-  const canManage = adminId === currentUserId;
+  const canManage = currentUserId === adminId;
 
   return (
     <aside className="sidebar-right">
-      {/* Community Info */}
       <section className="subreddit-info">
         <h3>b/{commName}</h3>
         <p>{description}</p>
-        <p>Category: {category}</p>
 
         <div className="subreddit-meta">
           <span>📅</span>
@@ -190,37 +190,21 @@ const SidebarRight = ({ community, setCommunity }) => {
           <span>🌐</span>
           <span>{privacystate}</span>
         </div>
-
-        <div className="subreddit-stats">
-          <div>
-            <div className="stat-number">{members.length}</div>
-            <div className="stat-label">Members</div>
-          </div>
-          <div>
-            <div className="stat-number">
-              {Math.floor(members.length * 0.08)}
-            </div>
-            <div className="stat-label">Online</div>
-          </div>
-        </div>
       </section>
 
-      {/* Rules */}
       {rules.length > 0 && (
         <section className="rules-section">
           <div className="rules-title">Community Rules</div>
-          {rules.map((rule, i) => (
-            <RuleItem key={i} number={i + 1} title={rule} />
+          {rules.map((r, i) => (
+            <RuleItem key={i} number={i + 1} title={r} />
           ))}
         </section>
       )}
 
-      {/* Admin */}
       <div className="admin-info">
-        <strong>Admin:</strong> u/{created_by?.userName || "Unknown"}
+        <strong>Admin:</strong> u/{created_by?.userName}
       </div>
 
-      {/* Moderators */}
       <ModeratorList
         moderators={moderators}
         members={members}
@@ -228,6 +212,7 @@ const SidebarRight = ({ community, setCommunity }) => {
         adminId={adminId}
         canManage={canManage}
         setCommunity={setCommunity}
+        showToast={showToast}
       />
     </aside>
   );

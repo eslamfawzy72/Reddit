@@ -34,20 +34,20 @@ export default function PostCard({
   poll: pollProp,
   currentUser,
   canDelete = false,
+  onDeleteSuccess, 
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
 
   const [localUpvotes, setLocalUpvotes] = useState(upvoteCount);
   const [localDownvotes, setLocalDownvotes] = useState(downvoteCount);
   const [userVote, setUserVote] = useState(null);
 
-  /* ---------------- AI SUMMARY ---------------- */
+  /* ---------- AI SUMMARY ---------- */
   const [summary, setSummary] = useState("");
   const [displayedSummary, setDisplayedSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
 
-  /* ---------------- SYNC VOTES ---------------- */
+  /* ---------- SYNC VOTES ---------- */
   useEffect(() => {
     setLocalUpvotes(upvoteCount);
     setLocalDownvotes(downvoteCount);
@@ -63,21 +63,23 @@ export default function PostCard({
     else setUserVote(null);
   }, [currentUser, id]);
 
-  /* ---------------- DELETE ---------------- */
+  /* ---------- DELETE ---------- */
   const handleDeletePost = async () => {
     if (!window.confirm("Delete this post?")) return;
+
     try {
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/posts/${id}`,
         { withCredentials: true }
       );
-      setIsHidden(true);
+
+      onDeleteSuccess?.(id); // 🔥 notify parent
     } catch (err) {
       alert(err.response?.data?.message || "Delete failed");
     }
   };
 
-  /* ---------------- VOTE ---------------- */
+  /* ---------- VOTE ---------- */
   const handleVote = async (type) => {
     if (!currentUser) {
       alert("You must be logged in to vote");
@@ -121,7 +123,7 @@ export default function PostCard({
     } catch {}
   };
 
-  /* ---------------- AI SUMMARY ---------------- */
+  /* ---------- AI SUMMARY ---------- */
   const handleSummarize = async () => {
     if (summaryLoading || summary) return;
 
@@ -135,7 +137,6 @@ export default function PostCard({
       const text = res.data.summary || "No summary available.";
       setSummary(text);
 
-      // typing animation
       let i = 0;
       setDisplayedSummary("");
       const interval = setInterval(() => {
@@ -149,14 +150,6 @@ export default function PostCard({
       setSummaryLoading(false);
     }
   };
-
-  if (isHidden) {
-    return (
-      <div className="hidden-post">
-        <Typography fontWeight="bold">Post deleted</Typography>
-      </div>
-    );
-  }
 
   return (
     <Card className="post-card">
@@ -189,31 +182,19 @@ export default function PostCard({
             {description}
           </Typography>
 
-          {/* AI BUTTON */}
           {description.length > 100 && (
             <Button
               startIcon={<AutoAwesomeIcon />}
               onClick={handleSummarize}
               disabled={summaryLoading || !!summary}
               size="small"
-              sx={{
-                mt: 1,
-                textTransform: "none",
-                color: "#e5e7eb",
-                borderColor: "rgba(29,155,240,0.4)",
-                background: "rgba(255,255,255,0.02)",
-                "&:hover": {
-                  background: "rgba(29,155,240,0.15)",
-                  borderColor: "#1d9bf0",
-                },
-              }}
               variant="outlined"
+              className="ai-summary-btn"
             >
               {summaryLoading ? "Summarizing..." : "✨ Summarize"}
             </Button>
           )}
 
-          {/* AI SUMMARY */}
           {displayedSummary && (
             <div className="ai-summary-box">
               <Typography className="ai-summary-text">
@@ -231,7 +212,6 @@ export default function PostCard({
           commentCount={comments.length}
           onVote={handleVote}
           onCommentClick={() => setExpanded((p) => !p)}
-          onHide={() => setIsHidden(true)}
         />
       </CardActions>
 
