@@ -40,8 +40,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div style={{ display: "flex" }}>
-        <div style={{ flex: 1, padding: "20px", marginTop: "20px" }}>
+      <div >
+        <div>
           
           <Routes>
             {/* Add key={authVersion} to force remount on logout */}

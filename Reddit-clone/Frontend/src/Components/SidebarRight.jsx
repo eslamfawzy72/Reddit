@@ -175,6 +175,19 @@ const SidebarRight = ({ community, setCommunity, showToast }) => {
         <h3>b/{commName}</h3>
         <p>{description}</p>
 
+        <div className="subreddit-stats">
+  <div>
+    <div className="stat-number">{members.length}</div>
+    <div className="stat-label">Members</div>
+  </div>
+  <div>
+    <div className="stat-number">
+      {Math.floor(members.length * 0.08)}
+    </div>
+    <div className="stat-label">Online</div>
+  </div>
+</div>
+<br></br>
         <div className="subreddit-meta">
           <span>📅</span>
           <span>
@@ -185,6 +198,7 @@ const SidebarRight = ({ community, setCommunity, showToast }) => {
             })}
           </span>
         </div>
+        
 
         <div className="subreddit-meta">
           <span>🌐</span>
