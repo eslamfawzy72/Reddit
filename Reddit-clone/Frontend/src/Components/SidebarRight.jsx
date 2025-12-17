@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import "../styles/sideBarRight.css";
 
-/* ---------- Collapsible Rule ---------- */
+/* ---------- Rules ---------- */
 const RuleItem = ({ number, title }) => {
   const [open, setOpen] = useState(false);
-
   return (
     <div className="rule-item" onClick={() => setOpen(!open)}>
       <div className="rule-header">
@@ -16,67 +15,72 @@ const RuleItem = ({ number, title }) => {
   );
 };
 
-/* ---------- Moderators + Members Management ---------- */
+/* ---------- MODERATOR LIST ---------- */
 const ModeratorList = ({
-  moderators = [],
-  members = [],
+  moderators,
+  members,
   communityId,
+  adminId,
   canManage,
   setCommunity,
+  showToast,
 }) => {
   const [showMembers, setShowMembers] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
 
-  const moderatorIds = moderators.map((m) => m._id);
-
-  const nonModerators = members.filter(
-    (m) => !moderatorIds.includes(m._id)
+  const moderatorIds = useMemo(
+    () => moderators.map(m => m._id),
+    [moderators]
   );
 
-  /* -------- PROMOTE -------- */
-  const promoteToMod = async (user) => {
+  const promotableMembers = useMemo(
+    () =>
+      members.filter(
+        m => m._id !== adminId && !moderatorIds.includes(m._id)
+      ),
+    [members, moderatorIds, adminId]
+  );
+
+  /* ---------- PROMOTE ---------- */
+  const promote = async (user) => {
     try {
       setLoadingId(user._id);
-
       await axios.post(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}/promote`,
         { userId: user._id },
         { withCredentials: true }
       );
 
-      setCommunity((prev) => ({
+      setCommunity(prev => ({
         ...prev,
         moderators: [...prev.moderators, user],
+        members: prev.members.filter(m => m._id !== user._id),
       }));
-    } catch (err) {
-  if (err.response?.status >= 400) {
-    alert(err.response.data.message);
-  }
-} finally {
+
+      showToast(`u/${user.userName} promoted to moderator`);
+    } finally {
       setLoadingId(null);
     }
   };
 
-  /* -------- DEMOTE -------- */
-  const demoteModerator = async (user) => {
+  /* ---------- DEMOTE ---------- */
+  const demote = async (user) => {
     try {
       setLoadingId(user._id);
-
       await axios.post(
         `${import.meta.env.VITE_API_URL}/communities/${communityId}/demote`,
         { userId: user._id },
         { withCredentials: true }
       );
 
-      setCommunity((prev) => ({
+      setCommunity(prev => ({
         ...prev,
-        moderators: prev.moderators.filter((m) => m._id !== user._id),
+        moderators: prev.moderators.filter(m => m._id !== user._id),
+        members: [...prev.members, user],
       }));
-    } catch (err) {
- 
-    alert(err.response.data.message);
-  
-} finally {
+
+      showToast(`u/${user.userName} demoted to member`);
+    } finally {
       setLoadingId(null);
     }
   };
@@ -85,14 +89,13 @@ const ModeratorList = ({
     <div className="moderator-list">
       <div className="moderator-title">Moderators</div>
 
-      {moderators.map((mod) => (
+      {moderators.map(mod => (
         <div key={mod._id} className="moderator-item mod-row">
           <span>u/{mod.userName}</span>
-
           {canManage && (
             <button
               className="mod-action danger"
-              onClick={() => { demoteModerator(mod); window.location.reload(); }}
+              onClick={() => demote(mod)}
               disabled={loadingId === mod._id}
             >
               {loadingId === mod._id ? "…" : "Demote"}
@@ -112,20 +115,15 @@ const ModeratorList = ({
 
           {showMembers && (
             <div className="mod-picker">
-              {nonModerators.length === 0 ? (
+              {promotableMembers.length === 0 ? (
                 <div className="empty">No members available</div>
               ) : (
-                nonModerators.map((member) => (
+                promotableMembers.map(member => (
                   <div key={member._id} className="mod-pick-item">
                     <span>u/{member.userName}</span>
-
                     <button
                       className="mod-action"
-                      onClick={() => {promoteToMod(member)
-                        window.location.reload();
-                      }
-
-                      }
+                      onClick={() => promote(member)}
                       disabled={loadingId === member._id}
                     >
                       {loadingId === member._id ? "…" : "Promote"}
@@ -141,18 +139,18 @@ const ModeratorList = ({
   );
 };
 
-/* ---------- MAIN SIDEBAR ---------- */
-const SidebarRight = ({ community, setCommunity }) => {
+/* ---------- MAIN ---------- */
+const SidebarRight = ({ community, setCommunity, showToast }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
-      .then((res) => setCurrentUserId(res.data.user._id))
+      .then(res => setCurrentUserId(res.data.user._id))
       .catch(() => setCurrentUserId(null));
   }, []);
 
-  if (!community) return <div className="sidebar-right">Loading...</div>;
+  if (!community) return null;
 
   const {
     _id,
@@ -166,15 +164,13 @@ const SidebarRight = ({ community, setCommunity }) => {
     created_by,
   } = community;
 
-  const creatorId =
+  const adminId =
     typeof created_by === "object" ? created_by._id : created_by;
 
-  const canManage =
-    creatorId === currentUserId 
+  const canManage = currentUserId === adminId;
 
   return (
     <aside className="sidebar-right">
-      {/* Community Info */}
       <section className="subreddit-info">
         <h3>b/{commName}</h3>
         <p>{description}</p>
@@ -194,44 +190,29 @@ const SidebarRight = ({ community, setCommunity }) => {
           <span>🌐</span>
           <span>{privacystate}</span>
         </div>
-
-        <div className="subreddit-stats">
-          <div>
-            <div className="stat-number">{members.length}</div>
-            <div className="stat-label">Members</div>
-          </div>
-          <div>
-            <div className="stat-number">
-              {Math.floor(members.length * 0.08)}
-            </div>
-            <div className="stat-label">Online</div>
-          </div>
-        </div>
       </section>
 
-      {/* Rules */}
       {rules.length > 0 && (
         <section className="rules-section">
           <div className="rules-title">Community Rules</div>
-          {rules.map((rule, i) => (
-            <RuleItem key={i} number={i + 1} title={rule} />
+          {rules.map((r, i) => (
+            <RuleItem key={i} number={i + 1} title={r} />
           ))}
         </section>
       )}
 
-      {/* Admin */}
       <div className="admin-info">
-        <strong>Admin:</strong>{" "}
-        u/{created_by?.userName || "Unknown"}
+        <strong>Admin:</strong> u/{created_by?.userName}
       </div>
 
-      {/* Moderators */}
       <ModeratorList
         moderators={moderators}
         members={members}
         communityId={_id}
+        adminId={adminId}
         canManage={canManage}
         setCommunity={setCommunity}
+        showToast={showToast}
       />
     </aside>
   );
