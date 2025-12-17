@@ -82,7 +82,7 @@ const mergedPosts = Array.from(
     // fetch users
     const userRes = await axios.get(`${API}/users`);
     const users = (userRes.data || [])
-      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
+      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
       .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
 
     // fetch communities

@@ -137,7 +137,7 @@ function Popular() {
       // Users
       const userRes = await axios.get(`${API}/users`);
       const users = (userRes.data || [])
-        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
+         .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
         .map(u => ({ type: "user", id: u._id, label: u.userName }));
 
       // Communities
@@ -200,7 +200,7 @@ function Popular() {
     downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
     commentCount={post.commentCount || 0}
     date={post.date}
-    community_name={`b/${post.commName || "unknown"}`}
+    community_name={`b/${post.community_name || "unknown"}`}
     edited={post.edited || false}
     onVote={handleVote}
     currentUser={currentUser}

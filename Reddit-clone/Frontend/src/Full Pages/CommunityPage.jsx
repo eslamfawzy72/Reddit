@@ -14,6 +14,41 @@ import "../styles/toast.css";
 function CommunityPage() {
   const { communityID } = useParams();
   const API = import.meta.env.VITE_API_URL;
+  const searchFunction = async (query) => {
+    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+  
+    try {
+      // fetch users
+      const userRes = await axios.get(`${API}/users`);
+      const users = (userRes.data || [])
+        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
+        .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+  
+      // fetch communities
+      const commRes = await axios.get(`${API}/communities`);
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+  
+      const results = [...users, ...communities];
+  
+      const renderItem = (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img
+            src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+            alt=""
+            style={{ width: 32, height: 32, borderRadius: "50%" }}
+          />
+          <span>{item.label} ({item.type})</span>
+        </div>
+      );
+  
+      return { results, renderItem };
+    } catch (err) {
+      console.error("Search error:", err);
+      return { results: [], renderItem: null }; // ✅ fallback
+    }
+  };
 
   const [currentUser, setCurrentUser] = useState(null);
   const [community, setCommunity] = useState(null);
@@ -74,7 +109,7 @@ function CommunityPage() {
 
   return (
     <>
-      <PrimarySearchAppBar />
+      <PrimarySearchAppBar searchFunction={searchFunction} />
 
       {toast && <div className="global-toast">{toast}</div>}
 
