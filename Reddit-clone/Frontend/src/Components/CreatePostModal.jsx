@@ -392,12 +392,12 @@ export default function CreatePostModal({ isOpen, onClose, preSelectedCommunity 
                 {error && <div className="post-modal-error">{error}</div>}
 
                 <div className="post-modal-body">
-                    <ComboBox
+                   {!community && <ComboBox
                         value={community}
                         onChange={setCommunity}
                         options={communities}
                     />
-
+                   }
                     <TextField
                         placeholder="Title"
                         variant="outlined"

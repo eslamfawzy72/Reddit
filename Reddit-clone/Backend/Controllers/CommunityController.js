@@ -1,5 +1,7 @@
  import Community from "../Models/Community.js";
 import User from "../Models/User.js";
+import Post from "../Models/Post.js";
+import mongoose from "mongoose";
 // // Create a new community
 export const createCommunity = async (req, res) => {
   try {
@@ -232,7 +234,7 @@ export const deleteCommunity = async (req, res) => {
   
     if (!community.created_by.equals(req.user._id))
       return res.status(403).json({ message: "Not authorized" });
-    
+    await Post.deleteMany({ communityID: community._id });
     await community.deleteOne();
   
     res.status(200).json({ message: "Community deleted successfully" });
@@ -303,17 +305,14 @@ export const leaveCommunity = async (req, res) => {
         message: "You cannot leave a community you own as the only member",
       });
     }
-
  
      //  REMOVE USER FROM MEMBERS
-    
     community.members = community.members.filter(
       (id) => !id.equals(userId)
     );
 
     
        //REMOVE USER FROM MODERATORS
- 
     community.moderators = community.moderators.filter(
       (id) => !id.equals(userId)
     );
@@ -346,9 +345,9 @@ export const leaveCommunity = async (req, res) => {
     /* ----------------------------
        UPDATE USER DOC
     ---------------------------- */
-    await User.findByIdAndUpdate(userId, {
-      $pull: { joinedCommunities: communityId },
-    });
+ await User.findByIdAndUpdate(userId, {
+  $pull: { joinedCommunities: new mongoose.Types.ObjectId(communityId) },
+});
 
     await community.save();
 

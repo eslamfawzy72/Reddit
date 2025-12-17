@@ -38,6 +38,10 @@
   min-width: 24px;
   text-align: center;
 }
+.vote_up{
+  color: #9ca3af;
+}
+
 
 /* Upvote hover */
 .vote_up:hover {

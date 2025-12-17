@@ -6,7 +6,7 @@ import { useEffect } from "react";
 // import { isLoggedIn } from "../Context/AuthContext";
 import { useAuth } from "../Context/AuthContext";
 
-export default function CommunityCard({ communities = [], setCommunities }) {
+export default function CommunityCard({ communities = [], setCommunities , onOpenCreatePost}) {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -78,6 +78,7 @@ export default function CommunityCard({ communities = [], setCommunities }) {
               community={community}
               navigate={navigate}
               onJoinSuccess={handleJoinSuccess}
+               onOpenCreatePost={onOpenCreatePost}
             />
           ))
         ) : (
@@ -94,7 +95,7 @@ export default function CommunityCard({ communities = [], setCommunities }) {
 ========================= */
 
 
-function CommunityCardItem({ community, navigate, onJoinSuccess }) {
+function CommunityCardItem({ community, navigate, onJoinSuccess, onOpenCreatePost }) {
   const joined = Boolean(community.isJoined);
   const { isLoggedIn } = useAuth();
 
@@ -122,8 +123,9 @@ function CommunityCardItem({ community, navigate, onJoinSuccess }) {
   return (
     <article
       className="community-card"
-      onClick={() => navigate(`/community/${community._id}`)}
-    >
+onClick={() => {
+  navigate(`/community/${community._id}`);
+}}   >
       <div className="community-card__header">
         <div
           className="community-card__avatar"

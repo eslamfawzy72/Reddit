@@ -190,7 +190,11 @@ const SidebarRight = ({ community, setCommunity, showToast }) => {
           <span>🌐</span>
           <span>{privacystate}</span>
         </div>
+           <div>
+        {members.length} members
+      </div>
       </section>
+   
 
       {rules.length > 0 && (
         <section className="rules-section">

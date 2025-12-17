@@ -22,6 +22,7 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
 
       // fetch communities
       const commRes = await axios.get(`${API}/communities`);
+      console.log("Search communities response==================================", commRes.data);
       const communities = (commRes.data || [])
         .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
         .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
@@ -87,7 +88,7 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
       </aside>
 
       <main className="explore__content">
-        <CommunityCard communities={communities} setCommunities={setCommunities}>
+        <CommunityCard communities={communities} setCommunities={setCommunities}  onOpenCreatePost={onOpenCreatePost}>
           <div className="communityCard__scroll">
             {communities.map((c) => (
               <div key={c._id} className="communityCard__item">

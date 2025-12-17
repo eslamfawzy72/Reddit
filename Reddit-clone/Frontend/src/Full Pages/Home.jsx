@@ -149,6 +149,7 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
                 title={post.title}
                 images={post.images || []}
                 comments={post.comments}
+                communityId={post.communityID?._id || post.communityID}
                 upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
                 downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
                 commentCount={post.commentCount || 0}

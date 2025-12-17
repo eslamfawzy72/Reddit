@@ -37,7 +37,7 @@ import Login from "./Full Pages/Login.jsx";
 import { useAuth } from "./Context/AuthContext";
 
 function App() {
-  const { authVersion } = useAuth(); // 🔥 trigger remount
+  const { authVersion } = useAuth(); 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [preSelectedCommunity, setPreSelectedCommunity] = useState(null);
