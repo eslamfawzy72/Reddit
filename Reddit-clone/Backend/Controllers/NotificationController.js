@@ -6,20 +6,51 @@ import Community from "../Models/Community.js";
 
 
 
-// Create notification when user comments on a post
+
 export const notifyComment = async (actorId, postID) => {
+  try{
   const post = await Post.findById(postID).lean();
   if (!post) return;
 
-  await createNotification({
-    userId: post.userID,
-    actorId,
-    type: "post_comment",
-    targetType: "post",
-    targetId: postID,
+    // don't notify yourself
+   if (post.userID.toString() === actorId.toString()) return;
 
-  });
+     const notification = new Notification({
+      userId: post.userID,   
+      actorId,
+      type: "post_comment",
+      targetType: "post",
+      targetId: postID,
+    });
+
+    await notification.save();
+  }
+  catch(err){
+    throw err;
+  }
 };
+
+export const notifyReply  = async (actorId, comment) => {
+try{
+   // don't notify yourself
+   if (comment.userID.toString() === actorId.toString()) return;
+
+      const notification = new Notification({
+      userId: comment.userID,   // comment owner (receiver)
+      actorId,                  // who replied
+      type: "comment_reply",
+      targetType: "comment",
+      targetId: comment._id,
+    });
+
+    await notification.save();
+
+}
+catch(err){
+  throw err;
+}
+
+}
 
 // Create notification when user upvotes a post
 export const notifyPostUpvote = async (actorId, postId) => {
