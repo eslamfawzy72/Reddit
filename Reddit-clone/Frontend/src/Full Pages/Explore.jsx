@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
-import SidebarLeft from "../Components/SidebarLeft";
+import SidebarLeft from "../Components/SidebarLeft.jsx";
 import CommunityCard from "../Components/CommunityCard";
 
 import "../styles/explore.css";

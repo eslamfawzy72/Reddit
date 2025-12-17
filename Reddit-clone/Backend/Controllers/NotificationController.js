@@ -164,3 +164,21 @@ export const markAsRead = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+const createNotification = async ({
+  userId,
+  actorId,
+  type,
+  targetType,
+  targetId,
+}) => {
+  if (!userId || !actorId || !type) return;
+
+  await Notification.create({
+    userId,
+    actorId,
+    type,
+    targetType,
+    targetId,
+    isRead: false,
+  });
+};

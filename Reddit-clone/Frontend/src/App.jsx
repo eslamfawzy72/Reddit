@@ -55,7 +55,7 @@ function App() {
             <Route path="/CreatePost" element={<CreatePost />} />
             <Route path="/community/:communityID" element={<CommunityPage />} />
             <Route path="/Community" element={<CommunityPage />} />
-            <Route path="/Profile" element={<UserPage isOwn={false} />} />
+            <Route path="/Profile/:username" element={<UserPage isOwn={false} />} />
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
             <Route path="/About" element={<BlueditAbout />} />
             <Route path="/Signup" element={<SignUp />} />

@@ -340,7 +340,8 @@ export default function ChatApp() {
     setOpenNewChat(true);
     setLoadingFollowers(true);
     try {
-      const res = await axios.get(`http://localhost:5000/users/followers/${currentUser._id}`);
+      const res = await axios.get(`http://localhost:5000/users/followers`);
+
       let list = res.data.followers || [];
       list = list.filter(f => !chats.some(c => !c.isGroupChat && c.participants.some(p => p._id === f._id)));
       setFollowers(list);
