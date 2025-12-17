@@ -232,11 +232,6 @@ React.useEffect(() => {
              onCommentsUpdate={(updatedComments) => {
               setComments(updatedComments); // <-- update parent state
                   }}  />
-          <CommentSection
-            postId={id}
-            comments={comments}
-            currentUser={currentUser}
-          />
         </CardContent>
       </Collapse>
     </Card>
