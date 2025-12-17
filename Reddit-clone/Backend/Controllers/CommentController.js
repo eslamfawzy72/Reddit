@@ -1,5 +1,7 @@
 import Post from "../Models/Post.js"
-import User from "../Models/User.js"
+import {notifyComment , notifyReply} from "./NotificationController.js"
+import mongoose from "mongoose";
+
 
 // Get top comment only by commId without getting the replies
 export async function getTopLevelCommentByID(req,res){
@@ -80,7 +82,7 @@ export async function addComment(req, res) {
     const { text, category } = req.body;
     if (!text) return res.status(400).json({ message: "Text is required" });
 
-    // Proper Mongoose subdocument creation
+
     const newComment = post.comments.create({
       userID: user._id,
       username: user.userName,
@@ -95,6 +97,9 @@ export async function addComment(req, res) {
     post.comments.push(newComment);
     await post.save();
 
+    // notify post author that someone commented on his post
+    await notifyComment(user._id, postId);
+
     return res.status(201).json({ message: "Comment added", comment: newComment });
   } catch (err) {
     console.error("Add comment error:", err);
@@ -104,8 +109,6 @@ export async function addComment(req, res) {
 
 
 // Add a reply to a comment
-import mongoose from "mongoose";
-
 export async function addReply(req, res) {
   try {
     const { postID, commId } = req.params;
@@ -137,7 +140,8 @@ export async function addReply(req, res) {
       edited: false,
       upvotedCount: 0,
       downvotedCount: 0,
-      replies: []
+      replies: [],
+      createdAt: new Date()
     };
 
     if (!Array.isArray(parentComment.replies)) {
@@ -145,6 +149,10 @@ export async function addReply(req, res) {
     }
     parentComment.replies.push(newReply);
     await post.save();
+
+    // notify comment owner
+    await notifyReply(user._id,parentComment)
+
     return res.status(201).json({
       message: "Reply added",
       reply: newReply

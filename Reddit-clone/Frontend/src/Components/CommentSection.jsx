@@ -52,7 +52,7 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
         <div className="comment-header">
           <span className="comment-username">{comment.username}</span>
           <span className="comment-time">
-            {new Date(comment.date).toLocaleString()}
+            {new Date(comment.createdAt || comment.date).toLocaleString()}
             {comment.edited && " (edited)"}
           </span>
         </div>
@@ -131,9 +131,15 @@ const CommentItem = ({ comment, onReply, onEdit, onDelete, currentUser }) => {
 };
 
 // Main CommentSection component
-export default function CommentSection({ postId, comments = [], currentUser }) {
+export default function CommentSection({ postId, comments = [], currentUser, onCommentsUpdate }) {
   const [allComments, setAllComments] = useState(comments);
   const [text, setText] = useState("");
+
+  // Helper to update state and notify parent
+  const updateComments = (newComments) => {
+    setAllComments(newComments);
+    if (onCommentsUpdate) onCommentsUpdate(newComments); // notify parent
+  };
 
   // Add Comment
   const handleAddComment = async () => {
@@ -144,7 +150,7 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
         { text },
         { withCredentials: true }
       );
-      setAllComments((prev) => [...prev, res.data.comment]);
+      updateComments([...allComments, res.data.comment]);
       setText("");
     } catch (err) {
       console.error("Add comment failed", err);
@@ -160,7 +166,7 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
         { text: replyText },
         { withCredentials: true }
       );
-      setAllComments((prev) => addReplyToComments(prev, commentId, res.data.reply));
+      updateComments(addReplyToComments(allComments, commentId, res.data.reply));
     } catch (err) {
       console.error("Add reply failed", err);
     }
@@ -184,7 +190,7 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
           return c;
         });
 
-      setAllComments((prev) => updateCommentText(prev));
+      updateComments(updateCommentText(allComments));
     } catch (err) {
       console.error("Edit comment failed", err);
     }
@@ -194,7 +200,7 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
   const handleDelete = async (commId) => {
     try {
       await axios.delete(`${API}/comments/${postId}/${commId}`, { withCredentials: true });
-      setAllComments((prev) => removeCommentRecursive(prev, commId));
+      updateComments(removeCommentRecursive(allComments, commId));
     } catch (err) {
       console.error("Delete comment failed", err);
     }
@@ -202,7 +208,6 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
 
   return (
     <div className="comments-section">
-      {/* Add Comment */}
       <div className="add-comment">
         <input
           value={text}
@@ -212,7 +217,6 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
         <button onClick={handleAddComment}>Post</button>
       </div>
 
-      {/* Comments */}
       {allComments.map((comment) => (
         <CommentItem
           key={comment._id}
@@ -226,3 +230,4 @@ export default function CommentSection({ postId, comments = [], currentUser }) {
     </div>
   );
 }
+

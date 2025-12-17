@@ -16,7 +16,7 @@ export default function PostCard({
   title,
   description,
   images = [],
-  comments = [],
+  comments: initialComments = [],
   upvoteCount = 0,
   downvoteCount = 0,
   commentCount = 0,
@@ -35,6 +35,7 @@ export default function PostCard({
   const [localDownvotes, setLocalDownvotes] = useState(downvoteCount || 0);
   const [userVote, setUserVote] = useState(null); // 'upvote' | 'downvote' | null
   const [poll, setPoll] = useState(pollProp);
+   const [comments, setComments] = useState(initialComments);
 const [selectedOptionId, setSelectedOptionId] = React.useState(
   pollProp?.userOptionId || null
 );
@@ -283,9 +284,12 @@ console.log("POST TITLE:", title);
         />
       </CardActions>
 
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto" >
         <CardContent>
-          <CommentSection postId={id} comments={comments} currentUser={currentUser} />
+          <CommentSection postId={id} comments={comments} currentUser={currentUser} 
+             onCommentsUpdate={(updatedComments) => {
+              setComments(updatedComments); // <-- update parent state
+                  }}  />
         </CardContent>
       </Collapse>
     </Card>
