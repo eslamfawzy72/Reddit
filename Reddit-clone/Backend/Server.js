@@ -19,16 +19,14 @@ import NotificationRouter from "./routes/NotificationRouter.js";
 dotenv.config(); // load .env
 
 const app = express();
+
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174"],
+  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174", "https://your-app.vercel.app"],
   credentials: true
 }));
 app.use(cookieParser());
-// Increase JSON body limit to allow base64 image uploads (consider switching to multipart later)
-// Increase JSON body limit to allow larger base64 image uploads
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json());
 
 // Test route
 app.get("/", (req, res) => {
@@ -39,7 +37,7 @@ app.get("/", (req, res) => {
 const server = http.createServer(app); // wrap express app
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175"],
+    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175","https://your-real-app.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -79,7 +77,7 @@ io.on("connection", (socket) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.log("MongoDB connection error:", err));
-
+const JWT_SECRET = process.env.JWT_SECRET;
 // Routes 
 
 app.use("/auth", authRouter);
@@ -96,5 +94,5 @@ app.use("/comments", commentRouter);
 // ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {    // 🔥 use server.listen instead of app.listen
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
