@@ -32,7 +32,6 @@ function AboutSidebar({ profile, isOwn, postCount }) {
 
           <div className="sidebar-stats-grid grid grid-cols-2 gap-4 mb-6">
             <div className="stat-box text-center">
-              <div className="stat-number text-2xl font-bold text-white">{profile.karma || 0}</div>
               <div className="stat-label text-xs text-gray-400 mt-1">Karma</div>
             </div>
             <div className="stat-box text-center">

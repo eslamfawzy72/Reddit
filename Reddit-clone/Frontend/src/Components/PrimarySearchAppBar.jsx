@@ -65,11 +65,19 @@ export default function PrimarySearchAppBar({
     return () => clearTimeout(timeout);
   }, [query, searchFunction]);
 
-  const handleItemClick = (item) => {
-    onResultClick?.(item);
-    setQuery("");
-    setOpen(false);
-  };
+const handleItemClick = (item) => {
+  if (item.type === "user") {
+    navigate(`/Profile/${item.id}`);
+  } else if (item.type === "community") {
+    navigate(`/community/${item.id}`);
+  } else if (item.type === "full-search") {
+    navigate(`/search?query=${encodeURIComponent(item.query)}`);
+  }
+
+  onResultClick?.(item);
+  setQuery("");
+  setOpen(false);
+};
 
   const handleClickAway = () => setOpen(false);
 

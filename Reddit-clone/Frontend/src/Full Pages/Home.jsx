@@ -78,12 +78,12 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
   const searchFunction = async (query) => {
     if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
 
-    try {
-      // fetch users
-      const userRes = await axios.get(`${API}/users`);
-      const users = (userRes.data || [])
-        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
-        .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+  try {
+    // fetch users
+    const userRes = await axios.get(`${API}/users`);
+    const users = (userRes.data || [])
+      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
+      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
 
       // fetch communities
       const commRes = await axios.get(`${API}/communities`);

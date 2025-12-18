@@ -78,7 +78,7 @@ function App() {
             <Route path="/Chats" element={<Chats />} />
             <Route path="/community/:communityID" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Community" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
-            <Route path="/Profile" element={<UserPage isOwn={false} />} />
+            <Route path="/Profile/:username" element={<UserPage isOwn={false} />} />
             <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
             <Route path="/About" element={<BlueditAbout />} />
             <Route path="/Signup" element={<SignUp />} />

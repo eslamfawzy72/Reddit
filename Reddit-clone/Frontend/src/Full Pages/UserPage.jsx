@@ -31,32 +31,46 @@ const renderUser = (u) => (
 );
 
 // Search function
-export const searchEverything = (query) => {
-  if (!query?.trim()) return { results: [], renderItem: null };
-  const q = query.toLowerCase();
-
-  const comms = mockCommunities
-    .filter(c => c.name.includes(q))
-    .map(c => ({ ...c, score: c.name.startsWith(q) ? 100 : 50 }));
-
-  const users = mockUsers
-    .filter(u => u.name.includes(q))
-    .map(u => ({ ...u, score: u.name.startsWith(q) ? 90 : 40 }));
-
-  const results = [...comms, ...users]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-
-  return {
-    results,
-    renderItem: (item) => (item.type === 'user' ? renderUser(item) : renderCommunity(item)),
-  };
-};
+;
 
 function UserPage(props) {
   const [currentUser, setCurrentUser] = useState(undefined);
   const API = import.meta.env.VITE_API_URL;
    const { username } = useParams();
+    const searchFunction = async (query) => {
+  if (!query || !query.trim()) return { results: [], renderItem: null }; 
+  try {
+    // fetch users
+    const userRes = await axios.get(`${API}/users`);
+    const users = (userRes.data || [])
+       .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
+      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+
+    // fetch communities
+    const commRes = await axios.get(`${API}/communities`);
+    const communities = (commRes.data || [])
+      .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+      .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+
+    const results = [...users, ...communities];
+
+    const renderItem = (item) => (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <img
+          src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+          alt=""
+          style={{ width: 32, height: 32, borderRadius: "50%" }}
+        />
+        <span>{item.label} ({item.type})</span>
+      </div>
+    );
+
+    return { results, renderItem };
+  } catch (err) {
+    console.error("Search error:", err);
+    return { results: [], renderItem: null }; // ✅ fallback
+  }
+}
 
   // 🔐 Auth check (same logic as Home)
   useEffect(() => {
@@ -72,7 +86,8 @@ function UserPage(props) {
       <div className="topNavbar">
         <PrimarySearchAppBar
   loggedin={!!currentUser}
-  searchFunction={searchEverything}
+  searchFunction={searchFunction}
+
 />
 
       </div>
