@@ -46,6 +46,30 @@
   margin-top: 2px;
   cursor: pointer;
 }
+
+/* Underline animation for clickable community names */
+.post-community {
+  position: relative;
+  text-decoration: none;
+}
+.post-community::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -2px;
+  height: 2px;
+  background: #1d9bf0;
+  transition: right 220ms cubic-bezier(.2,.8,.2,1);
+  border-radius: 2px;
+}
+.post-community:hover::after,
+.post-community:focus::after {
+  right: 0;
+}
+.post-community:active::after {
+  background: #1476d6;
+}
 .post-meta {
   color: #6b7280;
   font-size: 12px;

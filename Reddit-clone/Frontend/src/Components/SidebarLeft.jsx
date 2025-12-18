@@ -1,10 +1,12 @@
-// src/components/SidebarLeft.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import "../styles/sideBarLeft.css";
 
-export default function SidebarLeft(props) {
+export default function SidebarLeft({
+  onOpenCreateCommunity = null,
+  onOpenCreatePost = null,
+}) {
   const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -22,6 +24,7 @@ export default function SidebarLeft(props) {
           <h2 className="sidebar-title">Bluedit</h2>
 
           <h3 className="sidebar-subtitle">Navigation</h3>
+
           <ul className="sidebar-nav">
             {navItems.map((item) => (
               <li key={item.name}>
@@ -40,28 +43,26 @@ export default function SidebarLeft(props) {
             ))}
           </ul>
 
+          {/* START COMMUNITY */}
           <div className="sidebar-button-container">
             <button
               className="sidebar-button start-community"
               onClick={() => {
                 if (!isLoggedIn) {
-                  alert("please login to create community");
+                  alert("Please login to create a community");
                   navigate("/Login");
                   return;
                 }
-                if (props.onOpenCreateCommunity) {
-                  props.onOpenCreateCommunity();
-                } else {
-                  console.error("onOpenCreateCommunity callback not provided");
-                }
-              }
-              }
+
+                // ✅ SAFE call — no errors anymore
+                onOpenCreateCommunity?.();
+              }}
             >
               Start a Community
             </button>
           </div>
 
-
+          {/* ABOUT */}
           <div className="sidebar-button-container">
             <button
               className="sidebar-button about-bluedit"

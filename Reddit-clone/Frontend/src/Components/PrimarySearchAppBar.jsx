@@ -22,6 +22,7 @@ import { useAuth } from "../Context/AuthContext";
 import UserMenu from "../Components/UserMenu";
 
 export default function PrimarySearchAppBar({
+  loading = false,
   searchFunction,
   onResultClick,
   placeholder = "Search Bluedit…",
@@ -29,36 +30,47 @@ export default function PrimarySearchAppBar({
   darkMode,
   setDarkMode,
   onOpenCreatePost,
+  isUserPage = false,
 }) {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [results, setResults] = React.useState([]);
   const [renderItem, setRenderItem] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
+  const [searchLoading, setSearchLoading] = React.useState(false);
+  
+
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  if (loading) {
+  return null;
+}
 
   // Debounced search
   React.useEffect(() => {
     if (!searchFunction || !query.trim()) {
       setResults([]);
       setRenderItem(null);
-      setLoading(false);
+      setSearchLoading(false);
+
+   
       return;
     }
 
-    setLoading(true);
+    setSearchLoading(true);
+
     const timeout = setTimeout(() => {
       searchFunction(query)
         .then((res) => {
           setResults(res.results || []);
           setRenderItem(() => res.renderItem);
-          setLoading(false);
+        setSearchLoading(false);
+
         })
         .catch(() => {
           setResults([]);
           setRenderItem(null);
-          setLoading(false);
+          setSearchLoading(false);
+
         });
     }, 300);
 
@@ -67,7 +79,7 @@ export default function PrimarySearchAppBar({
 
 const handleItemClick = (item) => {
   if (item.type === "user") {
-    navigate(`/Profile/${item.id}`);
+    navigate(`/Profile/${item.label}`);
   } else if (item.type === "community") {
     navigate(`/community/${item.id}`);
   } else if (item.type === "full-search") {
@@ -166,7 +178,7 @@ const handleItemClick = (item) => {
                     zIndex: 1300,
                   }}
                 >
-                  {loading ? (
+                  {searchLoading  ? (
                     <Box sx={{ p: 2, textAlign: "center", color: "#888" }}>
                       <Typography variant="body2">Searching...</Typography>
                     </Box>
@@ -251,9 +263,17 @@ const handleItemClick = (item) => {
                 <IconButton onClick={() => navigate("/Notifications")} sx={{ color: "#ccc" }}>
                   <NotificationsIcon />
                 </IconButton>
+                {!isUserPage&&(
                 <Button
-                  onClick={() => onOpenCreatePost ? onOpenCreatePost() : navigate("/CreatePost")}
-                  startIcon={<AddIcon />}
+  onClick={() => {
+    if (onOpenCreatePost) {
+      onOpenCreatePost();
+    alert("ana hena");
+    }
+    else{
+       alert("anajjjja");
+    }
+  }}                  startIcon={<AddIcon />}
                   variant="contained"
                   sx={{
                     bgcolor: "#4c6ef5",
@@ -271,7 +291,7 @@ const handleItemClick = (item) => {
                   }}
                 >
                   Create Post
-                </Button>
+                </Button>)}
                 <UserMenu darkMode={darkMode} setDarkMode={setDarkMode} />
               </>
             ) : (

@@ -8,7 +8,8 @@ export default function ActionBar({
   commentCount = 0,
   onHide,
   onCommentClick,
-  onVote
+  onVote,
+  onShare
 }) {
   return (
     <div className="action-bar">
@@ -35,7 +36,7 @@ export default function ActionBar({
         <span>{commentCount}</span>
       </button>
 
-      <button className="btn">
+      <button className="btn" onClick={(e) => onShare && onShare(e)} type="button">
         <Share2 size={18} />
         <span>Share</span>
       </button>

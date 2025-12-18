@@ -1,54 +1,9 @@
 import React, { useState } from "react";
 import { Bell, MessageSquare, ArrowUp, Mail } from "lucide-react";
 import "../styles/notificationPage.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-// Sample notifications
-const sampleNotifications = [
-  {
-    id: 1,
-    type: "comment",
-    username: "adham_walid",
-    avatar: "AW",
-    text: "commented on your post in r/gaming",
-    timestamp: "2 hours ago",
-    actualDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    isRead: false,
-    link: "/post/123",
-  },
-  {
-    id: 2,
-    type: "upvote",
-    username: "jana_hasheesh",
-    avatar: "JH",
-    text: "upvoted your comment in r/technology",
-    timestamp: "5 hours ago",
-    actualDate: new Date(Date.now() - 5 * 60 * 60 * 1000),
-    isRead: false,
-    link: "/comment/456",
-  },
-  {
-    id: 3,
-    type: "message",
-    username: "Eslam_fawzy",
-    avatar: "EF",
-    text: "sent you a message",
-    timestamp: "1 day ago",
-    actualDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    isRead: true,
-    link: "/messages/789",
-  },
-  {
-    id: 4,
-    type: "comment",
-    username: "Carol_Kamal",
-    avatar: "CK",
-    text: "replied to your comment in r/movies",
-    timestamp: "30 minutes ago",
-    actualDate: new Date(Date.now() - 30 * 60 * 1000),
-    isRead: false,
-    link: "/comment/789",
-  },
-];
 
 const Avatar = ({ avatar, username }) => (
   <div className="avatar">{avatar || username.charAt(0).toUpperCase()}</div>
@@ -65,6 +20,31 @@ const EmptyState = ({ icon: Icon, title, description }) => (
 );
 
 const NotificationTile = ({ notification, onClick }) => {
+  const navigate = useNavigate();
+const handleClick = async () => {
+  try {
+    await axios.patch(
+      `${import.meta.env.VITE_API_URL}/notifications/${notification._id}/read`,
+      {},
+      { withCredentials: true }
+    );
+  } catch (err) {}
+
+
+
+  
+  if (
+    notification.type === "post_share" &&
+    notification.postId &&
+    notification.communityId
+  ) {
+    navigate(
+      `/community/${notification.communityId}?focusPost=${notification.postId}`
+    );
+    return;
+  }
+};
+
   const getIcon = () => {
     switch (notification.type) {
       case "comment":
@@ -73,23 +53,34 @@ const NotificationTile = ({ notification, onClick }) => {
         return <ArrowUp size={16} color="#FF4500" />;
       case "message":
         return <Mail size={16} color="#46D160" />;
+      case "post_share":
+      return <Mail size={16} color="#46D160" />
       default:
         return <Bell size={16} />;
     }
   };
+  const displayUsername =
+  notification.username ||
+  notification.actorId?.userName ||
+  "user";
+
+const displayAvatar =
+  notification.avatar ||
+  notification.actorId?.image;
+
 
   return (
     <div
       className={`notification-tile ${notification.isRead ? "read" : "unread"}`}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {!notification.isRead && <div className="unread-dot" />}
-      <Avatar avatar={notification.avatar} username={notification.username} />
+      <Avatar avatar={displayAvatar} username={displayUsername} />
       <div className="notification-content">
         <div className="notification-text">
           {getIcon()}
           <span className={notification.isRead ? "read-text" : "unread-text"}>
-            u/{notification.username} {notification.text}
+            u/{displayUsername} {notification.text}
           </span>
         </div>
         <div className="notification-time">{notification.timestamp}</div>
@@ -130,6 +121,7 @@ const NotificationPage = () => {
           : n.type === "upvote"
       )
   ).sort((a, b) => new Date(b.actualDate) - new Date(a.actualDate));
+
 
   return (
     <div className="notification-page">

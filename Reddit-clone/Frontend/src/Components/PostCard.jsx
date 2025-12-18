@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardHeader,
@@ -16,6 +17,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import axios from "axios";
 import ActionBar from "./ActionBar";
 import CommentSection from "./CommentSection";
+import ShareModal from "./ShareModal";
 import "../styles/PostCard.css";
 
 export default function PostCard({
@@ -33,10 +35,12 @@ export default function PostCard({
   edited = false,
   poll: pollProp,
   currentUser,
+  communityId,
   canDelete = false,
   onDelete,
   onDeleteSuccess, 
 }) {
+  const navigate = useNavigate();
   const [expanded, setExpanded] = React.useState(false);
   const [index, setIndex] = React.useState(0);
   const [isHidden, setIsHidden] = React.useState(false);
@@ -46,12 +50,55 @@ export default function PostCard({
   const [userVote, setUserVote] = useState(null); // 'upvote' | 'downvote' | null
   const [poll, setPoll] = useState(pollProp);
   const [comments, setComments] = useState(initialComments);
+  const [showShare, setShowShare] = useState(false);
+  const [openShare, setOpenShare] = useState(false);
+
 const [selectedOptionId, setSelectedOptionId] = React.useState(
   pollProp?.userOptionId || null
 );
 React.useEffect(() => {
    setSelectedOptionId(pollProp?.userOptionId || null);
 }, [pollProp?.userOptionId]);
+  React.useEffect(() => {
+    setPoll(pollProp);
+  }, [pollProp]);
+  const API = import.meta.env.VITE_API_URL;
+
+  const handleCommunityClick = async (e) => {
+    e.stopPropagation();
+    if (!communityId) return navigate("/communities");
+
+    try {
+      const res = await axios.get(`${API}/communities/${communityId}`, {
+        withCredentials: true,
+      });
+      const community = res.data;
+
+      if (community.privacystate === "private" && !community.isJoined) {
+        if (!currentUser) {
+          if (window.confirm("This community is private. Log in to join?")) {
+            navigate("/Login");
+          }
+          return;
+        }
+
+        if (window.confirm("This community is private. Join now?")) {
+          try {
+            await axios.post(`${API}/communities/${communityId}/join`, {}, { withCredentials: true });
+            navigate(`/community/${communityId}`);
+          } catch (joinErr) {
+            console.error("Failed to join community", joinErr);
+            alert(joinErr.response?.data?.message || "Failed to join community");
+          }
+        }
+      } else {
+        navigate(`/community/${communityId}`);
+      }
+    } catch (err) {
+      console.error("Failed to fetch community", err);
+      navigate(`/community/${communityId}`);
+    }
+  };
  
 
   /* ---------- AI SUMMARY ---------- */
@@ -77,6 +124,35 @@ React.useEffect(() => {
  const handleDelete = () => {
     if (!window.confirm("Delete this post?")) return;
     onDelete(id); 
+  };
+
+  /* ---------- POLL VOTING ---------- */
+  const handlePollVote = async (optionId) => {
+    if (!currentUser) {
+      alert("You must be logged in to vote");
+      return;
+    }
+
+    if (!poll || !poll.isPoll) return;
+
+    setLoadingOption(optionId);
+    try {
+      const res = await axios.patch(
+        `${API}/posts/${id}`,
+        { action: "pollVote", optionId },
+        { withCredentials: true }
+      );
+
+      // backend returns { poll: { ... } }
+      if (res.data?.poll) {
+        setPoll(res.data.poll);
+        setSelectedOptionId(res.data.poll.userOptionId || null);
+      }
+    } catch (err) {
+      console.error("Poll vote failed", err);
+    } finally {
+      setLoadingOption(null);
+    }
   };
   /* ---------- VOTE ---------- */
   const handleVote = async (type) => {
@@ -150,8 +226,16 @@ React.useEffect(() => {
     }
   };
 
+  const handleOpenShare = (e) => {
+    console.log("PostCard: open share modal for post", id);
+    e?.stopPropagation();
+    setShowShare(true);
+  };
+
+  const handleCloseShare = () => setShowShare(false);
+
   return (
-    <Card className="post-card">
+    <Card id={`post-${id}`} className="post-card">
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: "#1d9bf0" }}>
@@ -159,7 +243,11 @@ React.useEffect(() => {
           </Avatar>
         }
         title={user_name}
-        subheader={`${community_name} • ${date}${edited ? " • edited" : ""}`}
+        subheader={
+          <span className="post-community" style={{ cursor: communityId ? "pointer" : "default" }} onClick={handleCommunityClick}>
+            {community_name} • {date}{edited ? " • edited" : ""}
+          </span>
+        }
         action={
           canDelete && (
             <IconButton onClick={handleDelete} sx={{ color: "#ef4444" }}>
@@ -204,6 +292,32 @@ React.useEffect(() => {
         </CardContent>
       )}
 
+      {poll?.isPoll && (
+        <CardContent className="poll-cardcontent">
+          <div className="poll-container">
+            <div className="poll-question">{poll.question || "Poll"}</div>
+            <div className="poll-options">
+              {(poll.options || []).map((opt, idx) => {
+                const optId = opt._id || opt.id || idx;
+                const votes = opt.votes || 0;
+                const selected = selectedOptionId && selectedOptionId.toString() === optId.toString();
+                return (
+                  <button
+                    key={optId}
+                    className={`poll-option-btn ${selected ? "selected" : ""}`}
+                    disabled={loadingOption && loadingOption !== optId}
+                    onClick={() => handlePollVote(optId)}
+                  >
+                    <span>{opt.text}</span>
+                    <span className="poll-vote-count">{votes}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      )}
+
       <CardActions disableSpacing>
         <ActionBar
           score={localUpvotes - localDownvotes}
@@ -211,9 +325,15 @@ React.useEffect(() => {
           commentCount={comments.length}
           onVote={handleVote}
           onCommentClick={() => setExpanded((p) => !p)}
+        onShare={() => setOpenShare(true)}
         />
       </CardActions>
 
+      <ShareModal open={openShare} onClose={() => setOpenShare(false)} postId={id} />
+
+
+
+  
       <Collapse in={expanded} timeout="auto" >
         <CardContent>
           <CommentSection postId={id} comments={comments} currentUser={currentUser} 

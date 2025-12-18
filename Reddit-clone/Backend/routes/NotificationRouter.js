@@ -8,6 +8,7 @@ import {
   notifyCommentUpvote,
   notifyFollow
 } from "../Controllers/NotificationController.js";
+import { sharePost } from "../Controllers/NotificationController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -45,6 +46,11 @@ router.post("/follow", protect, async (req, res) => {
   const { targetUserId } = req.body;
   await notifyFollow(req.user._id, targetUserId);
   res.status(200).json({ message: "Follow notification sent" });
+});
+
+// Share a post with recipients (creates notifications)
+router.post("/share", protect, async (req, res) => {
+  await sharePost(req, res);
 });
 
 export default router;

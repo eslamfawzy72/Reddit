@@ -16,14 +16,14 @@ import { protect } from "../middleware/authMiddleware.js";
 import optionalAuth from "../middleware/optionalAuth.js";
 const router = express.Router();
 
-//get all Posts
-router.get('/', getAllPosts)
+//get all Posts (optional auth so responses can include user's poll votes when logged in)
+router.get('/', optionalAuth, getAllPosts)
 //add post will be used in create post
 router.post('/', protect, createPost)
 //get post by category
 router.get('/category/:postCategory', getPostByCategory)
-//get posts by comm id
-router.get("/community/:communityID", optionalAuth,getPostsByCommunityID);
+//get posts by comm id (optional auth to include user's poll votes when available)
+router.get("/community/:communityID", optionalAuth, getPostsByCommunityID);
 //get post by id
 router.get('/:postID', getPostByID)
 //delete post by id

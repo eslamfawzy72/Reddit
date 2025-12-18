@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Bell, MessageSquare, ArrowUp, Mail } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // Avatar Component
 const Avatar = ({ avatar, username, size = 40 }) => (
@@ -138,6 +139,8 @@ const NotificationTile = ({ notification, onClick }) => {
 
 // Main Notification Page
 const NotificationPage = () => {
+  const navigate = useNavigate();
+
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("All");
 
@@ -178,6 +181,12 @@ const NotificationPage = () => {
     } catch (err) {
       console.log("Error marking as read:", err);
     }
+      // ✅ Always route through community
+      if (n.type === "post_share" && n.postId && n.communityId) {
+  navigate(`/community/${n.communityId}?focusPost=${n.postId}`);
+  return;
+}
+
   };
 
   return (

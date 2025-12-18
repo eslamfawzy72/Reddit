@@ -86,8 +86,9 @@ export default function UserMenu() {
 
         <MenuItem
           onClick={() => {
-            navigate("/ProfilePage");
-            handleClose();
+navigate("/ProfilePage", {
+  state: { fromMenu: true },
+});            handleClose();
           }}
           className="um-menu-item"
         >

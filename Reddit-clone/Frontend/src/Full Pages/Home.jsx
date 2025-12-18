@@ -128,7 +128,7 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
 
       <div className="leftSidebar">
         <SidebarLeft
-          loggedin={!!currentUser}
+         
           onOpenCreateCommunity={onOpenCreateCommunity}
           onOpenCreatePost={onOpenCreatePost}
         />
@@ -149,12 +149,12 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
                 title={post.title}
                 images={post.images || []}
                 comments={post.comments}
-                communityId={post.communityID?._id || post.communityID}
                 upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
                 downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
                 commentCount={post.commentCount || 0}
                 date={post.date}
                 community_name={`b/${post.community_name || "unknown"}`}
+                communityId={post.communityID?._id || post.communityID}
                 edited={post.edited || false}
                 currentUser={currentUser}
                 poll={post.poll}

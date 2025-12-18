@@ -271,8 +271,15 @@ function UserProfilePage({ isOwn, username }) {
 
   /* ===== LOAD PROFILE + POSTS ===== */
   useEffect(() => {
-    if (!username && !isOwn) return;
-    if (isOwn && !currentUser) return;
+  if (!username && !isOwn) return;
+  if (isOwn && !currentUser) return;
+
+  // ✅ CLEAR OLD USER DATA FIRST
+  setUserPosts([]);
+  setUpvotedPosts([]);
+  setDownvotedPosts([]);
+  setVoteCounts({});
+  setProfileData(null);
 
     const fetchProfile = async () => {
       try {

@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const notificationSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true }, // recipient
   actorId: { type: Schema.Types.ObjectId, ref: "User", required: true }, // who triggered it
-  type: { type: String, enum: ["post_comment","comment_reply", "post_upvote","comment_upvote", "follow",], required: true },
+  // Added 'post_share' so share notifications validate correctly
+  type: { type: String, enum: ["post_comment","comment_reply", "post_upvote","comment_upvote", "follow","post_share"], required: true },
   targetType: { type: String, enum: ["post", "comment","user"], required: true },
   targetId: { type: Schema.Types.ObjectId, required: true },
   subreddit: { type: String, default: null }, // optional, for community context

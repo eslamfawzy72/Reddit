@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import { useParams, useLocation } from "react-router-dom";
 import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import CommunityHeader from "../Components/CommunityHeader";
 import SidebarRight from "../Components/SidebarRight";
@@ -14,7 +13,44 @@ import "../styles/communityPage.css";
 
 function CommunityPage({ onOpenCreateCommunity }) {
   const { communityID } = useParams();
+  const location = useLocation();
+   const [currentUser, setCurrentUser] = useState(null);
+  const [community, setCommunity] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  /* ---------- CREATE POST MODAL ---------- */
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [preSelectedCommunity, setPreSelectedCommunity] = useState(null);
+
   const [toast, setToast] = useState(null);
+  const focusPostId = React.useMemo(() => {
+  return new URLSearchParams(location.search).get("focusPost");
+}, [location.search]);
+
+useEffect(() => {
+  if (!focusPostId) return;
+  if (!posts.length) return;
+
+  if (community?.privacystate === "private" && !community.isJoined) return;
+
+  const t = setTimeout(() => {
+    const el = document.getElementById(`post-${focusPostId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("highlighted-post");
+      setTimeout(() => el.classList.remove("highlighted-post"), 3000);
+    }
+  }, 300);
+
+  return () => clearTimeout(t);
+}, [posts, focusPostId, community]);
+
+
+
+
+ 
+
 
   const API = import.meta.env.VITE_API_URL;
   const searchFunction = async (query) => {
@@ -53,14 +89,7 @@ function CommunityPage({ onOpenCreateCommunity }) {
     }
   };
 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [community, setCommunity] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  /* ---------- CREATE POST MODAL ---------- */
-  const [showCreatePost, setShowCreatePost] = useState(false);
-  const [preSelectedCommunity, setPreSelectedCommunity] = useState(null);
 const showToast = (message) => {
   setToast(message);
   setTimeout(() => {
@@ -104,7 +133,8 @@ const showToast = (message) => {
         ]);
 
         setCommunity(communityRes.data);
-        setPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
+        const fetchedPosts = Array.isArray(postsRes.data) ? postsRes.data : [];
+        setPosts(fetchedPosts);
         setCurrentUser(userRes?.data?.user || null);
       } catch (err) {
         console.error("Failed to load community", err);
@@ -116,16 +146,20 @@ const showToast = (message) => {
 
     fetchData();
   }, [communityID]);
+  
 
-  /* ---------- LOADING ---------- */
+  // If navigation includes ?focusPost=<id>, scroll to that post after posts load
+  // ⛔ Guard: community not loaded yet
   if (loading || !community) {
-    return (
-      <div className="community-page-wrapper">
-        <PrimarySearchAppBar />
-        <div className="community-loading">Loading community…</div>
-      </div>
-    );
-  }
+  return (
+    <div className="page-loading">
+      <span style={{ color: "#94a3b8", fontSize: 18 }}>
+        Loading community…
+      </span>
+    </div>
+  );
+}
+
 
   /* ---------- PERMISSIONS ---------- */
   const adminId =
@@ -149,6 +183,7 @@ const showToast = (message) => {
     {toast && <div className="global-toast">{toast}</div>}
       {/* TOP BAR */}
       <PrimarySearchAppBar
+
         onOpenCreatePost={() => setShowCreatePost(true)}
         searchFunction={searchFunction}
       />
@@ -214,6 +249,7 @@ const showToast = (message) => {
                   downvoteCount={post.downvoteCount || 0}
                   date={post.createdAt}
                   community_name={`b/${community.commName}`}
+                  communityId={community._id}
                   edited={post.edited || false}
                   poll={post.poll}
                   currentUser={currentUser}

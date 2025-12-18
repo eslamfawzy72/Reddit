@@ -125,11 +125,20 @@ export const getNotifications = async (req, res) => {
 
         if (n.targetType === "post") {
           const post = await Post.findById(n.targetId)
-            .populate("communityID", "name")
+            .populate("communityID", "commName members privacestate")
             .lean();
 
-          communityName = post?.communityID?.name || null;
+          communityName = post?.communityID?.commName || null;
           postPreview = post?.description?.slice(0, 100) || null;
+
+          // include communityId and postId for frontend navigation
+          return {
+            ...n,
+            communityName,
+            communityId: post?.communityID?._id || null,
+            postPreview,
+            postId: n.targetId,
+          };
         }
 
         if (n.targetType === "comment") {
@@ -201,6 +210,7 @@ const createNotification = async ({
   type,
   targetType,
   targetId,
+  subreddit = null,
 }) => {
   if (!userId || !actorId || !type) return;
 
@@ -210,6 +220,53 @@ const createNotification = async ({
     type,
     targetType,
     targetId,
+    subreddit,
     isRead: false,
   });
+};
+
+// Share a post with specific recipients (permissions checked per recipient)
+export const sharePost = async (req, res) => {
+  try {
+    const actorId = req.user._id;
+    const { postId, recipients } = req.body;
+    if (!postId || !Array.isArray(recipients)) {
+      return res.status(400).json({ message: 'postId and recipients[] required' });
+    }
+
+    const post = await Post.findById(postId).populate('communityID').lean();
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    const community = post.communityID || null;
+
+    let created = 0;
+    for (const recipientId of recipients) {
+      // don't notify yourself
+      if (recipientId.toString() === actorId.toString()) continue;
+
+      // permission: if post has community, recipient must be member or community public
+      if (community) {
+        if (community.privacestate === 'private') {
+          // check membership
+          const isMember = community.members.map(m => m.toString()).includes(recipientId.toString());
+          if (!isMember) continue; // skip creating notification for this recipient
+        }
+      }
+
+      await createNotification({
+        userId: recipientId,
+        actorId,
+        type: 'post_share',
+        targetType: 'post',
+        targetId: postId,
+        subreddit: community ? community.commName || null : null
+      });
+      created += 1;
+    }
+
+    res.status(200).json({ message: `Notifications created: ${created}`, created });
+  } catch (error) {
+    console.error('sharePost error', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
