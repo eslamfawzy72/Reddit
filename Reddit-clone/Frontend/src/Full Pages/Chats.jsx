@@ -43,7 +43,7 @@ const theme = createTheme({
   },
   typography: { fontFamily: '"Inter", sans-serif' },
 });
-
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
 
 const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
@@ -300,7 +300,7 @@ export default function ChatApp() {
   const [openNewChat, setOpenNewChat] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
-  const API = import.meta.env.VITE_API_URL;
+  
 
   // Get current user
   useEffect(() => {
