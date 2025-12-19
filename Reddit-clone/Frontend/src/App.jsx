@@ -19,7 +19,7 @@ import React, { useState } from "react";
 // import "App.css";
 import SidebarLeft from "./Components/SidebarLeft.jsx";
 import Notifications from "./Full Pages/Notifications.jsx";
-import CreateCommunity from "./Full Pages/CreateCommunity.jsx";
+//import CreateCommunity from "./Full Pages/CreateCommunity.jsx";
 import CreateCommunityModal from "./Components/CreateCommunityModal.jsx";
 import CreatePostModal from "./Components/CreatePostModal.jsx";
 import UserMenu from "./Components/UserMenu.jsx";
@@ -72,15 +72,15 @@ function App() {
             <Route path="/" element={<Home key={authVersion} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Home" element={<Home key={authVersion} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Popular" element={<Popular key={authVersion} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
-            <Route path="/StartCommunity" element={<CreateCommunity />} />
+            {/* <Route path="/StartCommunity" element={<CreateCommunity />} /> */}
             <Route path="/Explore" element={<Explore onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Notifications" element={<Notifications onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Chats" element={<Chats />} />
             <Route path="/community/:communityID" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Community" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
-            <Route path="/Profile/:username" element={<UserPage isOwn={false} />} />
-            <Route path="/ProfilePage" element={<UserPage isOwn={true} />} />
-            <Route path="/About" element={<BlueditAbout />} />
+            <Route path="/Profile/:username" element={<UserPage isOwn={false} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
+            <Route path="/ProfilePage" element={<UserPage isOwn={true} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
+            <Route path="/About" element={<BlueditAbout onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Signup" element={<SignUp />} />
             <Route path="/Login" element={<Login />} />
           </Routes>

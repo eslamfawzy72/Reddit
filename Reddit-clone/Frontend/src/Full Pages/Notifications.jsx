@@ -180,7 +180,7 @@ const Notifications = ({ onOpenCreateCommunity, onOpenCreatePost }) => {
 
     // follow → profile page
     if (n.type === "follow" && n.actorId?._id) {
-      navigate(`/Profile/${n.actorId._id}`); // ✅ use _id, not userName
+      navigate(`/Profile/${n.actorId._id}`);
       return;
     }
 
@@ -191,7 +191,8 @@ const Notifications = ({ onOpenCreateCommunity, onOpenCreatePost }) => {
       "post_comment",
       "comment_reply",
       "comment_upvote",
-      "comment_downvote"
+      "comment_downvote",
+      "post_share"
     ].includes(n.type)) {
       const postId = n.postId || n.targetId;
       try {

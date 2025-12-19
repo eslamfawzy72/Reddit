@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-
+import { useAuth } from "../Context/AuthContext";
 import axios from "axios";
 import ActionBar from "./ActionBar";
 import CommentSection from "./CommentSection";
@@ -40,6 +40,7 @@ export default function PostCard({
   onDelete,
   onDeleteSuccess, 
 }) {
+  
   const navigate = useNavigate();
   const [expanded, setExpanded] = React.useState(false);
   const [index, setIndex] = React.useState(0);
@@ -52,10 +53,19 @@ export default function PostCard({
   const [comments, setComments] = useState(initialComments);
   const [showShare, setShowShare] = useState(false);
   const [openShare, setOpenShare] = useState(false);
+  const { isLoggedIn } = useAuth();
 
 const [selectedOptionId, setSelectedOptionId] = React.useState(
   pollProp?.userOptionId || null
 );
+const nextImage = () =>
+  setIndex((prev) => (prev + 1) % images.length);
+
+const prevImage = () =>
+  setIndex((prev) =>
+    prev === 0 ? images.length - 1 : prev - 1
+  );
+
 React.useEffect(() => {
    setSelectedOptionId(pollProp?.userOptionId || null);
 }, [pollProp?.userOptionId]);
@@ -272,7 +282,16 @@ React.useEffect(() => {
           {description.length > 100 && (
             <Button
               startIcon={<AutoAwesomeIcon />}
-              onClick={handleSummarize}
+              onClick={
+                ()=>{
+              if(!isLoggedIn){
+      alert("Please log in to summarize posts");
+      navigate("/login");
+      return;
+              }
+              handleSummarize();
+    }
+              }
               disabled={summaryLoading || !!summary}
               size="small"
               variant="outlined"
@@ -291,6 +310,55 @@ React.useEffect(() => {
           )}
         </CardContent>
       )}
+{Array.isArray(images) && images.length > 0 && (
+  <div className="image-slider">
+    <img
+      src={images[index]}
+      alt={`post-${index}`}
+      className="post-image"
+    />
+
+    {images.length > 1 && (
+      <>
+        {/* Prev */}
+        <button
+          className="nav-arrow prev-btn"
+          onClick={index === 0 ? undefined : prevImage}
+          style={{
+            opacity: index === 0 ? 0.4 : 1,
+            cursor: index === 0 ? "default" : "pointer",
+          }}
+        >
+          ‹
+        </button>
+
+        {/* Next */}
+        <button
+          className="nav-arrow next-btn"
+          onClick={index === images.length - 1 ? undefined : nextImage}
+          style={{
+            opacity: index === images.length - 1 ? 0.4 : 1,
+            cursor:
+              index === images.length - 1 ? "default" : "pointer",
+          }}
+        >
+          ›
+        </button>
+
+        {/* Dots */}
+        <div className="image-dots">
+          {images.map((_, i) => (
+            <span
+              key={i}
+              className={`dot ${i === index ? "active" : ""}`}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+)}
 
       {poll?.isPoll && (
         <CardContent className="poll-cardcontent">

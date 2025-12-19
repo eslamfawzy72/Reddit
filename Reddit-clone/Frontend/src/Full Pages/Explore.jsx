@@ -17,12 +17,8 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
     if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
 
     try {
-      // fetch users
-
-
-      // fetch communities
+    
       const commRes = await axios.get(`${API}/communities`);
-      console.log("Search communities response==================================", commRes.data);
       const communities = (commRes.data || [])
         .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
         .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));

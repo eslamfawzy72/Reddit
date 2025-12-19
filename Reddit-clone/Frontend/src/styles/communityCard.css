@@ -29,6 +29,26 @@
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* Scrollbar styling */
+.community__categories::-webkit-scrollbar {
+  height: 8px;
+}
+
+.community__categories::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 10px;
+}
+
+.community__categories::-webkit-scrollbar-thumb {
+  background: #4c6ef5;
+  border-radius: 10px;
+}
+
+.community__categories::-webkit-scrollbar-thumb:hover {
+  background: #5a78ff;
 }
 
 .category-btn {

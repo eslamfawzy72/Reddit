@@ -18,6 +18,8 @@ export default function CreateCommunityModal({ isOpen, onClose }) {
     const [ruleInput, setRuleInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,6 +42,23 @@ export default function CreateCommunityModal({ isOpen, onClose }) {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setImagePreview(event.target?.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setImageFile(null);
+        setImagePreview("");
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -57,9 +76,14 @@ export default function CreateCommunityModal({ isOpen, onClose }) {
         try {
             setLoading(true);
 
+            const formData = { ...form };
+            if (imageFile) {
+                formData.image = imagePreview;
+            }
+
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/communities`,
-                form,
+                formData,
                 { withCredentials: true }
             );
 
@@ -115,12 +139,25 @@ export default function CreateCommunityModal({ isOpen, onClose }) {
                     {/* IMAGE */}
                     <div className="form-group">
                         <label>Community image (optional)</label>
-                        <input
-                            name="image"
-                            value={form.image}
-                            onChange={handleChange}
-                            placeholder="https://image-url.com/logo.png"
-                        />
+                        {imagePreview ? (
+                            <div className="image-preview-container">
+                                <img src={imagePreview} alt="Preview" className="image-preview" />
+                                <button
+                                    type="button"
+                                    className="remove-image-btn"
+                                    onClick={removeImage}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ) : (
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="file-input"
+                            />
+                        )}
                     </div>
 
                     {/* CATEGORY */}
@@ -137,6 +174,12 @@ export default function CreateCommunityModal({ isOpen, onClose }) {
                             <option>AI & Machine Learning</option>
                             <option>Cybersecurity</option>
                             <option>Gaming</option>
+                            <option>Fitness</option>
+                            <option>Sport</option>
+                            <option>Social</option>
+                            <option>Music</option>
+                            <option>Movies</option>
+                            <option>Science</option>
                             <option>Art</option>
                         </select>
                     </div>

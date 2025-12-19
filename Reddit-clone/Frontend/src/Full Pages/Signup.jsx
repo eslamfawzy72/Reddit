@@ -149,6 +149,25 @@ export default function SignUp() {
   Continue
 </Button>
 
+            <Box sx={{ mt: 3, textAlign: "center" }}>
+              <Typography variant="body2" sx={{ color: "#9ca3af" }}>
+                Already have an account?{" "}
+                <Typography
+                  component="span"
+                  onClick={() => navigate("/login")}
+                  sx={{
+                    color: "#4c6ef5",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    transition: "color 0.2s ease",
+                    "&:hover": { color: "#5a78ff" }
+                  }}
+                >
+                  Login
+                </Typography>
+              </Typography>
+            </Box>
+
           </Box>
         </Box>
       )}

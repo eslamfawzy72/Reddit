@@ -16,9 +16,8 @@ export default function ActionBar({
       <button
         className="btn vote_up"
         onClick={() => onVote && onVote("upvote")}
-        style={{ color: userVote === "upvote" ? "#1c7ed6" : "inherit" }}
       >
-        <ArrowUp size={20} />
+        <ArrowUp size={20} color={userVote === "upvote" ? "#1c7ed6" : "#8e9194ff"} />
       </button>
 
       <p className="vote-count">{score}</p>
@@ -26,9 +25,8 @@ export default function ActionBar({
       <button
         className="btn vote_down"
         onClick={() => onVote && onVote("downvote")}
-        style={{ color: userVote === "downvote" ? "#1c7ed6" : "inherit" }}
       >
-        <ArrowDown size={20} />
+        <ArrowDown size={20} color={userVote === "downvote" ? "#1c7ed6" : "#8e9194ff"} />
       </button>
 
       <button className="btn" onClick={onCommentClick}>
@@ -40,10 +38,10 @@ export default function ActionBar({
         <Share2 size={18} />
         <span>Share</span>
       </button>
-
+{/* 
       <button className="btn hide-btn" onClick={onHide}>
         Hide
-      </button>
+      </button> */}
     </div>
   );
 }

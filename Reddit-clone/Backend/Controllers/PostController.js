@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import Post from "../Models/Post.js";
 import User from "../Models/User.js";
+import Community from '../Models/Community.js';
 import { notifyPostUpvote } from "./NotificationController.js";//added t
 import { notifyPostDownvote } from "./NotificationController.js";
 import axios from "axios";
@@ -152,6 +153,8 @@ export async function createPost(req, res) {
 
     // Accept either `images` or legacy `imgs` from client; prefer `images` if provided
     const incomingImgs = (Array.isArray(images) && images.length > 0) ? images : (Array.isArray(imgs) ? imgs : []);
+    
+  
 
     // Log incoming media for diagnosis
     try {
@@ -197,8 +200,8 @@ export async function createPost(req, res) {
       comments: cmnts,
       communityID: commID,
       categories: cat || [],
-    title: title?.trim() || "",
-     description: description?.trim() || "",
+      title: title?.trim() || "",
+      description: description?.trim() || "",
 
       poll: pollData,
     });

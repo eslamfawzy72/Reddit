@@ -204,6 +204,7 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
     commentCount={post.commentCount || 0}
     date={post.date}
     community_name={`b/${post.community_name || "unknown"}`}
+    communityId={post.communityID?._id || post.communityID}
     edited={post.edited || false}
     onVote={handleVote}
     currentUser={currentUser}

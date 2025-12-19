@@ -13,14 +13,18 @@ export default function CommunityCard({ communities = [], setCommunities , onOpe
   const categories = [
     "All",
     "Programming",
+    "Fitness",
+    "Sport",
+    "Social",
     "Web Development",
+    "Music",
+    "Movies",
+    "Science",
     "AI & Machine Learning",
     "Cybersecurity",
     "Data Science",
-    "Open Source",
     "Gaming",
     "Art",
-    "Photography",
   ];
 
   const visibleCommunities =

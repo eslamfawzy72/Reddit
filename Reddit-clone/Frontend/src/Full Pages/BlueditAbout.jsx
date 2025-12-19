@@ -1,9 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
+import SidebarLeft from "../Components/SidebarLeft";
+import { useNavigate } from "react-router-dom";
 import "../styles/BlueditAbout.css";
 
-export default function BlueditAbout() {
+export default function BlueditAbout({ onOpenCreateCommunity, onOpenCreatePost }) {
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const API = import.meta.env.VITE_API_URL;
+
+  /* 🔍 SEARCH */
+  const searchFunction = async (query) => {
+    if (!query.trim()) return { results: [], renderItem: null };
+
+    try {
+      const [usersRes, commRes] = await Promise.all([
+        axios.get(`${API}/users`),
+        axios.get(`${API}/communities`)
+      ]);
+
+      const users = (usersRes.data || [])
+        .filter(u =>
+          u.userName?.toLowerCase().startsWith(query.toLowerCase()) &&
+          u._id !== currentUser?._id
+        )
+        .map(u => ({ type: "user", id: u._id, label: u.userName }));
+
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName }));
+
+      return { results: [...users, ...communities], renderItem: null };
+    } catch {
+      return { results: [], renderItem: null };
+    }
+  };
+
   return (
-    <div className="ba-page">
+    <>
+      <div className="pageBackground" />
+
+      <div className="topNavbar">
+        <PrimarySearchAppBar
+          searchFunction={searchFunction}
+          onOpenCreatePost={onOpenCreatePost}
+        />
+      </div>
+
+      <div className="leftSidebar">
+        <SidebarLeft
+          onOpenCreateCommunity={onOpenCreateCommunity}
+          onOpenCreatePost={onOpenCreatePost}
+        />
+      </div>
+
+      <div className="mainArea">
       <div className="ba-container">
         <header className="ba-header">
           <h1 className="ba-title">About Bluedit</h1>
@@ -106,6 +159,7 @@ export default function BlueditAbout() {
           </p>
         </footer>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -5,10 +5,12 @@
   width: 320px;
   background: #020617;
   border-radius: 12px;
-  border: 1px solid #1F2933;
+  border-right: 1px solid #1F2933;
   font-family: "Inter", system-ui, sans-serif;
   color: #d7dadc;
   overflow: hidden;
+  position: sticky;
+  top: 64px;
 }
 
 /* =========================

@@ -287,7 +287,6 @@ export default function CreatePostModal({ isOpen, onClose, preSelectedCommunity 
         setTitle("");
         setDescription("");
         setCommunity(preSelectedCommunity || null);
-        setTags([]);
         setError("");
     };
 
@@ -421,7 +420,6 @@ export default function CreatePostModal({ isOpen, onClose, preSelectedCommunity 
                         setDescription={setDescription}
                     />
 
-                    <FixedTags value={tags} onChange={setTags} />
 
                     <div className="post-modal-actions">
                         <button

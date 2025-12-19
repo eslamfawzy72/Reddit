@@ -162,6 +162,7 @@ const SidebarRight = ({ community, setCommunity, showToast }) => {
     moderators = [],
     rules = [],
     created_by,
+    category,
   } = community;
 
   const adminId =
@@ -183,6 +184,13 @@ const SidebarRight = ({ community, setCommunity, showToast }) => {
               month: "short",
               year: "numeric",
             })}
+          </span>
+        </div>
+
+        <div className="subreddit-meta">
+          <span>
+            <strong>Category: </strong>{category}
+          
           </span>
         </div>
 
