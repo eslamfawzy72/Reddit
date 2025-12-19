@@ -121,19 +121,19 @@ npm install
 npm run dev
 ```
 
-###Backend will run on:
+### Backend will run on:
 
 http://localhost:5000
 
 ---
 
-##Frontend Setup
+## Frontend Setup
 cd Frontend
 npm install
 npm run dev
 
 
-###Frontend will run on:
+### Frontend will run on:
 
 http://localhost:5173
 
@@ -145,9 +145,9 @@ Ensure MongoDB is running before starting the backend.
 
 
 ---
-##Environment Variables
+## Environment Variables
 
-###Backend .env
+### Backend .env
 
 PORT=5000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/reddit_db
@@ -155,14 +155,14 @@ JWT_SECRET
 GEMINI_API_KEY
 GEMINI_API_URL
 
-###Frontend .env
+### Frontend .env
 
 VITE_API_URL=http://localhost:5000
 
 ---
 
 
-##Database
+## Database
 
 MongoDB
 Schema designed using Mongoose
@@ -170,7 +170,7 @@ Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
 
 ---
 
-##Authors
+## Authors
 
 Eslam Mohamed Fawzy
 Hassan Ismail
