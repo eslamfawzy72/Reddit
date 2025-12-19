@@ -24,7 +24,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174", "https://your-app.vercel.app"],
+  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174", "https://vercel.com/adhamthearrays-projects/bluedit-project/Az6jgD2rYHMkbbZrCUCkQ5nDn6XL"],
   credentials: true
 }));
 app.use(cookieParser());
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 const server = http.createServer(app); // wrap express app
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175","https://your-real-app.vercel.app"],
+    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175","https://vercel.com/adhamthearrays-projects/bluedit-project/Az6jgD2rYHMkbbZrCUCkQ5nDn6XL"],
     methods: ["GET", "POST"],
     credentials: true
   }
