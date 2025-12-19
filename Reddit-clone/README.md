@@ -1,8 +1,8 @@
 # Reddit
 
 ## Project Description
-Reddit is a full-stack Reddit-like social platform that allows users to create posts, join communities, comment, chat, receive notifications, and interact with other users.  
-The project consists of a RESTful backend API built with Node.js and Express, and a frontend built with React.js.
+- Reddit is a full-stack Reddit-like social platform that allows users to create posts, join communities, comment, chat, receive notifications, and interact with other users.  
+- The project consists of a RESTful backend API built with Node.js and Express, and a frontend built with React.js.
 
 ---
 
@@ -140,8 +140,8 @@ http://localhost:5173
 ---
 
 ## Running the Project
-Start the backend first, then the frontend.
-Ensure MongoDB is running before starting the backend.
+- Start the backend first, then the frontend.
+- Ensure MongoDB is running before starting the backend.
 
 
 ---
@@ -164,9 +164,9 @@ VITE_API_URL=http://localhost:5000
 
 ## Database
 
-MongoDB
-Schema designed using Mongoose
-Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
+- MongoDB
+- Schema designed using Mongoose
+- Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
 
 ---
 
