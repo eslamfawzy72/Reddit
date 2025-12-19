@@ -21,7 +21,7 @@ The project consists of a RESTful backend API built with Node.js and Express, an
 ---
 
 ## Project Structure
-
+```text 
 project-root/
 ├── Backend/
 │   ├── controllers/          # Business logic
