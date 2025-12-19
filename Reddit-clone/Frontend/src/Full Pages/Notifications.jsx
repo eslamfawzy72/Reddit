@@ -269,7 +269,7 @@ useEffect(() => {
       const typeQuery = filterMap[filter] || "all";
 
       const res = await axios.get(
-        `http://localhost:5000/notifications?type=${typeQuery}`,
+        `${API}/notifications?type=${typeQuery}`,
         { withCredentials: true }
       );
 

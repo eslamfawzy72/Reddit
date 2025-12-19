@@ -300,10 +300,11 @@ export default function ChatApp() {
   const [openNewChat, setOpenNewChat] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
+  const API = import.meta.env.VITE_API_URL;
 
   // Get current user
   useEffect(() => {
-    axios.get("http://localhost:5000/auth/me")
+    axios.get(`${API}/auth/me`)
       .then(res => setCurrentUser(res.data.user))
       .catch(() => console.log("Not logged in"));
   }, []);
@@ -313,7 +314,7 @@ export default function ChatApp() {
     if (!currentUser) return;
     const fetchChats = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/chat/user");
+        const res = await axios.get(`${API}/chat/user`);
         setChats(res.data.data || []);
       } catch (err) { console.error(err); }
     };
@@ -323,7 +324,7 @@ export default function ChatApp() {
   const handleChatSelect = async (chat) => {
     setSelectedChat({ ...chat, messages: [], loading: true });
     try {
-      const res = await axios.get(`http://localhost:5000/messages/${chat._id}`);
+      const res = await axios.post(`${API}/messages/${selectedChat._id}`);
       setSelectedChat({ ...chat, messages: res.data.data || [], loading: false });
     } catch (err) { console.error(err); }
   };
@@ -333,7 +334,7 @@ export default function ChatApp() {
     setOpenNewChat(true);
     setLoadingFollowers(true);
     try {
-      const res = await axios.get(`http://localhost:5000/users/followers`);
+      const res = await axios.get(`${API}/users/followers`);
 
       let list = res.data.followers || [];
       list = list.filter(f => !chats.some(c => !c.isGroupChat && c.participants.some(p => p._id === f._id)));
@@ -347,7 +348,7 @@ export default function ChatApp() {
 
   const startChatWith = async (targetUserId) => {
     try {
-      const chatRes = await axios.post("http://localhost:5000/chat", {
+      const chatRes = await axios.post(`${API}/chat`, {
         participants: [currentUser._id, targetUserId]
       });
       const chat = chatRes.data.data;
@@ -355,7 +356,7 @@ export default function ChatApp() {
       setChats(prev => prev.some(c => c._id === chat._id) ? prev : [chat, ...prev]);
       setSelectedChat({ ...chat, messages: [] });
 
-      const msgRes = await axios.post(`http://localhost:5000/messages/${chat._id}`, {
+      const msgRes = await axios.post(`${API}/messages/${chat._id}`, {
         sender: currentUser._id,
         content: "hi bluie"
       });
