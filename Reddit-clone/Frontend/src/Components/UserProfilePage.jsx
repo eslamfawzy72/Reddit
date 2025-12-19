@@ -400,6 +400,7 @@ const toggleFollow = async () => {
   edited={post.edited || false}
   onVote={handleVote}
   currentUser={currentUser}
+  poll={post.poll}
 />
 
     )) : (
