@@ -12,7 +12,6 @@ import {
   Typography,
   Box,
   TextField,
-  InputAdornment,
   IconButton,
   ThemeProvider,
   createTheme,
@@ -41,15 +40,21 @@ const theme = createTheme({
   typography: { fontFamily: '"Inter", sans-serif' },
 });
 
-// -------------------- API & Socket --------------------
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// -------------------- RUNTIME API --------------------
+function getAPI() {
+  if (typeof window !== "undefined" && window.REACT_APP_API) {
+    return window.REACT_APP_API;
+  }
+  return "http://localhost:5000"; // fallback for dev
+}
+
 axios.defaults.withCredentials = true;
 
+// -------------------- SOCKET --------------------
 let socket;
 function getSocket() {
   if (!socket) {
-    if (!API) throw new Error("VITE_API_URL is missing!");
-    socket = io(API, { withCredentials: true });
+    socket = io(getAPI(), { withCredentials: true });
   }
   return socket;
 }
@@ -90,9 +95,7 @@ function FilePreview({ files, onRemove }) {
               {!isImage && !isVideo && (
                 <Box className="file-placeholder">
                   <InsertDriveFileIcon className="file-icon" />
-                  <Typography variant="caption" noWrap>
-                    {file.name}
-                  </Typography>
+                  <Typography variant="caption" noWrap>{file.name}</Typography>
                 </Box>
               )}
               <IconButton size="small" className="file-remove-btn" onClick={() => onRemove(index)}>
@@ -170,23 +173,15 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
   const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () =>
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(() => scrollToBottom(), [selectedChat?.messages]);
 
   const handleSendClick = async () => {
     if (!selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
 
     try {
-      const payload = {
-        sender: currentUser._id,
-        content: message.trim(),
-      };
-
-      const res = await axios.post(
-        `${API}/messages/${selectedChat._id}`,
-        payload
-      );
+      const payload = { sender: currentUser._id, content: message.trim() };
+      const res = await axios.post(`${getAPI()}/messages/${selectedChat._id}`, payload);
       const realMsg = res.data.data;
 
       setSelectedChat(prev => ({ ...prev, messages: [...prev.messages, realMsg] }));
@@ -202,17 +197,15 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
     }
   };
 
-  const removeFile = (index) =>
-    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeFile = (index) => setAttachedFiles(prev => prev.filter((_, i) => i !== index));
 
-  if (!selectedChat)
+  if (!selectedChat) {
     return (
       <Box className="chat-panel-empty">
-        <Typography variant="h5" color="gray">
-          Select a chat to begin
-        </Typography>
+        <Typography variant="h5" color="gray">Select a chat to begin</Typography>
       </Box>
     );
+  }
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", bgcolor: "#0f172a" }}>
@@ -225,7 +218,6 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
       <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
         {selectedChat.messages?.map(msg => {
           const isMine = msg.sender._id === currentUser?._id;
-
           return (
             <Box
               key={msg._id}
@@ -266,15 +258,9 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendClick()}
-            InputProps={{
-              className: "chat-input-field",
-            }}
+            InputProps={{ className: "chat-input-field" }}
           />
-          <IconButton
-            color="primary"
-            onClick={handleSendClick}
-            disabled={!message.trim() && attachedFiles.length === 0}
-          >
+          <IconButton color="primary" onClick={handleSendClick} disabled={!message.trim() && attachedFiles.length === 0}>
             <SendIcon />
           </IconButton>
         </Box>
@@ -294,7 +280,7 @@ export default function ChatApp() {
 
   // Get current user
   useEffect(() => {
-    axios.get(`${API}/auth/me`)
+    axios.get(`${getAPI()}/auth/me`)
       .then(res => setCurrentUser(res.data.user))
       .catch(() => console.log("Not logged in"));
   }, []);
@@ -304,7 +290,7 @@ export default function ChatApp() {
     if (!currentUser) return;
     const fetchChats = async () => {
       try {
-        const res = await axios.get(`${API}/chat/user`);
+        const res = await axios.get(`${getAPI()}/chat/user`);
         setChats(res.data.data || []);
       } catch (err) { console.error(err); }
     };
@@ -313,17 +299,10 @@ export default function ChatApp() {
 
   const handleChatSelect = async (chat) => {
     setSelectedChat({ ...chat, messages: [], loading: true });
-
     try {
-      const res = await axios.get(`${API}/messages/${chat._id}`);
-      setSelectedChat({
-        ...chat,
-        messages: res.data.data || [],
-        loading: false,
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      const res = await axios.get(`${getAPI()}/messages/${chat._id}`);
+      setSelectedChat({ ...chat, messages: res.data.data || [], loading: false });
+    } catch (err) { console.error(err); }
   };
 
   const openNewChatDialog = async () => {
@@ -331,31 +310,23 @@ export default function ChatApp() {
     setOpenNewChat(true);
     setLoadingFollowers(true);
     try {
-      const res = await axios.get(`${API}/users/followers`);
+      const res = await axios.get(`${getAPI()}/users/followers`);
       let list = res.data.followers || [];
       list = list.filter(f => !chats.some(c => !c.isGroupChat && c.participants.some(p => p._id === f._id)));
       setFollowers(list);
-    } catch (err) {
-      setFollowers([]);
-    } finally {
-      setLoadingFollowers(false);
-    }
+    } catch (err) { setFollowers([]); }
+    finally { setLoadingFollowers(false); }
   };
 
   const startChatWith = async (targetUserId) => {
     try {
-      const chatRes = await axios.post(`${API}/chat`, {
-        participants: [currentUser._id, targetUserId]
-      });
+      const chatRes = await axios.post(`${getAPI()}/chat`, { participants: [currentUser._id, targetUserId] });
       const chat = chatRes.data.data;
 
       setChats(prev => prev.some(c => c._id === chat._id) ? prev : [chat, ...prev]);
       setSelectedChat({ ...chat, messages: [] });
 
-      const msgRes = await axios.post(`${API}/messages/${chat._id}`, {
-        sender: currentUser._id,
-        content: "hi bluie"
-      });
+      const msgRes = await axios.post(`${getAPI()}/messages/${chat._id}`, { sender: currentUser._id, content: "hi bluie" });
       const waveMsg = msgRes.data.data;
 
       setSelectedChat(prev => ({ ...prev, messages: [waveMsg], lastMessage: waveMsg }));
@@ -398,13 +369,7 @@ export default function ChatApp() {
     <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex", height: "100vh", width: "100vw", maxWidth: "100vw", bgcolor: "#0f172a", overflow: "hidden", position: "fixed", top: 0, left: 0 }}>
         <ChatSidebar chats={chats} selectedChat={selectedChat} handleChatSelect={handleChatSelect} onNewChat={openNewChatDialog} currentUser={currentUser} />
-        <ChatPanel
-          selectedChat={selectedChat}
-          setSelectedChat={setSelectedChat}
-          currentUser={currentUser}
-          chats={chats}
-          setChats={setChats}
-        />
+        <ChatPanel selectedChat={selectedChat} setSelectedChat={setSelectedChat} currentUser={currentUser} chats={chats} setChats={setChats} />
 
         <Dialog open={openNewChat} onClose={() => setOpenNewChat(false)} maxWidth="xs" fullWidth>
           <DialogTitle sx={{ bgcolor: "#020617", color: "white" }}>New Message</DialogTitle>
@@ -414,20 +379,13 @@ export default function ChatApp() {
                 <CircularProgress />
               </Box>
             ) : followers.length === 0 ? (
-              <Typography sx={{ p: 4, color: "gray", textAlign: "center" }}>
-                No followers yet
-              </Typography>
+              <Typography sx={{ p: 4, color: "gray", textAlign: "center" }}>No followers yet</Typography>
             ) : (
               <List>
                 {followers.map((user) => (
                   <ListItemButton key={user._id} onClick={() => startChatWith(user._id)}>
-                    <ListItemAvatar>
-                      <Avatar src={user.image} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={user.userName}
-                      primaryTypographyProps={{ color: "white" }}
-                    />
+                    <ListItemAvatar><Avatar src={user.image} /></ListItemAvatar>
+                    <ListItemText primary={user.userName} primaryTypographyProps={{ color: "white" }} />
                   </ListItemButton>
                 ))}
               </List>
