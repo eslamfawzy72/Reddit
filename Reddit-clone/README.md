@@ -169,6 +169,11 @@ VITE_API_URL=http://localhost:5000
 - Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
 
 ---
+## Postman 
+
+Link = https://app.getpostman.com/join-team?invite_code=21b75d358319d96bb25eeb684ceea2432a3d9e33b4df60f705427719fcec0d70&target_code=b3b9d9b52dd53ee6d439c72159e779d1
+
+---
 
 ## Authors
 
