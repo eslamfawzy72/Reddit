@@ -1,4 +1,4 @@
-// Chats.jsx — FINAL, NO SYNTAX ERRORS, YOUR ORIGINAL STYLE + EVERYTHING WORKS
+// Chats.jsx — Vercel/Prod Safe Version
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -24,9 +24,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -44,13 +41,18 @@ const theme = createTheme({
   typography: { fontFamily: '"Inter", sans-serif' },
 });
 
+// -------------------- API & Socket --------------------
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 axios.defaults.withCredentials = true;
 
-const socket = io(API, {
-  withCredentials: true,
-});
+let socket;
+function getSocket() {
+  if (!socket) {
+    if (!API) throw new Error("VITE_API_URL is missing!");
+    socket = io(API, { withCredentials: true });
+  }
+  return socket;
+}
 
 // -------------------- HELPERS --------------------
 const formatTimestamp = (date) => {
@@ -73,7 +75,6 @@ const formatTimestamp = (date) => {
 // -------------------- FILE PREVIEW --------------------
 function FilePreview({ files, onRemove }) {
   if (files.length === 0) return null;
-
   return (
     <Box className="file-preview">
       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -165,7 +166,6 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat, current
 
 // -------------------- CHAT PANEL --------------------
 function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats }) {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000"; // ✅ ADDED THIS LINE
   const [message, setMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
@@ -175,7 +175,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
   useEffect(() => scrollToBottom(), [selectedChat?.messages]);
 
   const handleSendClick = async () => {
-    if ( !selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
+    if (!selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
 
     try {
       const payload = {
@@ -193,7 +193,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
       setChats(prev => prev.map(chat =>
         chat._id === selectedChat._id ? { ...chat, lastMessage: realMsg, updatedAt: realMsg.createdAt } : chat
       ));
-      socket.emit("new_message", realMsg);
+      getSocket().emit("new_message", realMsg);
 
       setMessage("");
       setAttachedFiles([]);
@@ -220,7 +220,6 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
         <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
           {selectedChat.isGroupChat ? selectedChat.name : <OtherUserName participants={selectedChat.participants} currentUser={currentUser} />}
         </Typography>
-        
       </Box>
 
       <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -268,13 +267,6 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendClick()}
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton>
-                    
-                  </IconButton>
-                </InputAdornment>
-              ),
               className: "chat-input-field",
             }}
           />
@@ -340,7 +332,6 @@ export default function ChatApp() {
     setLoadingFollowers(true);
     try {
       const res = await axios.get(`${API}/users/followers`);
-
       let list = res.data.followers || [];
       list = list.filter(f => !chats.some(c => !c.isGroupChat && c.participants.some(p => p._id === f._id)));
       setFollowers(list);
@@ -369,7 +360,7 @@ export default function ChatApp() {
 
       setSelectedChat(prev => ({ ...prev, messages: [waveMsg], lastMessage: waveMsg }));
       setChats(prev => prev.map(c => c._id === chat._id ? { ...c, lastMessage: waveMsg } : c));
-      socket.emit("new_message", waveMsg);
+      getSocket().emit("new_message", waveMsg);
       setOpenNewChat(false);
     } catch (err) { console.error(err); }
   };
@@ -377,20 +368,21 @@ export default function ChatApp() {
   // Socket
   useEffect(() => {
     if (!currentUser) return;
-    socket.emit("in_chats_page");
+    const sock = getSocket();
+    sock.emit("in_chats_page");
 
-    socket.on("message_update", (msg) => {
+    sock.on("message_update", (msg) => {
       setChats(prev => prev.map(c => c._id === msg.chatId ? { ...c, lastMessage: msg } : c));
       setSelectedChat(prev => prev?._id === msg.chatId ? { ...prev, messages: [...prev.messages, msg] } : prev);
     });
 
-    socket.on("new_chat_created", (chat) => {
+    sock.on("new_chat_created", (chat) => {
       setChats(prev => prev.some(c => c._id === chat._id) ? prev : [chat, ...prev]);
     });
 
     return () => {
-      socket.off("message_update");
-      socket.off("new_chat_created");
+      sock.off("message_update");
+      sock.off("new_chat_created");
     };
   }, [currentUser]);
 
