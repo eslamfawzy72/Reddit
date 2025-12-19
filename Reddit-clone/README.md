@@ -172,10 +172,10 @@ Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
 
 ## Authors
 
-Eslam Mohamed Fawzy
-Hassan Ismail
-Adham Walid
-Mohamed Wael
-Carol Kamal
-Jana Mohamed
-Toka Elsayed
+- Eslam Mohamed Fawzy
+- Hassan Ismail
+- Adham Walid
+- Mohamed Wael
+- Carol Kamal
+- Jana Mohamed
+- Toka Elsayed
