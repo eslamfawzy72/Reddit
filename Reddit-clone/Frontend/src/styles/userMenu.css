@@ -3,6 +3,39 @@
   padding: 4px !important;
 }
 
+.um-avatar-btn:hover {
+  background-color: rgba(76, 110, 245, 0.1) !important;
+}
+
+/* Menu styling */
+.um-menu .MuiPaper-root {
+  background-color: #0f172a !important;
+  border: 1px solid #1F2933 !important;
+  border-radius: 12px !important;
+  margin-top: 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.um-menu .MuiMenuItem-root {
+  color: #d7dadc !important;
+}
+
+.um-menu .MuiMenuItem-root:hover {
+  background-color: rgba(76, 110, 245, 0.12) !important;
+}
+
+.um-menu .MuiDivider-root {
+  border-color: #1F2933 !important;
+}
+
+.um-menu .MuiTypography-root {
+  color: #d7dadc !important;
+}
+
+.um-menu .MuiTypography-body2 {
+  color: #9ca3af !important;
+}
+
 /* Menu items */
 .um-menu-item {
   display: flex;
@@ -10,11 +43,15 @@
   gap: 8px;
 }
 
-/* Icon spacing */
+/* Icon styling */
 .um-icon {
   margin-right: 8px;
   min-width: 24px;
-  color: inherit;
+  color: #9ca3af !important;
+}
+
+.um-menu-item:hover .um-icon {
+  color: #4c6ef5 !important;
 }
 
 /* Switch alignment */

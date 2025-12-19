@@ -1,111 +1,189 @@
 import React from "react";
-import "../styles/BlueditAbout.css";
+import axios from "axios";
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
+import { useNavigate } from "react-router-dom";
 
-export default function BlueditAbout() {
+export default function BlueditAbout({ onOpenCreatePost }) {
+  const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
+
+  /* 🔍 SEARCH */
+  const searchFunction = async (query) => {
+    if (!query.trim()) return { results: [], renderItem: null };
+
+    try {
+      const [usersRes, commRes] = await Promise.all([
+        axios.get(`${API}/users`),
+        axios.get(`${API}/communities`)
+      ]);
+
+      const users = (usersRes.data || [])
+        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(u => ({ type: "user", id: u._id, label: u.userName }));
+
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName }));
+
+      return { results: [...users, ...communities], renderItem: null };
+    } catch {
+      return { results: [], renderItem: null };
+    }
+  };
+
   return (
-    <div className="ba-page">
-      <div className="ba-container">
-        <header className="ba-header">
-          <h1 className="ba-title">About Bluedit</h1>
-          <p className="ba-lead">
-            Bluedit was created by crab lovers, people who live in October, and Dexter fans — a strange, brilliant
-            mix that somehow built the greatest community platform you didn't know you needed. Think of it as the
-            internet's midnight diner: messy, warm, and full of stories that won't let you sleep.
-          </p>
-        </header>
-
-        <section className="ba-grid" aria-label="features">
-          <article className="ba-card">
-            <div className="ba-card-inner">
-              <div className="ba-icon-wrap" aria-hidden>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"
-                    stroke="#bfe0ff"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  ></path>
-                </svg>
-              </div>
-              <div className="ba-card-content">
-                <h3 className="ba-card-title">Community First</h3>
-                <p className="ba-card-text">
-                  Built by people who love weird things, Bluedit puts communities at the center. Create subspaces,
-                  ignite debates, and watch micro-cultures bloom — from crab aficionados to midnight plot theorists.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article className="ba-card">
-            <div className="ba-card-inner">
-              <div className="ba-icon-wrap" aria-hidden>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M12 2s1.5 2.6 1.5 4.8S12 10.5 12 13.5 7.5 16 7.5 16 9 9.6 12 6.5 12 2 12 2z"
-                    stroke="#bfe0ff"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  ></path>
-                </svg>
-              </div>
-              <div className="ba-card-content">
-                <h3 className="ba-card-title">Trending & Amplified</h3>
-                <p className="ba-card-text">
-                  Hot topics surface fast. Whether it's a meme, a lifehack, or a theory about Dexter's finest hour,
-                  Bluedit highlights what’s worthy of attention and what’s just pure chaos — both are welcome.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article className="ba-card">
-            <div className="ba-card-inner">
-              <div className="ba-icon-wrap" aria-hidden>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <circle cx="12" cy="12" r="9" stroke="#bfe0ff" strokeWidth="1"></circle>
-                  <path d="M2 12h20M12 2v20" stroke="#bfe0ff" strokeWidth="1"></path>
-                </svg>
-              </div>
-              <div className="ba-card-content">
-                <h3 className="ba-card-title">Global Voices</h3>
-                <p className="ba-card-text">
-                  From Cairo to Kalamazoo, Bluedit connects different worlds. Discover new perspectives and learn why
-                  crab migration theories and October rituals matter to someone else out there.
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article className="ba-card">
-            <div className="ba-card-inner">
-              <div className="ba-icon-wrap" aria-hidden>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M21 21l-4.35-4.35" stroke="#bfe0ff" strokeWidth="1.2" strokeLinecap="round"></path>
-                  <circle cx="11" cy="11" r="6" stroke="#bfe0ff" strokeWidth="1.2"></circle>
-                </svg>
-              </div>
-              <div className="ba-card-content">
-                <h3 className="ba-card-title">Curiosity & Deep Dives</h3>
-                <p className="ba-card-text">
-                  Dexter-level analysis? Conspiracy threads? Niche fandoms? Bluedit rewards curiosity. Long-form posts,
-                  threaded discussions, and community-driven investigations live here.
-                </p>
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <footer className="ba-footer">
-          <p className="ba-footer-text">
-            This is the greatest platform because it refuses to be bland. It's designed for messy genius, late-night
-            takes, and the kind of friendships that start under a niche post and last forever. Come for the crabs,
-            stay for the conversations — and bring your weird.
-          </p>
-        </footer>
+    <>
+      {/* TOP NAVBAR */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+        <PrimarySearchAppBar
+          searchFunction={searchFunction}
+          onOpenCreatePost={onOpenCreatePost}
+        />
       </div>
-    </div>
+
+      {/* FULL PAGE WRAPPER — KILLS SIDEBAR SPACE */}
+      <div
+        style={{
+          minHeight: "100vh",
+          width: "100vw",
+          margin: 0,
+          padding: 0,
+          backgroundColor: "#0B0F1A",
+          display: "flex",
+          justifyContent: "center"
+        }}
+      >
+        {/* CENTERED CONTENT */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "1200px",
+            padding: "28px 36px",
+            color: "#d7dadc",
+            fontFamily:
+              "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "28px"
+          }}
+        >
+          {/* HEADER */}
+          <header style={{ textAlign: "center" }}>
+            <h1
+              style={{
+                fontSize: "42px",
+                fontWeight: 800,
+                color: "#4c6ef5",
+                margin: 0,
+                textShadow: "0 4px 20px rgba(76,110,245,0.3)"
+              }}
+            >
+              About Bluedit
+            </h1>
+
+            <p
+              style={{
+                fontSize: "16px",
+                color: "#9ca3af",
+                marginTop: "12px",
+                maxWidth: "920px",
+                opacity: 0.95
+              }}
+            >
+              Bluedit wasn’t built in a weekend. It was built through burnout,
+              broken builds, failed deploys, and “why is this undefined at 3AM?”
+              moments. It’s messy. It’s alive. And somehow—it works.
+            </p>
+          </header>
+
+          {/* GRID */}
+          <section
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "18px",
+              width: "100%",
+              marginTop: "26px"
+            }}
+          >
+            {[
+              {
+                title: "Community First",
+                text:
+                  "Bluedit is about people before pixels. Communities aren’t features — they’re the backbone."
+              },
+              {
+                title: "Built Through Pain",
+                text:
+                  "Every feature here exists because something broke. This platform is held together by debugging and stubbornness."
+              },
+              {
+                title: "Not Polished. Real.",
+                text:
+                  "No corporate shine. No fake engagement. Just raw discussions, chaotic energy, and honest interaction."
+              },
+              {
+                title: "A Student Project That Refused to Die",
+                text:
+                  "What started as a requirement turned into a war. And this page? This is the victory lap."
+              }
+            ].map((card, i) => (
+              <article
+                key={i}
+                style={{
+                  background: "#0f172a",
+                  border: "1px solid #1F2933",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  minHeight: "160px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  transition: "0.3s",
+                  cursor: "default"
+                }}
+              >
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: "#d7dadc"
+                  }}
+                >
+                  {card.title}
+                </h3>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "14px",
+                    color: "#9ca3af",
+                    lineHeight: 1.45
+                  }}
+                >
+                  {card.text}
+                </p>
+              </article>
+            ))}
+          </section>
+
+          {/* FOOTER */}
+          <footer style={{ textAlign: "center", marginTop: "28px" }}>
+            <p
+              style={{
+                color: "#9ca3af",
+                fontSize: "15px",
+                maxWidth: "920px",
+                lineHeight: 1.5
+              }}
+            >
+              Bluedit exists because quitting was never an option. If you’re here,
+              you survived the same grind. Welcome home.
+            </p>
+          </footer>
+        </div>
+      </div>
+    </>
   );
 }

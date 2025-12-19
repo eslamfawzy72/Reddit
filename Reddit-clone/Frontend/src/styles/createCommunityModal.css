@@ -294,6 +294,56 @@
 }
 
 /* =========================
+   FILE INPUT & IMAGE PREVIEW
+========================= */
+.file-input {
+    display: block;
+    padding: 12px;
+    background: #0f172a;
+    border: 2px solid #2d3748;
+    border-radius: 8px;
+    color: #d7dadc;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.file-input:hover {
+    border-color: #4c6ef5;
+}
+
+.image-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid #2d3748;
+    object-fit: cover;
+}
+
+.remove-image-btn {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.remove-image-btn:hover {
+    background: #b91c1c;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 @media (max-width: 768px) {

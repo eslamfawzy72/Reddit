@@ -181,7 +181,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
       };
 
       const res = await axios.post(
-        `http://localhost:5000/messages/${selectedChat._id}`,
+        `${API}/messages/${selectedChat._id}`,
         payload
       );
       const realMsg = res.data.data;
@@ -321,13 +321,20 @@ export default function ChatApp() {
     fetchChats();
   }, [currentUser]);
 
-  const handleChatSelect = async (chat) => {
-    setSelectedChat({ ...chat, messages: [], loading: true });
-    try {
-      const res = await axios.post(`${API}/messages/${selectedChat._id}`);
-      setSelectedChat({ ...chat, messages: res.data.data || [], loading: false });
-    } catch (err) { console.error(err); }
-  };
+ const handleChatSelect = async (chat) => {
+  setSelectedChat({ ...chat, messages: [], loading: true });
+
+  try {
+    const res = await axios.get(`${API}/messages/${chat._id}`);
+    setSelectedChat({
+      ...chat,
+      messages: res.data.data || [],
+      loading: false,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const openNewChatDialog = async () => {
     if (!currentUser) return;

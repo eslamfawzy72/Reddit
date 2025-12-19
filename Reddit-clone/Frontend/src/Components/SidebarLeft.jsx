@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
+import { House, Flame, Search } from "lucide-react";
 import "../styles/sideBarLeft.css";
 
 export default function SidebarLeft({
@@ -11,20 +12,18 @@ export default function SidebarLeft({
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
 
-  const navItems = [
-    { name: "Home", icon: "🏠" },
-    { name: "Popular", icon: "🔥" },
-    { name: "Explore", icon: "🔍" },
-  ];
+ const navItems = [
+  { name: "Home", icon: <House size={18} /> },
+  { name: "Popular", icon: <Flame size={18} /> },
+  { name: "Explore", icon: <Search size={18} /> },
+];
+
 
   return (
     <div className={`sidebar ${isOpen ? "open" : "collapsed"}`}>
       {isOpen && (
         <>
-          <h2 className="sidebar-title">Bluedit</h2>
-
-          <h3 className="sidebar-subtitle">Navigation</h3>
-
+      
           <ul className="sidebar-nav">
             {navItems.map((item) => (
               <li key={item.name}>

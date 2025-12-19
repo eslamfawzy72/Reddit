@@ -54,7 +54,7 @@ router.delete('/:postID', deletePostByID);
 router.get('/:postID/user/:userID', getUserByID);
 
 // Get summary of post
-router.get('/:postID/summary', getSummary);
+router.get('/:postID/summary',protect, getSummary);
 
 // Update post (requires authentication)
 router.patch('/:postID', protect, updatePostByID);

@@ -395,6 +395,8 @@ const toggleFollow = async () => {
   commentCount={post.commentCount || 0}
   date={post.date}              // ✅ FIX
   community_name={`b/${post.commName || "unknown"}`}
+  communityId={post.communityID?._id || post.communityID}
+
   edited={post.edited || false}
   onVote={handleVote}
   currentUser={currentUser}

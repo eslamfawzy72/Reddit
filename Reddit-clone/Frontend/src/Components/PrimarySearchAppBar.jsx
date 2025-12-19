@@ -263,17 +263,10 @@ const handleItemClick = (item) => {
                 <IconButton onClick={() => navigate("/Notifications")} sx={{ color: "#ccc" }}>
                   <NotificationsIcon />
                 </IconButton>
-                {!isUserPage&&(
+                
                 <Button
-  onClick={() => {
-    if (onOpenCreatePost) {
-      onOpenCreatePost();
-    alert("ana hena");
-    }
-    else{
-       alert("anajjjja");
-    }
-  }}                  startIcon={<AddIcon />}
+                  onClick={() => onOpenCreatePost()}
+                  startIcon={<AddIcon />}
                   variant="contained"
                   sx={{
                     bgcolor: "#4c6ef5",
@@ -291,7 +284,7 @@ const handleItemClick = (item) => {
                   }}
                 >
                   Create Post
-                </Button>)}
+                </Button>
                 <UserMenu darkMode={darkMode} setDarkMode={setDarkMode} />
               </>
             ) : (
