@@ -24,7 +24,8 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174", "https://vercel.com/adhamthearrays-projects/bluedit-project/Az6jgD2rYHMkbbZrCUCkQ5nDn6XL"],
+  origin: ["http://localhost:5173", "http://localhost:5175","http://localhost:5174",  "https://bluedit-project.vercel.app",  // ✅ Your main domain
+      "https://bluedit-project-1fr6vsg03-adhamthearrays-projects.vercel.app" ],
   credentials: true
 }));
 app.use(cookieParser());
@@ -39,7 +40,8 @@ app.get("/", (req, res) => {
 const server = http.createServer(app); // wrap express app
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175","https://vercel.com/adhamthearrays-projects/bluedit-project/Az6jgD2rYHMkbbZrCUCkQ5nDn6XL"],
+    origin: ["http://localhost:5173", "http://localhost:5174","http://localhost:5175", "https://bluedit-project.vercel.app",  // ✅ Your main domain
+      "https://bluedit-project-1fr6vsg03-adhamthearrays-projects.vercel.app" ],
     methods: ["GET", "POST"],
     credentials: true
   }
