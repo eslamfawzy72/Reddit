@@ -44,7 +44,7 @@ export default function CommunityHeader({
         {},
         { withCredentials: true }
       );
-      window.location.reload(); // safe for now
+      
     } catch {
       alert("Failed to join community");
     }
