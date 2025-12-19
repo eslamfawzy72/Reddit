@@ -16,6 +16,7 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
 
   // 🔐 Auth check
   useEffect(() => {
+   
     axios.get(`${API}/auth/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data.user))
       .catch(() => setCurrentUser(null));
@@ -25,6 +26,7 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
     if (currentUser === undefined) return;
 
     const loadFeed = async () => {
+       alert("yay");
       setLoading(true);
       try {
         let communities = [];
