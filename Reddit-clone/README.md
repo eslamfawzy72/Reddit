@@ -87,6 +87,7 @@ project-root/
 │   └── index.html
 │
 └── README.md
+```
 ---
 
 ## Features
