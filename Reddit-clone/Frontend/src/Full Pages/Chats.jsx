@@ -43,10 +43,12 @@ const theme = createTheme({
   },
   typography: { fontFamily: '"Inter", sans-serif' },
 });
+
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 axios.defaults.withCredentials = true;
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
+const socket = io(API, {
   withCredentials: true,
 });
 
@@ -163,6 +165,7 @@ function ChatSidebar({ chats, selectedChat, handleChatSelect, onNewChat, current
 
 // -------------------- CHAT PANEL --------------------
 function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats }) {
+  const API = import.meta.env.VITE_API_URL || "http://localhost:5000"; // ✅ ADDED THIS LINE
   const [message, setMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState([]);
   const messagesEndRef = useRef(null);
@@ -224,8 +227,6 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
         {selectedChat.messages?.map(msg => {
           const isMine = msg.sender._id === currentUser?._id;
 
-          //const isMine = msg.sender._id.toString() === localStorage.getItem("userId");
-
           return (
             <Box
               key={msg._id}
@@ -260,8 +261,6 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
       <Box sx={{ p: 2, borderTop: "1px solid #1e293b", bgcolor: "#020617" }}>
         <FilePreview files={attachedFiles} onRemove={removeFile} />
         <Box className="chat-input-row">
-         
-
           <TextField
             fullWidth
             placeholder="Type a message..."
@@ -300,7 +299,6 @@ export default function ChatApp() {
   const [openNewChat, setOpenNewChat] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
-  
 
   // Get current user
   useEffect(() => {
@@ -321,20 +319,20 @@ export default function ChatApp() {
     fetchChats();
   }, [currentUser]);
 
- const handleChatSelect = async (chat) => {
-  setSelectedChat({ ...chat, messages: [], loading: true });
+  const handleChatSelect = async (chat) => {
+    setSelectedChat({ ...chat, messages: [], loading: true });
 
-  try {
-    const res = await axios.get(`${API}/messages/${chat._id}`);
-    setSelectedChat({
-      ...chat,
-      messages: res.data.data || [],
-      loading: false,
-    });
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      const res = await axios.get(`${API}/messages/${chat._id}`);
+      setSelectedChat({
+        ...chat,
+        messages: res.data.data || [],
+        loading: false,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const openNewChatDialog = async () => {
     if (!currentUser) return;
