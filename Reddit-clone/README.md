@@ -1,16 +1,180 @@
-# React + Vite
+# Reddit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Description
+Reddit is a full-stack Reddit-like social platform that allows users to create posts, join communities, comment, chat, receive notifications, and interact with other users.  
+The project consists of a RESTful backend API built with Node.js and Express, and a frontend built with React.js.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Used
 
-## React Compiler
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
+- React.js (Vite)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Structure
+
+project-root/
+├── Backend/
+│   ├── controllers/          # Business logic
+│   ├── routes/               # API routes
+│   ├── models/               # Mongoose schemas
+│   ├── middleware/           # Auth & error handling
+│   ├── config/               # Database & app configuration
+│   ├── app.js                # Express app setup
+│   └── server.js             # Server entry point
+│
+├── Frontend/
+│   ├── public/
+│   │   └── vite.svg
+│   │
+│   ├── src/
+│   │   ├── main.jsx          # App entry point
+│   │   ├── App.jsx           # Root React component
+│   │   ├── App.css
+│   │   ├── index.css
+│   │
+│   │   ├── assets/           # Images & static assets
+│   │   │   ├── newblue.png
+│   │   │   ├── react.svg
+│   │   │   └── reddit.webp
+│   │
+│   │   ├── Components/       # Reusable UI components
+│   │   │   ├── ActionBar.jsx
+│   │   │   ├── Comment.jsx
+│   │   │   ├── CommentSection.jsx
+│   │   │   ├── CommunityCard.jsx
+│   │   │   ├── CommunityHeader.jsx
+│   │   │   ├── CreatePost.jsx
+│   │   │   ├── PostCard.jsx
+│   │   │   ├── SidebarLeft.jsx
+│   │   │   ├── SidebarRight.jsx
+│   │   │   ├── UserMenu.jsx
+│   │   │   └── UserProfilePage.jsx
+│   │
+│   │   ├── Context/
+│   │   │   └── AuthContext.jsx
+│   │
+│   │   ├── Full Pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   ├── Explore.jsx
+│   │   │   ├── Popular.jsx
+│   │   │   ├── CommunityPage.jsx
+│   │   │   ├── Notifications.jsx
+│   │   │   ├── Chats.jsx
+│   │   │   └── UserPage.jsx
+│   │
+│   │   └── styles/
+│   │       ├── home.css
+│   │       ├── Login.css
+│   │       ├── SignUp.css
+│   │       ├── PostCard.css
+│   │       ├── communityPage.css
+│   │       └── userProfilePage.css
+│   │
+│   ├── package.json
+│   ├── vite.config.js
+│   └── index.html
+│
+└── README.md
+---
+
+## Features
+- User registration, login, logout (JWT authentication)
+- Create, edit, delete posts
+- Comment and reply system
+- Communities (create, join, leave, manage moderators)
+- User follow / unfollow system
+- Real-time chat system
+- Notifications (comments, upvotes, follows, shares)
+- Polls inside posts
+- Secure protected routes
+- RESTful API architecture
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+- Node.js (v18 or later recommended)
+- MongoDB cluster (MongoDB Atlas)
+- npm
+
+---
+
+## Backend Setup
+
+```bash
+cd Backend
+npm install
+npm run dev
+```
+
+###Backend will run on:
+
+http://localhost:5000
+
+---
+
+##Frontend Setup
+cd Frontend
+npm install
+npm run dev
+
+
+###Frontend will run on:
+
+http://localhost:5173
+
+---
+
+## Running the Project
+Start the backend first, then the frontend.
+Ensure MongoDB is running before starting the backend.
+
+
+---
+##Environment Variables
+
+###Backend .env
+
+PORT=5000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/reddit_db
+JWT_SECRET
+GEMINI_API_KEY
+GEMINI_API_URL
+
+###Frontend .env
+
+VITE_API_URL=http://localhost:5000
+
+---
+
+
+##Database
+
+MongoDB
+Schema designed using Mongoose
+Supports Users, Posts, Comments, Communities, Chats, Messages, Notifications
+
+---
+
+##Authors
+
+Eslam Mohamed Fawzy
+Hassan Ismail
+Adham Walid
+Mohamed Wael
+Carol Kamal
+Jana Mohamed
+Toka Elsayed
