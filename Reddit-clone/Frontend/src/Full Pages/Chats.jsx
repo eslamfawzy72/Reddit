@@ -175,7 +175,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
   useEffect(() => scrollToBottom(), [selectedChat?.messages]);
 
   const handleSendClick = async () => {
-    if (!selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
+    if ( !selectedChat || (!message.trim() && attachedFiles.length === 0)) return;
 
     try {
       const payload = {
