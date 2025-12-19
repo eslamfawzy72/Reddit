@@ -5,8 +5,10 @@ import {
   markAsRead,
   notifyComment,
   notifyPostUpvote,
+  notifyPostDownvote,
   notifyCommentUpvote,
-  notifyFollow
+  notifyFollow,
+  resolveNotification
 } from "../Controllers/NotificationController.js";
 import { sharePost } from "../Controllers/NotificationController.js";
 
@@ -16,6 +18,7 @@ const router = express.Router();
 
 // ✅ Get all notifications
 router.get("/", protect, getNotifications);
+router.get("/:notificationId/resolve", protect, resolveNotification);
 
 // ✅ Get unread count
 router.get("/unread-count", protect, getUnreadCount);
@@ -35,7 +38,11 @@ router.post("/post-upvote", protect, async (req, res) => {
   await notifyPostUpvote(req.user._id, postId);
   res.status(200).json({ message: "Post upvote notification sent" });
 });
-
+router.post('/post-downvote',protect,async(req,res)=>{
+  const{ postId }=req.body;
+  await notifyPostDownvote(req.user._id , postId);
+  res.status(200).json({ message: "Post downvote notification sent" })
+});
 router.post("/comment-upvote", protect, async (req, res) => {
   const { commentId } = req.body;
   await notifyCommentUpvote(req.user._id, commentId);

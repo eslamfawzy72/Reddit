@@ -1,7 +1,7 @@
 import express from "express";
 import {getAllUsers,getUserByID, getUserByName,
     deleteUserByID,getUserCommunities,getUserFollowers
-    ,getSpecificPosts,addNewUser,updateUser,getUserPosts,checkUsernameAvailability,toggleFollowUser} from "../Controllers/UserController.js";
+    ,getSpecificPosts,addNewUser,updateUser,getUserPosts,checkUsernameAvailability,toggleFollowUser, checkUsernameEmailAvailability} from "../Controllers/UserController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -30,6 +30,7 @@ router.patch("/:userID/follow", protect, toggleFollowUser);
 
 // Update user profile
 router.patch("/:userID", updateUser);
+router.post("/check-username-email", checkUsernameEmailAvailability);
 //follow and unfollow user
 
 

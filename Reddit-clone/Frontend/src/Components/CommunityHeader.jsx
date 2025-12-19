@@ -88,7 +88,15 @@ export default function CommunityHeader({
 
       <div className="community-header-inner">
         <div className="community-info">
-          <div className="community-avatar">{avatar}</div>
+         <div className="community-avatar">
+  {avatar ? (
+    <img src={avatar} alt={name} />
+  ) : (
+    <div className="avatar-letter">
+      {name ? name[0].toUpperCase() : "?"}
+    </div>
+  )}
+</div>
 
           <div>
             <h1>b/{name}</h1>

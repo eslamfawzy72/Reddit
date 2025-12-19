@@ -7,6 +7,7 @@ import Community from "../Models/Community.js";
 
 
 
+
 export const notifyComment = async (actorId, postID) => {
   try{
   const post = await Post.findById(postID).lean();
@@ -65,6 +66,18 @@ export const notifyPostUpvote = async (actorId, postId) => {
     targetId: postId,
   });
 };
+export const notifyPostDownvote = async (actorId, postId) => {
+  const post = await Post.findById(postId).lean();
+  if (!post) return;
+
+  await createNotification({
+    userId: post.userID,
+    actorId,
+    type: "post_downvote",
+    targetType: "post",
+    targetId: postId,
+  });
+};
 
 // ✅ Create notification when user upvotes a comment
 export const notifyCommentUpvote = async (actorId, commentId) => {
@@ -99,18 +112,24 @@ export const getNotifications = async (req, res) => {
 
     const query = { userId };
 
+    // Apply type filters
     if (type !== "all") {
       if (type === "messages") {
         query.type = "message";
       } else if (type === "comments") {
-        query.type = { $in: ["comment_reply", "post_comment"] };
+        query.type = { $in: ["post_comment", "comment_reply"] };
       } else if (type === "upvotes") {
         query.type = { $in: ["post_upvote", "comment_upvote"] };
+      } else if (type === "downvotes") {
+        query.type = { $in: ["post_downvote", "comment_downvote"] };
+      } else if (type === "shares") {
+        query.type = "post_share";
       }
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    // Fetch notifications
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -118,27 +137,23 @@ export const getNotifications = async (req, res) => {
       .populate("actorId", "userName image")
       .lean();
 
+    // Enrich notifications with post preview & community info
     const enriched = await Promise.all(
       notifications.map(async (n) => {
         let communityName = null;
         let postPreview = null;
+        let communityId = null;
+        let postId = null;
 
         if (n.targetType === "post") {
           const post = await Post.findById(n.targetId)
-            .populate("communityID", "commName members privacestate")
+            .populate("communityID", "commName _id")
             .lean();
 
           communityName = post?.communityID?.commName || null;
+          communityId = post?.communityID?._id || null;
           postPreview = post?.description?.slice(0, 100) || null;
-
-          // include communityId and postId for frontend navigation
-          return {
-            ...n,
-            communityName,
-            communityId: post?.communityID?._id || null,
-            postPreview,
-            postId: n.targetId,
-          };
+          postId = n.targetId;
         }
 
         if (n.targetType === "comment") {
@@ -149,7 +164,9 @@ export const getNotifications = async (req, res) => {
         return {
           ...n,
           communityName,
-          postPreview
+          communityId,
+          postPreview,
+          postId,
         };
       })
     );
@@ -270,3 +287,55 @@ export const sharePost = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+export const resolveNotification = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+
+    const notif = await Notification.findById(notificationId).lean();
+    if (!notif) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    // ---------------- POST-RELATED ----------------
+    if (notif.targetType === "post" && notif.targetId) {
+      const post = await Post.findById(notif.targetId)
+        .select("_id communityID")
+        .lean();
+
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      return res.json({
+        destination: "post",
+        communityId: post.communityID,
+        postId: post._id,
+      });
+    }
+
+    // ---------------- FOLLOW ----------------
+    if (notif.type === "follow") {
+      const user = await User.findById(notif.actorId)
+        .select("userName")
+        .lean();
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.json({
+        destination: "user",
+        username: user.userName,
+      });
+    }
+
+    return res.json({ destination: "unknown" });
+
+  } catch (err) {
+    console.error("Resolve notification error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

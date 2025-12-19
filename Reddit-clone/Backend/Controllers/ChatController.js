@@ -31,7 +31,11 @@ export const createChat = async (req, res) => {
             .populate("participants", "userName image");
 
         // ------------------- EMIT TO OTHER PARTICIPANTS -------------------
-        const io = req.app.get("io");
+       // ------------------- EMIT TO ALL ON CHAT PAGE -------------------
+const io = req.app.get("io");
+io.to("chats_page").emit("new_chat_created", populatedChat); // 👈 add this
+
+        
         const creatorId = creator || participants[0]; // fallback if creator not sent
 
         participants.forEach(userId => {

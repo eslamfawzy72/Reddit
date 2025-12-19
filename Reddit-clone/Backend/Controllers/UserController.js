@@ -134,6 +134,7 @@ export async function getSpecificPosts(req, res) {
       commName: post.communityID?.commName,
       categories: post.categories,
       description: post.description,
+      title:post.title,
       images: post.images,
       edited: post.edited,
       upvoteCount: post.upvoteCount,
@@ -399,6 +400,7 @@ export async function getUserPosts(req, res) {
       commName: post.communityID?.commName,
       categories: post.categories,
       description: post.description,
+      title:post.title,
       images: post.images,
       edited: post.edited,
       upvoteCount: post.upvoteCount,
@@ -419,6 +421,42 @@ export async function getUserPosts(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+// Check if username or email is available
+export async function checkUsernameEmailAvailability(req, res) {
+  try {
+    const { username, email } = req.body;
+
+    if (!username || !email) {
+      return res.status(400).json({
+        usernameAvailable: false,
+        emailAvailable: false
+      });
+    }
+
+    // Check if username exists (case-insensitive)
+    const usernameTaken = await User.findOne({
+      userName: { $regex: new RegExp(`^${username.trim()}$`, "i") }
+    });
+
+    // Check if email exists (case-insensitive)
+    const emailTaken = await User.findOne({
+      email: email.trim().toLowerCase()
+    });
+
+    res.json({
+      usernameAvailable: !usernameTaken,
+      emailAvailable: !emailTaken
+    });
+
+  } catch (err) {
+    console.error("Check username/email error:", err);
+    res.status(500).json({
+      usernameAvailable: false,
+      emailAvailable: false
+    });
+  }
+}
+
 
 
 

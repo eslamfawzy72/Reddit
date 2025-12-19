@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import Post from "../Models/Post.js";
 import User from "../Models/User.js";
+import { notifyPostUpvote } from "./NotificationController.js";//added t
+import { notifyPostDownvote } from "./NotificationController.js";
 import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -287,6 +289,7 @@ export const updatePostByID = async (req, res) => {
 
     if (action === "upvote") {
       if (hasUpvoted) {
+
         user.upvotedPosts.pull(postID);
         post.upvoteCount--;
       } else {
@@ -297,6 +300,9 @@ export const updatePostByID = async (req, res) => {
           user.downvotedPosts.pull(postID);
           post.downvoteCount--;
         }
+          if (post.userID.toString() !== userId.toString()) {
+      await notifyPostUpvote(userId, post._id);
+    }
       }
     }
 
@@ -312,6 +318,9 @@ export const updatePostByID = async (req, res) => {
           user.upvotedPosts.pull(postID);
           post.upvoteCount--;
         }
+        if (post.userID.toString() !== userId.toString()) {
+      await notifyPostDownvote(userId, post._id);
+    }
       }
     }
 

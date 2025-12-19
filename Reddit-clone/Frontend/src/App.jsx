@@ -74,7 +74,7 @@ function App() {
             <Route path="/Popular" element={<Popular key={authVersion} onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/StartCommunity" element={<CreateCommunity />} />
             <Route path="/Explore" element={<Explore onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
-            <Route path="/Notifications" element={<Notifications />} />
+            <Route path="/Notifications" element={<Notifications onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Chats" element={<Chats />} />
             <Route path="/community/:communityID" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />
             <Route path="/Community" element={<CommunityPage onOpenCreateCommunity={() => setShowCreateModal(true)} onOpenCreatePost={openCreatePostModal} />} />

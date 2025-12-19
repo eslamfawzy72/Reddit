@@ -27,6 +27,20 @@ export default function SignUp() {
   const [interests, setInterests] = useState([]);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const checkAvailability = async () => {
+  try {
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_URL}/users/check-username-email`,
+      { username: username.trim(), email: email.trim() }
+    );
+    return res.data; // { usernameAvailable: true/false, emailAvailable: true/false }
+  } catch (err) {
+    console.error(err);
+    return { usernameAvailable: false, emailAvailable: false };
+  }
+};
+
+
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -99,27 +113,42 @@ export default function SignUp() {
             />
 
             <Button
-              fullWidth
-              className="signup-continue-btn"
-              onClick={() => {
-                if (!username || !email || !password) {
-                  setError("All fields are required");
-                  return;
-                }
-                if (!emailRegex.test(email)) {
-                  setError("Please enter a valid email address.");
-                  return;
-                }
-                if (password.length < 6) {
-                  setError("Password must be at least 6 characters.");
-                  return;
-                }
-                setError("");
-                setPage(2);
-              }}
-            >
-              Continue
-            </Button>
+  fullWidth
+  className="signup-continue-btn"
+ onClick={async () => {
+  setError("");
+
+  if (!username || !email || !password) {
+    setError("All fields are required");
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    setError("Please enter a valid email address.");
+    return;
+  }
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  const { usernameAvailable, emailAvailable } = await checkAvailability();
+
+  if (!usernameAvailable) {
+    setError("Username is already taken");
+    return;
+  }
+  if (!emailAvailable) {
+    setError("Email is already registered");
+    return;
+  }
+
+  setPage(2); // all good
+}}
+
+>
+  Continue
+</Button>
+
           </Box>
         </Box>
       )}

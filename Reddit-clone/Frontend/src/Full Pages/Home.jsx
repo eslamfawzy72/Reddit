@@ -49,6 +49,7 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
               .catch(() => [])
           )
         );
+
         const mergedPosts = Array.from(
           new Map(
             postsArrays
@@ -76,16 +77,14 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
   }, [currentUser]);
 
   const searchFunction = async (query) => {
-    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+    if (!query || !query.trim()) return { results: [], renderItem: null };
 
-  try {
-    // fetch users
-    const userRes = await axios.get(`${API}/users`);
-    const users = (userRes.data || [])
-      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
-      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+    try {
+      const userRes = await axios.get(`${API}/users`);
+      const users = (userRes.data || [])
+        .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase()) && u._id !== currentUser?._id)
+        .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
 
-      // fetch communities
       const commRes = await axios.get(`${API}/communities`);
       const communities = (commRes.data || [])
         .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
@@ -107,10 +106,9 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
       return { results, renderItem };
     } catch (err) {
       console.error("Search error:", err);
-      return { results: [], renderItem: null }; // ✅ fallback
+      return { results: [], renderItem: null };
     }
   };
-
 
   return (
     <div className="homeContainer">
@@ -128,7 +126,6 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
 
       <div className="leftSidebar">
         <SidebarLeft
-         
           onOpenCreateCommunity={onOpenCreateCommunity}
           onOpenCreatePost={onOpenCreatePost}
         />
@@ -138,13 +135,55 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
         <div className="feedWrapper">
           {loading || currentUser === undefined ? (
             <div className="loadingPosts">Loading posts...</div>
+          ) : posts.length === 0 ? (
+            <div
+              style={{
+                padding: "60px 20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                color: "#E5E7EB",
+                textAlign: "center"
+              }}
+            >
+              <h3 style={{ fontSize: "18px", fontWeight: "600" }}>
+                {currentUser
+                  ? "No posts found in your communities."
+                  : "No public communities available."}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#9CA3AF", marginTop: "6px" }}>
+                {currentUser
+                  ? "Join more communities or create your own to start seeing posts!"
+                  : "Sign up or log in to join communities and view posts."}
+              </p>
+              {currentUser && (
+                <button
+                   onClick={() => navigate("/Explore")}
+                  style={{
+                    marginTop: "20px",
+                    padding: "10px 24px",
+                    borderRadius: "24px",
+                    border: "none",
+                    backgroundColor: "#4c6ef5",
+                    color: "#fff",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.backgroundColor = "#3b5bd4")}
+                  onMouseOut={e => (e.currentTarget.style.backgroundColor = "#4c6ef5")}
+                >
+                  Explore Communities
+                </button>
+              )}
+            </div>
           ) : (
             posts.map(post => (
               <PostCard
                 key={post._id}
                 id={post._id}
                 user_name={`u/${post.user?.userName || "Unknown"}`}
-                user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+                user_avatar={post.user?.userName[0] || "https://i.pravatar.cc/48?img=1"}
                 description={post.description}
                 title={post.title}
                 images={post.images || []}
@@ -160,7 +199,6 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
                 poll={post.poll}
               />
             ))
-
           )}
         </div>
       </div>

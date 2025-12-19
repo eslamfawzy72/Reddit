@@ -8,6 +8,7 @@ const ACCENT_BLUE = "#3b82f6";
 const ACCENT_PINK = "#f63bf3ff";
 
 /* ================= About Sidebar ================= */
+/* ================= About Sidebar ================= */
 function AboutSidebar({ profile, isOwn, postCount }) {
   const formatRedditAge = (dateString) => {
     const created = new Date(dateString);
@@ -26,27 +27,21 @@ function AboutSidebar({ profile, isOwn, postCount }) {
     <div className="sidebar-container">
       <div className="sidebar-card glass-card">
         <div className="sidebar-user-info">
-          <div className="sidebar-username text-xl font-bold text-white mb-6">
-            {profile.username}
-          </div>
+          
 
           <div className="sidebar-stats-grid grid grid-cols-2 gap-4 mb-6">
-            <div className="stat-box text-center">
-              <div className="stat-label text-xs text-gray-400 mt-1">Karma</div>
-            </div>
+            {/* Posts */}
             <div className="stat-box text-center">
               <div className="stat-number text-2xl font-bold text-white">{postCount}</div>
               <div className="stat-label text-xs text-gray-400 mt-1">Posts</div>
             </div>
+
+            {/* Followers */}
             <div className="stat-box text-center">
               <div className="stat-number text-2xl font-bold text-white">{profile.followers}</div>
               <div className="stat-label text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
                 <Users size={12} className="text-blue-400" /> Followers
               </div>
-            </div>
-            <div className="stat-box text-center">
-              <div className="stat-number text-2xl font-bold text-white">0</div>
-              <div className="stat-label text-xs text-gray-400 mt-1">Contributions</div>
             </div>
           </div>
         </div>
@@ -54,6 +49,7 @@ function AboutSidebar({ profile, isOwn, postCount }) {
         <hr className="sidebar-divider border-gray-700 my-6" />
 
         <div className="sidebar-info-section space-y-4">
+          {/* Reddit Age */}
           <div className="info-row flex items-center justify-between text-sm">
             <span className="info-label text-gray-400 flex items-center gap-2">
               <Calendar size={14} className="text-purple-400" /> Reddit Age
@@ -63,24 +59,19 @@ function AboutSidebar({ profile, isOwn, postCount }) {
             </span>
           </div>
 
+          {/* Active in */}
           <div className="info-row flex items-center justify-between text-sm">
             <span className="info-label text-gray-400 flex items-center gap-2">
               <MessageCircle size={14} className="text-green-400" /> Active in
             </span>
             <span className="info-value text-white font-semibold">{profile.activeIn} communities</span>
           </div>
-
-          <div className="info-row flex items-center justify-between text-sm">
-            <span className="info-label text-gray-400 flex items-center gap-2">
-              <Award size={14} className="text-yellow-400" /> Gold earned
-            </span>
-            <span className="info-value text-white font-semibold">0</span>
-          </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 /* ================= Edit Modal ================= */
 function EditSettingsModal({ isOpen, onClose, profileData, onSave }) {
@@ -391,22 +382,24 @@ const toggleFollow = async () => {
   const renderPosts = (posts) =>
     posts.length ? posts.map(post => (
       <PostCard
-        key={post._id}
-        id={post._id}
-        user_name={`u/${post.user?.userName || "Unknown"}`}
-        user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-        description={post.description}
-        images={post.images || []}
-        comments={post.comments}
-        upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
-        downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
-        commentCount={post.commentCount || 0}
-        date={post.date}
-        community_name={`b/${post.commName || "unknown"}`}
-        edited={post.edited || false}
-        onVote={handleVote}
-        currentUser={currentUser}
-      />
+  key={post._id}
+  id={post._id}
+  user_name={`u/${post.user?.userName || "Unknown"}`}
+  user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
+  title={post.title}                 // ✅ already correct
+  description={post.description}
+  images={post.images || []}
+  comments={post.comments}
+  upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
+  downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
+  commentCount={post.commentCount || 0}
+  date={post.date}              // ✅ FIX
+  community_name={`b/${post.commName || "unknown"}`}
+  edited={post.edited || false}
+  onVote={handleVote}
+  currentUser={currentUser}
+/>
+
     )) : (
       <div className="empty-state glass-card text-center py-12 text-gray-400">Nothing here yet</div>
     );

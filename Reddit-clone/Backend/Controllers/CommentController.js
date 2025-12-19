@@ -1,5 +1,5 @@
 import Post from "../Models/Post.js"
-import {notifyComment , notifyReply} from "./NotificationController.js"
+import {notifyComment,notifyReply,notifyCommentUpvote} from "./NotificationController.js"
 import mongoose from "mongoose";
 
 
@@ -98,7 +98,9 @@ export async function addComment(req, res) {
     await post.save();
 
     // notify post author that someone commented on his post
-    await notifyComment(user._id, postId);
+    if (post.userID.toString() !== user._id.toString()) {
+  await notifyComment(user._id, postId);
+}
 
     return res.status(201).json({ message: "Comment added", comment: newComment });
   } catch (err) {

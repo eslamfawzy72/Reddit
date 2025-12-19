@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Bell, MessageSquare, ArrowUp, Mail } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Bell, MessageSquare, ArrowUp, ArrowDown, Mail } from "lucide-react";
 import axios from "axios";
+import SidebarLeft from "../Components/SidebarLeft";
+import PrimarySearchAppBar from "../Components/PrimarySearchAppBar";
 import { useNavigate } from "react-router-dom";
 
-// Avatar Component
 const Avatar = ({ avatar, username, size = 40 }) => (
   <div
     style={{
@@ -23,7 +24,6 @@ const Avatar = ({ avatar, username, size = 40 }) => (
   </div>
 );
 
-// Empty State
 const EmptyState = ({ icon: Icon, title, description }) => (
   <div
     style={{
@@ -38,7 +38,7 @@ const EmptyState = ({ icon: Icon, title, description }) => (
         width: "80px",
         height: "80px",
         borderRadius: "50%",
-        backgroundColor: "#F6F7F8",
+        backgroundColor: "#0F172A",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -48,34 +48,41 @@ const EmptyState = ({ icon: Icon, title, description }) => (
       <Icon size={40} color="#878A8C" />
     </div>
 
-    <h3 style={{ fontSize: "18px", fontWeight: "600" }}>{title}</h3>
-    <p style={{ fontSize: "14px", color: "#7c7c7c", marginTop: "6px" }}>
+    <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#E5E7EB" }}>
+      {title}
+    </h3>
+    <p style={{ fontSize: "14px", color: "#9CA3AF", marginTop: "6px" }}>
       {description}
     </p>
   </div>
 );
 
-// Notification Tile
 const NotificationTile = ({ notification, onClick }) => {
+  const user = notification.actorId?.userName || "Someone";
+
   const getIcon = () => {
     switch (notification.type) {
       case "post_comment":
       case "comment_reply":
         return <MessageSquare size={16} color="#0079D3" />;
+
       case "post_upvote":
       case "comment_upvote":
         return <ArrowUp size={16} color="#FF4500" />;
+
+      case "post_downvote":
+      case "comment_downvote":
+        return <ArrowDown size={16} color="#7193FF" />;
+
       case "message":
-        return <Mail size={16} color="#46D160" />;
+        return <Mail size={16} color="#0079D3" />;
+
       default:
         return <Bell size={16} />;
     }
   };
 
   const getText = () => {
-    const user = notification.actorId?.userName || "Someone";
-    const community = notification.subreddit || "general";
-
     switch (notification.type) {
       case "post_comment":
         return `u/${user} commented on your post`;
@@ -85,10 +92,16 @@ const NotificationTile = ({ notification, onClick }) => {
         return `u/${user} upvoted your post`;
       case "comment_upvote":
         return `u/${user} upvoted your comment`;
+      case "post_downvote":
+        return `u/${user} downvoted your post`;
+      case "comment_downvote":
+        return `u/${user} downvoted your comment`;
       case "message":
         return `u/${user} sent you a message`;
+      case "post_share":
+        return `u/${user} shared a post with you`;
       default:
-        return `u/${user} interacted with you`;
+        return `u/${user} followed you`;
     }
   };
 
@@ -99,9 +112,10 @@ const NotificationTile = ({ notification, onClick }) => {
         display: "flex",
         gap: "12px",
         padding: "16px",
-        backgroundColor: notification.isRead ? "white" : "#F0F7FF",
-        borderBottom: "1px solid #E0E3E6",
+        backgroundColor: notification.isRead ? "#0B0F1A" : "#1E2A47",
+        borderBottom: "1px solid #1F2933",
         cursor: "pointer",
+        borderRadius: "8px",
       }}
     >
       {!notification.isRead && (
@@ -122,14 +136,21 @@ const NotificationTile = ({ notification, onClick }) => {
       />
 
       <div>
-        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "6px",
+            alignItems: "center",
+            color: "#E5E7EB",
+          }}
+        >
           {getIcon()}
           <span style={{ fontWeight: notification.isRead ? "400" : "600" }}>
             {getText()}
           </span>
         </div>
 
-        <div style={{ fontSize: "12px", color: "#777" }}>
+        <div style={{ fontSize: "12px", color: "#9CA3AF" }}>
           {new Date(notification.createdAt).toLocaleString()}
         </div>
       </div>
@@ -137,19 +158,115 @@ const NotificationTile = ({ notification, onClick }) => {
   );
 };
 
-// Main Notification Page
-const NotificationPage = () => {
+const Notifications = ({ onOpenCreateCommunity, onOpenCreatePost }) => {
   const navigate = useNavigate();
-
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("All");
+  const API = import.meta.env.VITE_API_URL;
+  const [currentUser, setCurrentUser] = useState(null);
+ const handleNotificationClick = async (n) => {
+  try {
+    // mark as read
+    await axios.patch(`${API}/notifications/${n._id}/read`, {}, { withCredentials: true });
+    setNotifications(prev =>
+      prev.map(x => (x._id === n._id ? { ...x, isRead: true } : x))
+    );
 
-  const filters = ["All", "Comments", "Upvotes"];
+    // post_share → community
+    if (n.type === "post_share" && n.postId && n.communityId) {
+      navigate(`/community/${n.communityId}?focusPost=${n.postId}`);
+      return;
+    }
+
+    // follow → profile page
+    if (n.type === "follow" && n.actorId?._id) {
+      navigate(`/Profile/${n.actorId._id}`); // ✅ use _id, not userName
+      return;
+    }
+
+    // post-related notifications
+    if ([
+      "post_upvote",
+      "post_downvote",
+      "post_comment",
+      "comment_reply",
+      "comment_upvote",
+      "comment_downvote"
+    ].includes(n.type)) {
+      const postId = n.postId || n.targetId;
+      try {
+        const postRes = await axios.get(`${API}/posts/${postId}`);
+        const communityId = postRes.data.communityID;
+        navigate(`/community/${communityId}?focusPost=${postId}`);
+      } catch {
+        alert("The post no longer exists."); // fallback if post deleted
+      }
+      return;
+    }
+
+  } catch (err) {
+    console.error("Notification click error:", err);
+    alert("Failed to open this notification."); // friendly fallback
+  }
+};
+
+
+
+
+useEffect(() => {
+  axios.get(`${API}/auth/me`, { withCredentials: true })
+    .then(res => setCurrentUser(res.data.user))
+    .catch(() => setCurrentUser(null));
+}, []);
+  const searchFunction = async (query) => {
+    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+
+  try {
+    // fetch users
+    const userRes = await axios.get(`${API}/users`);
+    const users = (userRes.data || [])
+      .filter(u => u.userName?.toLowerCase().startsWith(query.toLowerCase())&& u._id !== currentUser?._id  )
+      .map(u => ({ type: "user", id: u._id, label: u.userName, avatar: u.image }));
+
+      // fetch communities
+      const commRes = await axios.get(`${API}/communities`);
+      const communities = (commRes.data || [])
+        .filter(c => c.commName?.toLowerCase().startsWith(query.toLowerCase()))
+        .map(c => ({ type: "community", id: c._id, label: c.commName, image: c.image }));
+
+      const results = [...users, ...communities];
+
+      const renderItem = (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img
+            src={item.avatar || item.image || "https://i.pravatar.cc/32"}
+            alt=""
+            style={{ width: 32, height: 32, borderRadius: "50%" }}
+          />
+          <span>{item.label} ({item.type})</span>
+        </div>
+      );
+
+      return { results, renderItem };
+    } catch (err) {
+      console.error("Search error:", err);
+      return { results: [], renderItem: null }; // ✅ fallback
+    }
+  };
+
+
+  const filters = ["All", "Comments", "Upvotes", "Downvotes", "Shares"];
 
   const fetchNotifications = async () => {
     try {
-      const typeQuery =
-        filter === "All" ? "all" : filter === "Comments" ? "comments" : "upvotes";
+      const filterMap = {
+        All: "all",
+        Comments: "comments",
+        Upvotes: "upvotes",
+        Downvotes: "downvotes",
+        Shares: "shares",
+      };
+      const typeQuery = filterMap[filter] || "all";
 
       const res = await axios.get(
         `http://localhost:5000/notifications?type=${typeQuery}`,
@@ -158,7 +275,7 @@ const NotificationPage = () => {
 
       setNotifications(res.data.notifications || []);
     } catch (err) {
-      console.log("Error fetching notifications:", err);
+      console.log(err);
       setNotifications([]);
     }
   };
@@ -167,43 +284,40 @@ const NotificationPage = () => {
     fetchNotifications();
   }, [filter]);
 
-  const handleNotificationClick = async (n) => {
-    try {
-      await axios.patch(
-        `http://localhost:5000/notifications/${n._id}/read`,
-        {},
-        { withCredentials: true }
-      );
 
-      setNotifications((prev) =>
-        prev.map((x) => (x._id === n._id ? { ...x, isRead: true } : x))
-      );
-    } catch (err) {
-      console.log("Error marking as read:", err);
-    }
-      // ✅ Always route through community
-      if (n.type === "post_share" && n.postId && n.communityId) {
-  navigate(`/community/${n.communityId}?focusPost=${n.postId}`);
-  return;
-}
-
-  };
 
   return (
-    <div style={{ backgroundColor: "#fff", minHeight: "100vh" }}>
-      <main style={{ maxWidth: "750px", margin: "0 auto", padding: "20px" }}>
-        <div style={{ background: "white", borderRadius: "8px", border: "1px solid #ddd" }}>
-          <div style={{ padding: "20px", borderBottom: "1px solid #ddd" }}>
-            <h1 style={{ fontSize: "20px", fontWeight: "700" }}>Notifications</h1>
+    <div className="homeContainer">
+      {/* Top Navbar */}
+      <div className="topNavbar">
+        <PrimarySearchAppBar onOpenCreatePost={onOpenCreatePost} searchFunction={searchFunction} />
+      </div>
+
+      {/* Left Sidebar */}
+      <div className="leftSidebar">
+        <SidebarLeft
+          onOpenCreateCommunity={onOpenCreateCommunity}
+          onOpenCreatePost={onOpenCreatePost}
+        />
+      </div>
+
+      {/* Main Feed */}
+      <div className="mainFeed" style={{ padding: "28px 36px" }}>
+        <div className="feedWrapper">
+          {/* Page Title */}
+          <div style={{ padding: "12px 0", color: "#E5E7EB" }}>
+            <h1 style={{ fontSize: "22px", fontWeight: "700" }}>
+              Notifications
+            </h1>
           </div>
 
+          {/* Filters */}
           <div
             style={{
-              padding: "12px 20px",
               display: "flex",
               gap: "8px",
-              borderBottom: "1px solid #ddd",
-              background: "#FAFAFA",
+              marginBottom: "16px",
+              flexWrap: "wrap",
             }}
           >
             {filters.map((f) => (
@@ -211,11 +325,11 @@ const NotificationPage = () => {
                 key={f}
                 onClick={() => setFilter(f)}
                 style={{
-                  padding: "8px 16px",
+                  padding: "6px 16px",
                   borderRadius: "20px",
-                  border: filter === f ? "none" : "1px solid #ddd",
-                  background: filter === f ? "#0079D3" : "white",
-                  color: filter === f ? "white" : "#333",
+                  border: filter === f ? "none" : "1px solid #1F2933",
+                  background: filter === f ? "#0079D3" : "#1E2A47",
+                  color: filter === f ? "#fff" : "#E5E7EB",
                   fontWeight: "600",
                   cursor: "pointer",
                 }}
@@ -225,12 +339,13 @@ const NotificationPage = () => {
             ))}
           </div>
 
+          {/* Notifications List */}
           {notifications.length > 0 ? (
-            notifications.map((notification) => (
+            notifications.map((n) => (
               <NotificationTile
-                key={notification._id}
-                notification={notification}
-                onClick={() => handleNotificationClick(notification)}
+                key={n._id}
+                notification={n}
+                onClick={() => handleNotificationClick(n)}
               />
             ))
           ) : (
@@ -241,9 +356,9 @@ const NotificationPage = () => {
             />
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
 
-export default NotificationPage;
+export default Notifications;

@@ -239,7 +239,7 @@ React.useEffect(() => {
       <CardHeader
         avatar={
           <Avatar sx={{ bgcolor: "#1d9bf0" }}>
-            <img src={user_avatar} alt="" style={{ width: "100%" }} />
+           {user_name ? user_name[2].toUpperCase() : "?"}
           </Avatar>
         }
         title={user_name}

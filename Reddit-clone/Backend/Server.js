@@ -16,6 +16,8 @@ import authRouter from "./routes/authRouter.js";
 import NotificationRouter from "./routes/NotificationRouter.js";
 
 
+
+
 dotenv.config(); // load .env
 
 const app = express();
@@ -90,6 +92,7 @@ app.use("/notifications", NotificationRouter);
 //notifications router
 // comment routes(middleware)
 app.use("/comments", commentRouter);
+
 
 // ---------------- START SERVER ----------------
 const PORT = process.env.PORT || 5000;

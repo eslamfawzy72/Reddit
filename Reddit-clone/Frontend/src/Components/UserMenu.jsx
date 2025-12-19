@@ -95,28 +95,11 @@ navigate("/ProfilePage", {
           <AccountCircleIcon className="um-icon" /> View Profile
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            navigate("/CreatePost");
-            handleClose();
-          }}
-          className="um-menu-item"
-        >
-          <DraftsIcon className="um-icon" /> Create Post
-        </MenuItem>
+       
 
-        <MenuItem onClick={handleClose} className="um-menu-item">
-          <DraftsIcon className="um-icon" /> Notifications
-        </MenuItem>
+        
 
-        <MenuItem className="um-menu-item">
-          <Brightness2Icon className="um-icon" /> Dark Mode
-          <Switch
-            checked={darkMode}
-            onChange={() => setDarkMode(!darkMode)}
-            className="um-switch"
-          />
-        </MenuItem>
+        
 
         <MenuItem onClick={handleLogout} className="um-menu-item">
           <LogoutIcon className="um-icon" /> Log Out

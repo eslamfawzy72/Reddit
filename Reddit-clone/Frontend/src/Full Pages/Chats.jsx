@@ -217,9 +217,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
         <Typography variant="h6" color="white" sx={{ flexGrow: 1 }}>
           {selectedChat.isGroupChat ? selectedChat.name : <OtherUserName participants={selectedChat.participants} currentUser={currentUser} />}
         </Typography>
-        <IconButton color="primary">
-          <MoreVertIcon />
-        </IconButton>
+        
       </Box>
 
       <Box sx={{ flex: 1, p: 3, overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -262,12 +260,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
       <Box sx={{ p: 2, borderTop: "1px solid #1e293b", bgcolor: "#020617" }}>
         <FilePreview files={attachedFiles} onRemove={removeFile} />
         <Box className="chat-input-row">
-          <IconButton component="label">
-            <AttachFileIcon sx={{ color: "gray" }} />
-            <input type="file" hidden multiple onChange={e => {
-              if (e.target.files) setAttachedFiles(prev => [...prev, ...Array.from(e.target.files)]);
-            }} />
-          </IconButton>
+         
 
           <TextField
             fullWidth
@@ -279,7 +272,7 @@ function ChatPanel({ selectedChat, setSelectedChat, currentUser, chats, setChats
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton>
-                    <EmojiEmotionsIcon className="icon-gray" />
+                    
                   </IconButton>
                 </InputAdornment>
               ),

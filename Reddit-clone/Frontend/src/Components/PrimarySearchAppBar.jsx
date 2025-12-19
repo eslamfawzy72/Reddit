@@ -79,7 +79,7 @@ export default function PrimarySearchAppBar({
 
 const handleItemClick = (item) => {
   if (item.type === "user") {
-    navigate(`/Profile/${item.label}`);
+    navigate(`/Profile/${item.id}`);
   } else if (item.type === "community") {
     navigate(`/community/${item.id}`);
   } else if (item.type === "full-search") {
