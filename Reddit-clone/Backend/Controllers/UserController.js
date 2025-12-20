@@ -99,7 +99,8 @@ export async function getUserFollowers(req, res) {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}export async function getSpecificPosts(req, res) {
+}
+export async function getSpecificPosts(req, res) {
   try {
     const vistorID = req.user ? req.user._id : null;
     const { field, userID } = req.params;
@@ -407,9 +408,14 @@ export async function updateUser(req, res) {
 }
 export async function getUserPosts(req, res) {
   try {
-    const Id = req.params.userID;
+    const profileUserId = req.params.userID;
+    const visitorID = req.user ? req.user._id : null;
 
-    const posts = await Post.find({ userID: Id })
+    const userPollVotes = visitorID
+      ? (await User.findById(visitorID).select("pollVotes"))?.pollVotes || []
+      : [];
+
+    const posts = await Post.find({ userID: profileUserId })
       .populate({
         path: "userID",
         select: "userName image _id",
@@ -421,7 +427,7 @@ export async function getUserPosts(req, res) {
       .sort({ date: -1 });
 
     if (!posts || posts.length === 0) {
-      return res.status(404).json({ message: "No posts found for this user" });
+      return res.json([]); 
     }
 
     const formattedPosts = posts.map(post => ({
@@ -431,19 +437,34 @@ export async function getUserPosts(req, res) {
       commName: post.communityID?.commName,
       categories: post.categories,
       description: post.description,
-      title:post.title,
+      title: post.title,
       images: post.images,
       edited: post.edited,
+
       upvoteCount: post.upvoteCount,
       downvoteCount: post.downvoteCount,
+
       commentCount: post.commentCount,
       comments: post.comments,
       date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
+
+      poll: post.poll?.isPoll
+        ? {
+            ...post.poll.toObject(),
+            userOptionId:
+              userPollVotes.find(
+                v => v.post.toString() === post._id.toString()
+              )?.option || null,
+          }
+        : { isPoll: false },
+
+      user: post.userID
+        ? {
+            userName: post.userID.userName,
+            image: post.userID.image,
+            _id: post.userID._id,
+          }
+        : null,
     }));
 
     res.json(formattedPosts);
@@ -452,6 +473,7 @@ export async function getUserPosts(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
 // Check if username or email is available
 export async function checkUsernameEmailAvailability(req, res) {
   try {

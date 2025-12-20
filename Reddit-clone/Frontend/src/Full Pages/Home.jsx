@@ -25,7 +25,6 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
     if (currentUser === undefined) return;
 
     const loadFeed = async () => {
-       alert("yay");
       setLoading(true);
       try {
         let communities = [];
