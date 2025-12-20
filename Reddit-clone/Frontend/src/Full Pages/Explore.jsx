@@ -14,7 +14,7 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
   const API = import.meta.env.VITE_API_URL;
   const [communities, setCommunities] = useState([]);
   const searchcomms = async (query) => {
-    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+    if (!query || !query.trim()) return { results: [], renderItem: null };
 
     try {
     
@@ -39,7 +39,7 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
       return { results, renderItem };
     } catch (err) {
       console.error("Search error:", err);
-      return { results: [], renderItem: null }; // ✅ fallback
+      return { results: [], renderItem: null }; 
     }
   };
 
@@ -67,14 +67,13 @@ function Explore({ onOpenCreateCommunity, onOpenCreatePost }) {
 
   return (
     <div className="explore">
-      {/* Fixed navbar z-index */}
       <header
         className="explore__navbar"
         style={{ position: "sticky", top: 0, zIndex: 2000 }}
       >
         <PrimarySearchAppBar
           loggedin={isLoggedIn}
-          dropdownStyle={{ zIndex: 2100 }} searchFunction={searchcomms} // pass custom z-index to dropdown
+          dropdownStyle={{ zIndex: 2100 }} searchFunction={searchcomms} 
           onOpenCreatePost={onOpenCreatePost}
         />
       </header>

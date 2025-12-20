@@ -68,7 +68,6 @@ export default function ShareModal({ open, onClose, postId }) {
     try {
       const recipients = Array.from(selected);
       const res = await axios.post(`${API}/notifications/share`, { postId, recipients }, { withCredentials: true });
-      alert(res.data.message || "Shared");
       onClose();
     } catch (err) {
       console.error("Share failed", err);

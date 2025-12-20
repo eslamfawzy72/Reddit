@@ -314,6 +314,23 @@ export const resolveNotification = async (req, res) => {
         postId: post._id,
       });
     }
+    // ---------------- COMMENT REPLY ----------------
+if (notif.type === "comment_reply" && notif.postId && notif.targetId) {
+  const post = await Post.findById(notif.postId)
+    .select("_id communityID")
+    .lean();
+
+  if (!post) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  return res.json({
+    destination: "comment",
+    communityId: post.communityID,
+    postId: post._id,
+    commentId: notif.targetId, 
+  });
+}
 
     // ---------------- FOLLOW ----------------
     if (notif.type === "follow") {

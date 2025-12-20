@@ -136,3 +136,23 @@
   font-size: 13px;
   color: #9CA3AF;
 }
+
+/* =========================
+   SCROLLBAR
+   ========================= */
+.mainFeed::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mainFeed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mainFeed::-webkit-scrollbar-thumb {
+  background: #4c6ef5;
+  border-radius: 4px;
+}
+
+.mainFeed::-webkit-scrollbar-thumb:hover {
+  background: #3d5cdb;
+}

@@ -174,7 +174,7 @@ export const getAllCommunities = async (req, res) => {
 };
 
 
-// // Get a single community by ID
+//  Get a single community by ID
 export const getCommunityById = async (req, res) => {
   try {
     const userId = req.user?._id;
@@ -224,14 +224,11 @@ export const getCommunityById = async (req, res) => {
 // };
 
 
-// // Delete community (only moderators)
+// Delete community (only moderators)
 export const deleteCommunity = async (req, res) => {
   try {
- 
     const community = await Community.findById(req.params.id);
-    
     if (!community) return res.status(404).json({ message: "Community not found" });
-  
     if (!community.created_by.equals(req.user._id))
       return res.status(403).json({ message: "Not authorized" });
     await Post.deleteMany({ communityID: community._id });
@@ -296,10 +293,8 @@ export const leaveCommunity = async (req, res) => {
     if (!community) {
       return res.status(404).json({ message: "Community not found" });
     }
-
     const isCreator = community.created_by.equals(userId);
-
-    // If creator is the only member → prevent leaving (or delete)
+    // If creator is the only member prevent leaving (or delete)
     if (isCreator && community.members.length === 1) {
       return res.status(400).json({
         message: "You cannot leave a community you own as the only member",

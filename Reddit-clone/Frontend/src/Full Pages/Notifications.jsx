@@ -172,13 +172,11 @@ const Notifications = ({ onOpenCreateCommunity, onOpenCreatePost }) => {
       prev.map(x => (x._id === n._id ? { ...x, isRead: true } : x))
     );
 
-    // post_share → community
     if (n.type === "post_share" && n.postId && n.communityId) {
       navigate(`/community/${n.communityId}?focusPost=${n.postId}`);
       return;
     }
 
-    // follow → profile page
     if (n.type === "follow" && n.actorId?._id) {
       navigate(`/Profile/${n.actorId._id}`);
       return;
@@ -200,14 +198,14 @@ const Notifications = ({ onOpenCreateCommunity, onOpenCreatePost }) => {
         const communityId = postRes.data.communityID;
         navigate(`/community/${communityId}?focusPost=${postId}`);
       } catch {
-        alert("The post no longer exists."); // fallback if post deleted
+        alert("The post no longer exists."); 
       }
       return;
     }
 
   } catch (err) {
     console.error("Notification click error:", err);
-    alert("Failed to open this notification."); // friendly fallback
+    alert("Failed to open this notification."); 
   }
 };
 
@@ -220,7 +218,7 @@ useEffect(() => {
     .catch(() => setCurrentUser(null));
 }, []);
   const searchFunction = async (query) => {
-    if (!query || !query.trim()) return { results: [], renderItem: null }; // ✅ always return object
+    if (!query || !query.trim()) return { results: [], renderItem: null }; 
 
   try {
     // fetch users
@@ -251,7 +249,7 @@ useEffect(() => {
       return { results, renderItem };
     } catch (err) {
       console.error("Search error:", err);
-      return { results: [], renderItem: null }; // ✅ fallback
+      return { results: [], renderItem: null }; 
     }
   };
 

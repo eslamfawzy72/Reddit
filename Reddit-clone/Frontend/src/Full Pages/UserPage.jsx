@@ -13,7 +13,6 @@ function UserPage({ isOwn, onOpenCreateCommunity, onOpenCreatePost }) {
   const API = import.meta.env.VITE_API_URL;
   const { username } = useParams();
 
-  /* 🔐 AUTH */
   useEffect(() => {
     axios
       .get(`${API}/auth/me`, { withCredentials: true })
@@ -21,7 +20,6 @@ function UserPage({ isOwn, onOpenCreateCommunity, onOpenCreatePost }) {
       .catch(() => setCurrentUser(null));
   }, [API]);
 
-  /* 🔍 SEARCH */
   const searchFunction = async (query) => {
     if (!query.trim()) return { results: [], renderItem: null };
 

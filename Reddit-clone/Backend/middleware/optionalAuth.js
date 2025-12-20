@@ -1,4 +1,3 @@
-// middleware/optionalAuth.js
 import jwt from "jsonwebtoken";
 import User from "../Models/User.js";
 

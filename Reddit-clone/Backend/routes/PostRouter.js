@@ -48,7 +48,7 @@ router.get("/community/:communityID", protect, getPostsByCommunityID);
 router.get('/:postID', getPostByID);
 
 // Delete post by ID
-router.delete('/:postID', deletePostByID);
+router.delete('/:postID', protect,deletePostByID);
 
 // Get user by post ID and user ID
 router.get('/:postID/user/:userID', getUserByID);

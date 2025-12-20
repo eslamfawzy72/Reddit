@@ -8,10 +8,12 @@
 }
 
 .community-banner {
-  height: 96px;
-  background-size: cover;
+  height: 200px;
+  background-size: 80% auto;
   background-position: center;
   background-color: #0f172a;
+  background-repeat: no-repeat;
+  width: 100%;
 }
 
 .community-header-inner {

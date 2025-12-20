@@ -19,7 +19,6 @@ function CommunityPage({ onOpenCreateCommunity }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ---------- CREATE POST MODAL ---------- */
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [preSelectedCommunity, setPreSelectedCommunity] = useState(null);
 
@@ -85,7 +84,7 @@ useEffect(() => {
       return { results, renderItem };
     } catch (err) {
       console.error("Search error:", err);
-      return { results: [], renderItem: null }; // ✅ fallback
+      return { results: [], renderItem: null }; 
     }
   };
 
@@ -112,7 +111,6 @@ const showToast = (message) => {
       showToast("Failed to delete post");
     }
   };
-  /* ---------- FETCH DATA ---------- */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -148,8 +146,7 @@ const showToast = (message) => {
   }, [communityID]);
   
 
-  // If navigation includes ?focusPost=<id>, scroll to that post after posts load
-  // ⛔ Guard: community not loaded yet
+  
   if (!community && loading) {
     return (
       <div className="community-page-wrapper">
@@ -175,7 +172,6 @@ const showToast = (message) => {
 
           {/* RIGHT */}
           <aside className="right-sidebar">
-            {/* Placeholder for right sidebar */}
           </aside>
         </div>
       </div>
@@ -183,7 +179,6 @@ const showToast = (message) => {
   }
 
 
-  /* ---------- PERMISSIONS ---------- */
   const adminId =
     typeof community.created_by === "object"
       ? community.created_by._id
@@ -219,7 +214,7 @@ const showToast = (message) => {
             setShowCreatePost(false);
             setPreSelectedCommunity(null);
           }}
-       // preSelectedCommunity={preSelectedCommunity || community}
+          //preSelectedCommunity={preSelectedCommunity || community}
         />
       )}
 
@@ -270,7 +265,7 @@ const showToast = (message) => {
                   comments={post.comments || []}
                   upvoteCount={post.upvoteCount || 0}
                   downvoteCount={post.downvoteCount || 0}
-                  date={post.createdAt}
+                  date={post.date}
                   community_name={`b/${community.commName}`}
                   communityId={community._id}
                   edited={post.edited || false}

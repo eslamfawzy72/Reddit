@@ -18,7 +18,7 @@ export default function CommunityHeader({
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState(null);
-
+ 
   /* ---------- FETCH CURRENT USER ---------- */
   useEffect(() => {
     axios
@@ -45,6 +45,7 @@ export default function CommunityHeader({
         { withCredentials: true }
       );
       
+      navigate('/Explore');
     } catch {
       alert("Failed to join community");
     }
@@ -58,7 +59,7 @@ export default function CommunityHeader({
         {},
         { withCredentials: true }
       );
-      window.location.reload();
+      navigate("/Explore");
     } catch {
       alert("Failed to leave community");
     }

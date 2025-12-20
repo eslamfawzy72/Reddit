@@ -14,7 +14,6 @@ function Home({ onOpenCreateCommunity, onOpenCreatePost }) {
   const API = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
-  // 🔐 Auth check
   useEffect(() => {
    
     axios.get(`${API}/auth/me`, { withCredentials: true })

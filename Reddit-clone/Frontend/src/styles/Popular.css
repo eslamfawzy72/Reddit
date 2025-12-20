@@ -46,3 +46,24 @@
   flex-direction: column;
   gap: 24px;
 }
+
+/* =========================
+   Scrollbar
+========================= */
+
+.popular-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.popular-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.popular-content::-webkit-scrollbar-thumb {
+  background: #4c6ef5;
+  border-radius: 4px;
+}
+
+.popular-content::-webkit-scrollbar-thumb:hover {
+  background: #3d5cdb;
+}

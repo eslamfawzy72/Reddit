@@ -265,7 +265,6 @@ function UserProfilePage({ isOwn, username }) {
   if (!username && !isOwn) return;
   if (isOwn && !currentUser) return;
 
-  // ✅ CLEAR OLD USER DATA FIRST
   setUserPosts([]);
   setUpvotedPosts([]);
   setDownvotedPosts([]);
@@ -302,6 +301,7 @@ function UserProfilePage({ isOwn, username }) {
           axios.get(`${API}/users/userposts/${user._id}`),
           axios.get(`${API}/users/posts/upvotedPosts/${user._id}`),
           axios.get(`${API}/users/posts/downvotedPosts/${user._id}`),
+       { withCredentials: true }
         ]);
 
         setUserPosts(postsRes.data || []);
@@ -386,20 +386,21 @@ const toggleFollow = async () => {
   id={post._id}
   user_name={`u/${post.user?.userName || "Unknown"}`}
   user_avatar={post.user?.image || "https://i.pravatar.cc/48?img=1"}
-  title={post.title}                 // ✅ already correct
+  title={post.title}                
   description={post.description}
   images={post.images || []}
   comments={post.comments}
   upvoteCount={voteCounts[post._id]?.upvoteCount || 0}
   downvoteCount={voteCounts[post._id]?.downvoteCount || 0}
   commentCount={post.commentCount || 0}
-  date={post.date}              // ✅ FIX
+  date={post.date}             
   community_name={`b/${post.commName || "unknown"}`}
   communityId={post.communityID?._id || post.communityID}
+  
+  poll={post.poll}
   edited={post.edited || false}
   onVote={handleVote}
   currentUser={currentUser}
-  poll={post.poll}
 />
 
     )) : (

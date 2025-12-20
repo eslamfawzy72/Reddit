@@ -17,7 +17,6 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
   const API = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
-  // 🔐 Auth check
   useEffect(() => {
     axios
       .get(`${API}/auth/me`, { withCredentials: true })
@@ -25,7 +24,7 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
       .catch(() => setCurrentUser(null));
   }, []);
 
-  // 🟢 Load popular posts
+  // Load popular posts
   useEffect(() => {
     if (currentUser === undefined) return;
 
@@ -89,7 +88,6 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
     loadPopular();
   }, [currentUser]);
 
-  // 🔥 Handle vote
   const handleVote = async (postId, type, prevVote) => {
     if (!currentUser) return;
 
@@ -125,11 +123,9 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
       }));
     } catch (err) {
       console.error(err);
-      // optional: revert optimistic update
     }
   };
 
-  // 🔍 Search function for PrimarySearchAppBar
   const searchFunction = async (query) => {
     if (!query || !query.trim()) return { results: [], renderItem: null };
 
@@ -207,6 +203,7 @@ function Popular({ onOpenCreateCommunity, onOpenCreatePost }) {
     communityId={post.communityID?._id || post.communityID}
     edited={post.edited || false}
     onVote={handleVote}
+    poll={post.poll}
     currentUser={currentUser}
   />
 ))

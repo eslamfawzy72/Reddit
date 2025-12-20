@@ -99,9 +99,9 @@ export async function getUserFollowers(req, res) {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
-export async function getSpecificPosts(req, res) {
+}export async function getSpecificPosts(req, res) {
   try {
+    const vistorID = req.user ? req.user._id : null;
     const { field, userID } = req.params;
 
     const allowed = ["upvotedPosts", "downvotedPosts", "historyPosts"];
@@ -116,6 +116,16 @@ export async function getSpecificPosts(req, res) {
 
     const postIds = user[field] || [];
 
+    const joinedCommunities = vistorID
+      ? (
+          await User.findById(vistorID).select("joinedCommunities")
+        ).joinedCommunities.map(id => id.toString())
+      : [];
+
+    const userPollVotes = vistorID
+      ? (await User.findById(vistorID).select("pollVotes"))?.pollVotes || []
+      : [];
+
     const posts = await Post.find({ _id: { $in: postIds } })
       .populate({
         path: "userID",
@@ -123,18 +133,26 @@ export async function getSpecificPosts(req, res) {
       })
       .populate({
         path: "communityID",
-        select: "commName _id",
+        select: "commName _id privacystate",
+        match: {
+          $or: [
+            { privacystate: { $ne: "private" } },
+            { _id: { $in: joinedCommunities } },
+          ],
+        },
       })
       .sort({ date: -1 });
 
-    const formattedPosts = posts.map(post => ({
+    const visiblePosts = posts.filter(post => post.communityID !== null);
+
+    const formattedPosts = visiblePosts.map(post => ({
       _id: post._id,
       postID: post.postID,
       communityID: post.communityID?._id,
       commName: post.communityID?.commName,
       categories: post.categories,
       description: post.description,
-      title:post.title,
+      title: post.title,
       images: post.images,
       edited: post.edited,
       upvoteCount: post.upvoteCount,
@@ -142,19 +160,32 @@ export async function getSpecificPosts(req, res) {
       commentCount: post.commentCount,
       comments: post.comments,
       date: post.date,
-      user: post.userID ? {
-        userName: post.userID.userName,
-        image: post.userID.image,
-        _id: post.userID._id
-      } : null
+      poll: post.poll?.isPoll
+        ? {
+            ...post.poll.toObject(),
+            userOptionId:
+              userPollVotes.find(
+                v => v.post.toString() === post._id.toString()
+              )?.option || null,
+          }
+        : { isPoll: false },
+      user: post.userID
+        ? {
+            userName: post.userID.userName,
+            image: post.userID.image,
+            _id: post.userID._id,
+          }
+        : null,
     }));
 
+    console.log("Fetched posts:", formattedPosts.length);
     res.json(formattedPosts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error" });
   }
 }
+
 
 export async function addNewUser(req, res) {
 
