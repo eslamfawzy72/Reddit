@@ -2,7 +2,7 @@
 .pageBackground {
   position: fixed;
   inset: 0;
-  background-color: #f5f5f5;
+  background-color: #0a0a0a;
   z-index: -1;
 }
 
@@ -13,6 +13,8 @@
   left: 0;
   right: 0;
   z-index: 1300;
+  background: #020617;
+  border-bottom: 1px solid #1F2933;
 }
 
 /* Left Sidebar */
@@ -20,10 +22,10 @@
   position: fixed;
   top: 64px;
   left: 0;
-  width: 280px;
+  width: 290px;
   height: calc(100vh - 64px);
-  background-color: white;
-  border-right: 1px solid #edeff1;
+  background-color: #020617;
+  border-right: 1px solid #1F2933;
   overflow: hidden;
   z-index: 1200;
 }
@@ -32,12 +34,12 @@
 .mainArea {
   position: fixed;
   top: 64px;
-  left: 260px;
+  left: 290px;
   right: 0;
   bottom: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #f5f5f5;
+  background-color: #0B0F1A;
 }
 
 /* Community / User Items */
@@ -74,10 +76,31 @@
 
 .communityName, .userName {
   font-weight: 600;
-  color: #0d47a1;
+  color: #d7dadc;
 }
 
 .communityMembers, .userKarma {
   font-size: 13px;
-  color: #1565c0;
+  color: #9ca3af;
+}
+
+/* =========================
+   SCROLLBAR
+   ========================= */
+.mainArea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mainArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mainArea::-webkit-scrollbar-thumb {
+  background: #4c6ef5;
+  border-radius: 4px;
+}
+
+.mainArea::-webkit-scrollbar-thumb:hover {
+  background: #3d5cdb;
+}
 }
